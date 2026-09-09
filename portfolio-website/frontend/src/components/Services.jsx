@@ -90,26 +90,8 @@ export default function Services() {
                 build for you.
               </span>
             </h2>
-
-            <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-              From a focused landing page to a complete
-              full-stack product, I help turn ideas into
-              reliable, scalable, and enjoyable web experiences.
-            </p>
           </div>
 
-          {/* Availability */}
-          <div className="hidden items-center gap-3 rounded-full border border-border/60 bg-card/40 px-4 py-2.5 backdrop-blur-sm lg:flex">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-100 opacity-50" />
-
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-600" />
-            </span>
-
-            <span className="font-code text-xs text-muted-foreground">
-              Available for projects
-            </span>
-          </div>
         </div>
 
         {/* SERVICES GRID */}
@@ -169,7 +151,7 @@ export default function Services() {
                 {/* Hover line */}
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  className="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-foreground/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 />
               </article>
             );

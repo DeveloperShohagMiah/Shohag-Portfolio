@@ -216,7 +216,7 @@ export default function Skills() {
                         return (
                             <div
                                 key={skill.name}
-                                className="group relative bg-background p-6 transition-colors duration-300 hover:bg-linear-to-br hover:from-secondary/.5 hover:via-secondary/10 hover:to-primary/12"
+                                className="group relative bg-background p-6 transition-colors duration-300 hover:bg-linear-to-br hover:from-muted/.5 hover:to-muted/35"
                             >
                                 {/* Top row */}
                                 <div className="flex items-start justify-between">
@@ -249,7 +249,11 @@ export default function Skills() {
                                 </div>
 
                                 {/* Hover accent */}
-                                <div aria-hidden="true" class="pointer-events-none absolute inset-x-7 top-0 h-px bg-linear-to-r from-transparent via-foreground/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                                <div
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-foreground/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                />
+
                             </div>
                         );
                     })}

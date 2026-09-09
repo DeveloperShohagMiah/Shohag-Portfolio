@@ -148,7 +148,7 @@ const Hero = () => {
               <span className="relative inline-flex h-full w-full rounded-full bg-green-600" />
             </span>
 
-            <span className='uppercase text-[11px] '>Available for new projects</span>
+            <span className='font-code text-[11px] '>Available for new projects</span>
 
             <span className="mx-1 h-3 w-px bg-border" />
 
