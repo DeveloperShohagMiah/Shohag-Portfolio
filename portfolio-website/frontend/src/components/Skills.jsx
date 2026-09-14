@@ -251,7 +251,7 @@ export default function Skills() {
                                 {/* Hover accent */}
                                 <div
                                     aria-hidden="true"
-                                    className="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-foreground/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                    className="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-linear-to-r from-transparent via-foreground/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                                 />
 
                             </div>
