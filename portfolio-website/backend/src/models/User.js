@@ -4,24 +4,30 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        minLength: 3,
-        maxLength: 50,
+        minLength: [3, "Name must be at least 3 characters long"],
+        maxLength: [50, "Name must not exceed 50 characters"],
     },
     email: {
         type: String,
-        required: true,
+        required: [true, "Email is required"],
         unique: true,
-        match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, "Please fill a valid email address"],
+        trim: true,
+        lowercase: true,
+
     },
     password: {
         type: String,
-        required: true,
-        minLength: 6,
+        required: [true, "Password is required"],
+        minLength: [6, "Password must be at least 6 characters long"],
         select: false, // Exclude password from query results by default
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: {
+            values: ["user", "admin", "moderator"],
+            message: "{VALUE} is not a valid role"
+        },
         default: 'user',
     },
 }, { timestamps: true });

@@ -16,9 +16,13 @@ const skillSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    tag: {
+    tags: {
         type: String,
         required: true,
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
     },
     order: {
         type: Number,
@@ -27,7 +31,12 @@ const skillSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-skillSchema.index({ order: 1 });
-skillSchema.index({ name: 1 });
+skillSchema.index({ name: 1, order: 1 });
 
-export default mongoose.model("Skill", skillSchema);
+
+skillSchema.statics.findActiveSkills = function () {
+    return this.find({ isActive: true }).sort({ order: 1 });
+}
+
+const Skills = mongoose.model("Skill", skillSchema);
+export default Skills

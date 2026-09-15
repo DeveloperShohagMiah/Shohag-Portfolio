@@ -19,11 +19,20 @@ const serviceSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
 
 }, { timestamps: true });
 
 
-serviceSchema.index({ order: 1 });
-serviceSchema.index({ name: 1 });
+serviceSchema.index({ name: 1, order: 1 });
 
-export default mongoose.model('Service', serviceSchema);
+serviceSchema.statics.findActiveServices = function () {
+    return this.find({ isActive: true }).sort({ order: 1 });
+}
+
+
+const Service = mongoose.model('Service', serviceSchema);
+export default Service;
