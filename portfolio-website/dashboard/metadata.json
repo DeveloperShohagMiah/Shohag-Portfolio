@@ -1,0 +1,6 @@
+{
+  "name": "Portfolio CMS & Admin Dashboard",
+  "description": "Modern and professional portfolio management dashboard with React, Tailwind CSS, React Router, and React Hook Form.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
