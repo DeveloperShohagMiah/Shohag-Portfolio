@@ -10,6 +10,7 @@ const blogSchema = new mongoose.Schema(
             minlength: [5, "Blog title must be at least 5 characters long."],
             maxlength: [200, "Blog title cannot exceed 200 characters."]
         },
+        slug: { type: String, unique: true, lowercase: true },
 
         content: {
             type: String,
@@ -23,21 +24,23 @@ const blogSchema = new mongoose.Schema(
             trim: true
         },
 
-        tags: {
-            type: [String],
-            required: [true, "At least one tag is required."],
-            validate: {
-                validator: (value) =>
-                    Array.isArray(value) && value.length > 0,
-                message: "At least one tag is required."
-            }
-        },
 
         category: {
             type: String,
             required: [true, "Category is required!"],
-            trim: true
+            trim: true,
+            lowercase: true,
+            enum: { values: ["backend", "frontend", "devops", "career"], message: "Invalid category." }
         },
+
+        tags: {
+            type: [{ type: String, trim: true, lowercase: true }],
+            validate: {
+                validator: (v) => Array.isArray(v) && v.length > 0,
+                message: "At least one tag is required."
+            }
+        },
+
 
         isActive: {
             type: Boolean,
@@ -59,6 +62,17 @@ blogSchema.index({ isActive: 1, createdAt: -1 });
 blogSchema.index({ isFeatured: 1, isActive: 1 });
 blogSchema.index({ category: 1, isActive: 1 });
 blogSchema.index({ tags: 1, isActive: 1 });
+
+// after the schema definition
+blogSchema.pre("validate", function () {
+    if (this.isModified("title")) {
+        this.slug = this.title
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
+    }
+});
 
 // Static method
 blogSchema.statics.findActiveBlogs = function () {
