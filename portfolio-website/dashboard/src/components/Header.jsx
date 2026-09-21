@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Search,
   Sun,
@@ -12,15 +13,13 @@ import {
   Sparkles,
   ExternalLink,
   ShieldCheck,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight
+  RefreshCw
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useData } from '../context/DataContext.jsx';
 import toast from 'react-hot-toast';
 
-export function Header({ onMobileMenuToggle, collapsed, setCollapsed }) {
+export function Header({ onMobileMenuToggle }) {
   const { theme, toggleTheme } = useTheme();
   const {
     notifications,
@@ -71,21 +70,6 @@ export function Header({ onMobileMenuToggle, collapsed, setCollapsed }) {
           aria-label="Toggle navigation menu"
         >
           <Menu className="w-5 h-5" />
-        </button>
-
-        {/* Desktop Toggle Button */}
-        <button
-          id="sidebar-collapse-toggle"
-          type="button"
-          onClick={() => setCollapsed(!collapsed)}
-          className="hidden lg:flex w-7 h-7 rounded-lg items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
-          title={collapsed ? 'Expand sidebar ' : 'Collapse sidebar'}
-        >
-          {collapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
         </button>
 
         {/* Search Bar */}
@@ -213,14 +197,21 @@ export function Header({ onMobileMenuToggle, collapsed, setCollapsed }) {
             id="profile-dropdown-btn"
             type="button"
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors focus:outline-hidden"
+            className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors focus:outline-hidden relative"
             aria-label="User profile menu"
           >
-            <img
-              src={profile.avatar}
-              alt={profile.name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
-            />
+            <div className="relative">
+              <img
+                src={profile.avatar}
+                alt={profile.name}
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+              />
+              <span
+                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
+                  }`}
+                title={profile.isAvailable !== false ? 'Available for work' : 'Not available'}
+              />
+            </div>
           </button>
 
           {showProfileMenu && (
@@ -236,22 +227,32 @@ export function Header({ onMobileMenuToggle, collapsed, setCollapsed }) {
                 <p className="text-[11px] text-zinc-400 truncate mt-0.5">
                   {profile.email}
                 </p>
-                <span className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">
-                  <ShieldCheck className="w-3 h-3" />
-                  Portfolio Administrator
-                </span>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">
+                    <ShieldCheck className="w-3 h-3" />
+                    Portfolio Admin
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-md ${profile.isAvailable !== false
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                      }`}
+                  >
+                    ● {profile.isAvailable !== false ? 'Available' : 'Booked'}
+                  </span>
+                </div>
               </div>
 
               {/* Menu Actions */}
               <div className="space-y-0.5">
-                <a
-                  href="/about"
+                <Link
+                  to="/profile"
                   onClick={() => setShowProfileMenu(false)}
                   className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
                   <User className="w-4 h-4 text-zinc-400" />
-                  Edit Profile
-                </a>
+                  Manage Profile &amp; Avatar
+                </Link>
                 <a
                   href="https://demo.app"
                   target="_blank"

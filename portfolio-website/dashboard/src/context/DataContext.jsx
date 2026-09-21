@@ -20,7 +20,17 @@ function loadFromStorage(key, fallback) {
   try {
     const saved = localStorage.getItem(`portfolio_cms_${key}`);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (typeof fallback === 'object' && fallback !== null && !Array.isArray(fallback)) {
+        return {
+          ...fallback,
+          ...parsed,
+          ...(fallback.socialLinks
+            ? { socialLinks: { ...fallback.socialLinks, ...(parsed.socialLinks || {}) } }
+            : {})
+        };
+      }
+      return parsed;
     }
   } catch (e) {
     console.error(`Failed to load ${key} from storage`, e);
@@ -64,8 +74,44 @@ export function DataProvider({ children }) {
 
   // Profile actions
   const updateProfile = (updated) => {
-    setProfile(prev => ({ ...prev, ...updated }));
-    toast.success('Admin profile updated successfully');
+    setProfile(prev => {
+      const merged = {
+        ...prev,
+        ...updated,
+        socialLinks: {
+          ...(prev.socialLinks || {}),
+          ...(updated.socialLinks || {})
+        }
+      };
+      return merged;
+    });
+
+    // Keep contactInfo and about in sync if corresponding fields change
+    if (updated.address) {
+      setContactInfo(prev => ({ ...prev, location: updated.address }));
+      setAbout(prev => ({ ...prev, location: updated.address }));
+    }
+    if (updated.isAvailable !== undefined) {
+      setContactInfo(prev => ({ ...prev, availableForFreelance: updated.isAvailable }));
+      setAbout(prev => ({ ...prev, availableForHire: updated.isAvailable }));
+    }
+    if (updated.email) {
+      setContactInfo(prev => ({ ...prev, email: updated.email }));
+    }
+    if (updated.phone) {
+      setContactInfo(prev => ({ ...prev, phone: updated.phone }));
+    }
+    if (updated.socialLinks) {
+      setContactInfo(prev => ({
+        ...prev,
+        github: updated.socialLinks.github || prev.github,
+        linkedin: updated.socialLinks.linkedin || prev.linkedin,
+        twitter: updated.socialLinks.twitter || prev.twitter,
+        website: updated.socialLinks.website || prev.website
+      }));
+    }
+
+    toast.success('Profile updated successfully');
   };
 
   // About actions

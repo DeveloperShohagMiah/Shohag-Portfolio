@@ -12,6 +12,7 @@ import { BlogsSection } from './pages/BlogsSection.jsx';
 import { FaqSection } from './pages/FaqSection.jsx';
 import { TestimonialsSection } from './pages/TestimonialsSection.jsx';
 import { ContactSection } from './pages/ContactSection.jsx';
+import { ProfileSection } from './pages/ProfileSection.jsx';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<DashboardOverview />} />
+              <Route path="profile" element={<ProfileSection />} />
               <Route path="about" element={<AboutSection />} />
               <Route path="services" element={<ServicesSection />} />
               <Route path="skills" element={<SkillsSection />} />

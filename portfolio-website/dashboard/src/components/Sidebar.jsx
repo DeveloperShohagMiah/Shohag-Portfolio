@@ -2,7 +2,10 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
+  UserCheck,
   User,
+  Briefcase,
+  Cpu,
   FolderGit2,
   BookOpen,
   HelpCircle,
@@ -10,16 +13,17 @@ import {
   Mail,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  Wrench
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { useData } from '../context/DataContext.jsx';
 
 const navItems = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { name: 'Profile', path: '/profile', icon: UserCheck },
   { name: 'About', path: '/about', icon: User },
-  { name: 'Services', path: '/services', icon: Wrench },
-  { name: 'Skills', path: '/skills', icon: Sparkles },
+  { name: 'Services', path: '/services', icon: Briefcase },
+  { name: 'Skills', path: '/skills', icon: Cpu },
   { name: 'Projects', path: '/projects', icon: FolderGit2 },
   { name: 'Blogs', path: '/blogs', icon: BookOpen },
   { name: 'FAQ', path: '/faq', icon: HelpCircle },
@@ -49,7 +53,7 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
           }`}
       >
         {/* Brand / Logo Header */}
-        <div className="h-16 relative flex items-center px-4 border-b border-zinc-100 dark:border-zinc-800/80 justify-between shrink-0">
+        <div className="h-16 flex items-center px-4 border-b border-zinc-100 dark:border-zinc-800/80 justify-between shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center shrink-0 shadow-xs">
               <Sparkles className="w-5 h-5 text-amber-400" />
@@ -67,7 +71,20 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
             </div>
           </div>
 
-
+          {/* Desktop Toggle Button */}
+          <button
+            id="sidebar-collapse-toggle"
+            type="button"
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden lg:flex w-7 h-7 rounded-lg items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0"
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </button>
         </div>
 
         {/* Navigation Items List */}
@@ -89,7 +106,7 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
                   to={item.path}
                   onClick={() => setMobileOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-colors duration-150 relative ${isActive
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 relative ${isActive
                       ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
                       : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/70'
                     } ${collapsed ? 'justify-center px-0' : ''}`
@@ -134,27 +151,37 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
 
         {/* Sidebar Footer User info */}
         <div className="p-3 border-t border-zinc-100 dark:border-zinc-800/80 shrink-0">
-          <div
-            className={`flex items-center gap-3 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 ${collapsed ? 'justify-center p-1' : ''
+          <NavLink
+            to="/profile"
+            onClick={() => setMobileOpen(false)}
+            className={`flex items-center gap-3 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group ${collapsed ? 'justify-center p-1' : ''
               }`}
+            title="Edit Profile"
           >
-            <img
-              src={profile.avatar}
-              alt={profile.name}
-              className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-zinc-200 dark:ring-zinc-700"
-            />
+            <div className="relative shrink-0">
+              <img
+                src={profile.avatar}
+                alt={profile.name}
+                className="w-9 h-9 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+              />
+              <span
+                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
+                  }`}
+                title={profile.isAvailable !== false ? 'Available for work' : 'Not available'}
+              />
+            </div>
             <div
               className={`flex flex-col min-w-0 transition-all duration-300 overflow-hidden ${collapsed ? 'w-0 opacity-0 hidden' : 'w-auto opacity-100'
                 }`}
             >
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate group-hover:text-zinc-700 dark:group-hover:text-zinc-200">
                 {profile.name}
               </span>
               <span className="text-[10px] text-zinc-500 truncate">
                 {profile.role}
               </span>
             </div>
-          </div>
+          </NavLink>
         </div>
       </aside>
     </>

@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { RichContentEditor } from '../components/RichContentEditor.jsx';
-import { MarkdownRenderer } from '../components/MarkDownRenderer.jsx';
 
 const bioTemplates = [
   {

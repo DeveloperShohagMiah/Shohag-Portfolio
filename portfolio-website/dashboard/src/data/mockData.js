@@ -2,7 +2,23 @@ export const initialProfile = {
   name: 'Shohag Miah',
   email: 'shohagmiah7474@gmail.com',
   role: 'Full Stack Engineer & UI Architect',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+  phone: '+1 (555) 349-8291',
+  address: 'San Francisco, CA & Remote Worldwide',
+  timezone: 'UTC-7 (Pacific Time)',
+  isAvailable: true,
+  availabilityNotice: 'Open to full-time engineering roles & high-impact contracts',
+  bio: 'Passionate software craftsman building resilient web systems, UI design tokens, and scalable cloud architectures.',
+  socialLinks: {
+    github: 'https://github.com/shohagmiah',
+    linkedin: 'https://linkedin.com/in/shohagmiah',
+    twitter: 'https://twitter.com/shohag_dev',
+    website: 'https://shohagmiah.dev',
+    instagram: 'https://instagram.com/shohag.dev',
+    dribbble: 'https://dribbble.com/shohagmiah',
+    youtube: 'https://youtube.com/@shohagdev',
+    discord: 'shohag#1234'
+  }
 };
 
 export const initialAbout = {

@@ -13,11 +13,13 @@ import {
   Plus,
   Eye,
   CheckCircle2,
-  Clock
+  Clock,
+  UserCheck
 } from 'lucide-react';
 
 export function DashboardOverview() {
   const {
+    profile,
     about,
     projects,
     services,
@@ -71,31 +73,52 @@ export function DashboardOverview() {
       {/* Welcome Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-zinc-900 text-white p-6 sm:p-8 border border-zinc-800 shadow-xl">
         <div className="relative z-10 max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md text-zinc-200 mb-4">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            Portfolio Live &amp; Ready
-          </span>
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md text-zinc-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              Portfolio Live &amp; Ready
+            </span>
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md ${profile.isAvailable !== false
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : 'bg-zinc-800/80 text-zinc-400 border border-zinc-700/60'
+                }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${profile.isAvailable !== false ? 'bg-emerald-400' : 'bg-zinc-400'
+                  }`}
+              />
+              {profile.isAvailable !== false ? 'Available for work' : 'Not available'}
+            </span>
+          </div>
+
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Welcome to your Portfolio CMS
+            Welcome back, {profile.name || 'Shohag'}
           </h1>
           <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
-            Manage your biography, featured projects, services catalog, technical skills,
-            blog publications, FAQ accordion, testimonials, and client inquiries from one central studio.
+            Manage your profile, public contact coordinates, work availability status, featured projects, services catalog, and client inquiries from one central studio.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
-              to="/projects"
+              to="/profile"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-zinc-900 text-xs font-semibold hover:bg-zinc-100 transition-colors shadow-xs"
             >
+              <UserCheck className="w-4 h-4" />
+              Manage Profile &amp; Avatar
+            </Link>
+            <Link
+              to="/projects"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 text-zinc-200 text-xs font-semibold transition-colors border border-zinc-700/60"
+            >
               <Plus className="w-4 h-4" />
-              Add New Project
+              Add Project
             </Link>
             <Link
               to="/about"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 text-zinc-200 text-xs font-semibold transition-colors border border-zinc-700/60"
             >
-              Edit About Profile
+              Edit About Story
             </Link>
           </div>
         </div>
@@ -179,11 +202,10 @@ export function DashboardOverview() {
                   </p>
                 </div>
                 <span
-                  className={`px-2 py-0.5 text-[10px] font-medium rounded-full shrink-0 ${
-                    proj.isActive
+                  className={`px-2 py-0.5 text-[10px] font-medium rounded-full shrink-0 ${proj.isActive
                       ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
                       : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                  }`}
+                    }`}
                 >
                   {proj.isActive ? 'Active' : 'Draft'}
                 </span>
