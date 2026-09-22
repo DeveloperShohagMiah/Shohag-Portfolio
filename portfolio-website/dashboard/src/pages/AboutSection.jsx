@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 import { useData } from '../context/DataContext.jsx';
 import {
   Save,
@@ -15,6 +16,9 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { RichContentEditor } from '../components/RichContentEditor.jsx';
+import { MarkdownRenderer } from '../components/MarkdownRenderer.jsx'; // <-- adjust path to wherever this actually lives
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 const bioTemplates = [
   {
@@ -92,8 +96,10 @@ export function AboutSection() {
     setCoreStack(coreStack.filter(item => item !== tech));
   };
 
+  // Single source of truth for form submission.
+  // react-hook-form calls this with validated `data` once handleSubmit(onSubmit) fires.
   const onSubmit = async (data) => {
-    updateAbout({
+    const payload = {
       headline: data.headline,
       bio: data.bio,
       coreStack: coreStack,
@@ -102,8 +108,27 @@ export function AboutSection() {
       totalProjects: Number(data.totalProjects),
       location: data.location,
       availableForHire: data.availableForHire
-    });
+    };
+
+    try {
+      const response = await axios.put(`http://localhost:3000/api/about/update`, payload);
+
+      // Update local/context state only after the server confirms the save
+      updateAbout(payload);
+
+      toast.success('About section updated successfully!');
+      return response.data;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Something went wrong while saving. Please try again.';
+      toast.error(message);
+      console.error('Failed to save About section:', error);
+    }
   };
+
+
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -319,10 +344,10 @@ export function AboutSection() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 transition-opacity shadow-xs"
+                className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 transition-opacity shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-4 h-4" />
-                Save About Details
+                {isSubmitting ? 'Saving...' : 'Save About Details'}
               </button>
             </div>
           </form>
