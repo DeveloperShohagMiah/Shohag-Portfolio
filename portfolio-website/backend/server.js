@@ -4,6 +4,8 @@ import cors from "cors";
 import connectDB from "./src/config/db.js";
 import notFound from "./src/middleawares/notFound.js";
 import errorHandler from "./src/middleawares/errorHandler.js";
+import aboutRouter from "./src/routes/about.routes.js";
+import serviceRouter from "./src/routes/service.routes.js";
 dotenv.config();
 
 
@@ -14,15 +16,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(notFound);
+
 
 // ...your other routes here...
+app.use("/api/about", aboutRouter)
+app.use("/api/services", serviceRouter);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
 
+app.get("/", (req, res) => {
+  res.send("Welcome to api health check.")
+})
+
+
+app.use(notFound);
 // global error handler
 app.use(errorHandler);
 
