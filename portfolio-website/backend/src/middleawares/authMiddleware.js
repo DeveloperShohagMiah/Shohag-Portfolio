@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/User.js";
-import ApiError from "../utils/apierror.js";
+import ApiError from "../utils/apiError.js";
 
 // Verifies the JWT from the httpOnly cookie and attaches the user to req.user
 export const authMiddleware = asyncHandler(async (req, res, next) => {

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Skills from "../models/Skills.js";
-import ApiError from "../utils/apierror.js";
+import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiresponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
