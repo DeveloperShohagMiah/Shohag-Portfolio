@@ -1,38 +1,37 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema({
-    name: {
+    title: {
         type: String,
-        required: true,
+        required: [true, "Title is required"],
         unique: true,
+        trim: true,
+        maxlength: [100, "Title must not exceed 100 characters"],
     },
     description: {
         type: String,
-        required: true,
+        required: [true, "Description is required"],
+        trim: true,
     },
     icon: {
         type: String,
-        required: true,
+        required: [true, "Icon is required"],
     },
     order: {
         type: Number,
-        required: true,
-        unique: true,
+        default: 0,
     },
     isActive: {
         type: Boolean,
         default: true,
     },
-
 }, { timestamps: true });
 
-
-serviceSchema.index({ name: 1, order: 1 });
+serviceSchema.index({ isActive: 1, order: 1 });
 
 serviceSchema.statics.findActiveServices = function () {
     return this.find({ isActive: true }).sort({ order: 1 });
-}
+};
 
-
-const Service = mongoose.model('Service', serviceSchema);
+const Service = mongoose.model("Service", serviceSchema);
 export default Service;
