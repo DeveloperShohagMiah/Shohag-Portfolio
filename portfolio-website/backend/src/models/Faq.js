@@ -5,6 +5,7 @@ const faqSchema = new mongoose.Schema(
         question: {
             type: String,
             required: [true, "Question is mandatory!"],
+            unique: true,
             trim: true,
             minlength: [5, "Question must be at least 5 characters long."],
             maxlength: [300, "Question cannot exceed 300 characters."]
@@ -36,6 +37,10 @@ const faqSchema = new mongoose.Schema(
 
 // Useful for fetching active FAQs in the correct order
 faqSchema.index({ isActive: 1, order: 1 });
+
+faqSchema.statics.findActiveFaqs = function () {
+    return this.find({ isActive: true }).sort({ order: 1 });
+};
 
 const Faq = mongoose.model("Faq", faqSchema);
 
