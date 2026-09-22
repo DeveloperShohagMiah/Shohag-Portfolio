@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        trim: true,
         minLength: [3, "Name must be at least 3 characters long"],
         maxLength: [50, "Name must not exceed 50 characters"],
     },
@@ -11,16 +13,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Email is required"],
         unique: true,
-        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, "Please fill a valid email address"],
+        match: [/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/, "Please fill a valid email address"],
         trim: true,
         lowercase: true,
-
     },
     password: {
         type: String,
         required: [true, "Password is required"],
-        minLength: [6, "Password must be at least 6 characters long"],
-        select: false, // Exclude password from query results by default
+        minLength: [8, "Password must be at least 8 characters long"],
+        select: false,
     },
     role: {
         type: String,
@@ -28,12 +29,12 @@ const userSchema = new mongoose.Schema({
             values: ["user", "admin", "moderator"],
             message: "{VALUE} is not a valid role"
         },
-        default: 'user',
+        default: "user",
     },
 }, { timestamps: true });
 
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
         return next();
     }
     const salt = await bcrypt.genSalt(10);
@@ -41,10 +42,9 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
-userSchema.methods.comparePassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
-}
+userSchema.methods.comparePassword = async function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
 
-const User = mongoose.model('User', userSchema);
-
+const User = mongoose.model("User", userSchema);
 export default User;

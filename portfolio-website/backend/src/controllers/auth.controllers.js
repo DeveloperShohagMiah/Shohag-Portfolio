@@ -2,8 +2,9 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/User.js";
 import ApiError from "../utils/ApiError.js";
+import ApiResponse from "../utils/apiResponse.js";
 
-const token = "token";
+const COOKIE_NAME = "token";
 
 const cookieOptions = {
     httpOnly: true,
@@ -14,6 +15,9 @@ const cookieOptions = {
 };
 
 const generateAuthToken = (user) => {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not configured.");
+    }
     return jwt.sign(
         { id: user._id, role: user.role },
         process.env.JWT_SECRET,
@@ -28,15 +32,32 @@ export const register = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Please provide all required fields.");
     }
 
-    const existing = await User.findOne({ email });
-    if (existing) {
-        throw new ApiError(400, "User already exists.");
+    if (password.length < 8) {
+        throw new ApiError(400, "Password must be at least 8 characters long.");
     }
 
-    const newUser = new User({ name, email, password });
-    await newUser.save();
+    const normalizedEmail = email.trim().toLowerCase();
 
-    res.status(201).json(new ApiResponse(201, { id: newUser._id, name: newUser.name, email: newUser.email }, "User registered successfully."));
+    try {
+        const newUser = await User.create({
+            name: name.trim(),
+            email: normalizedEmail,
+            password
+        });
+
+        res.status(201).json(
+            new ApiResponse(201, {
+                id: newUser._id,
+                name: newUser.name,
+                email: newUser.email
+            }, "User registered successfully.")
+        );
+    } catch (err) {
+        if (err.code === 11000) {
+            throw new ApiError(409, "User with this email already exists.");
+        }
+        throw err;
+    }
 });
 
 export const login = asyncHandler(async (req, res) => {
@@ -46,32 +67,31 @@ export const login = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Please provide both email and password.");
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail }).select("+password");
     if (!user || !(await user.comparePassword(password))) {
         throw new ApiError(401, "Invalid credentials.");
     }
 
-    const token = generateAuthToken(user);
-    res.cookie(token, token, cookieOptions);
+    const authToken = generateAuthToken(user);
+    res.cookie(COOKIE_NAME, authToken, cookieOptions);
 
-    res.status(200).json({
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
-        token
-    });
+    // token আর response body তে পাঠানো হচ্ছে না -- শুধু httpOnly cookie তেই থাকছে
+    res.status(200).json(
+        new ApiResponse(200, {
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+            }
+        }, "Logged in successfully.")
+    );
 });
 
 export const logout = asyncHandler(async (req, res) => {
-    res.clearCookie(token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-        path: "/",
-    });
+    res.clearCookie(COOKIE_NAME, cookieOptions);
     res.status(200).json(new ApiResponse(200, null, "Logged out successfully."));
 });
 
