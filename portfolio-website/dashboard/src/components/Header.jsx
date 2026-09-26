@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
   Sun,
@@ -18,6 +18,7 @@ import {
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useData } from '../context/DataContext.jsx';
 import toast from 'react-hot-toast';
+import { useUserLogoutMutation } from '@/redux/features/apiSlice.js';
 
 export function Header({ onMobileMenuToggle }) {
   const { theme, toggleTheme } = useTheme();
@@ -30,9 +31,10 @@ export function Header({ onMobileMenuToggle }) {
     setSearchQuery,
     resetAllToDefault
   } = useData();
-
+  const navigate = useNavigate()
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userLogut, { isLoading, isError }] = useUserLogoutMutation()
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
@@ -51,9 +53,18 @@ export function Header({ onMobileMenuToggle }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    setShowProfileMenu(false);
-    toast.success('Logged out successfully');
+  const handleLogout = async () => {
+    try {
+      const response = await userLogut()
+      toast.success(response?.data?.message || response?.message);
+
+      setShowProfileMenu(false);
+      navigate("/login")
+    } catch (error) {
+      toast.error(error?.data?.message ||
+        error?.data?.error ||
+        error?.message)
+    }
   };
 
   return (
@@ -234,8 +245,8 @@ export function Header({ onMobileMenuToggle }) {
                   </span>
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-md ${profile.isAvailable !== false
-                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                      : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
                       }`}
                   >
                     ● {profile.isAvailable !== false ? 'Available' : 'Booked'}

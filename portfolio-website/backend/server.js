@@ -1,27 +1,28 @@
 import dotenv from "dotenv";
-dotenv.config(); // must run before any other module reads process.env
+dotenv.config();
 
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser"; // needed to read req.cookies in authMiddleware
-import connectDB from "./src/config/db.js";
-import notFound from "./src/middlewares/notFound.js";
-import errorHandler from "./src/middlewares/errorHandler.js";
+import connectDB from "./src/config/db.js";;
 
 import authRouter from "./src/routes/auth.routes.js";
 import aboutRouter from "./src/routes/about.routes.js";
 import serviceRouter from "./src/routes/service.routes.js";
 import projectRouter from "./src/routes/project.routes.js";
-import skillsRouter from "./src/routes/skills.routes.js";
+import skillsRouter from "./src/routes/skill.routes.js";
 import faqRouter from "./src/routes/faq.routes.js";
 import testimonialRouter from "./src/routes/testimonial.routes.js";
+import notFound from "./src/middleawares/notFound.js";
+import errorHandler from "./src/middleawares/errorHandler.js";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors({
   origin: process.env.CLIENT_URL, // e.g. "http://localhost:5173" — never leave this wide open in production
-  credentials: true, // required so the browser sends/receives the httpOnly cookie
+  credentials: true,
+  methods: ["POST", "GET", "PUT", "DELETE"]
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -1,14 +1,14 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/User.js";
-import ApiError from "../utils/ApiError.js";
-import ApiResponse from "../utils/apiResponse.js";
+import ApiError from "../utils/apiError.js";
+import ApiResponse from "../utils/apiresponse.js";
 
 const COOKIE_NAME = "token";
 
 const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "product ion",
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     maxAge: 60 * 60 * 1000,
     path: "/",
@@ -92,7 +92,7 @@ export const login = asyncHandler(async (req, res) => {
 
 export const logout = asyncHandler(async (req, res) => {
     res.clearCookie(COOKIE_NAME, cookieOptions);
-    res.status(200).json(new ApiResponse(200, null, "Logged out successfully."));
+    res.status(200).json(new ApiResponse(200, null, "Logged out successfully.signup"));
 });
 
 export const getProfile = asyncHandler(async (req, res) => {

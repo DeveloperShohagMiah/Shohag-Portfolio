@@ -6,10 +6,11 @@ import {
     getServiceById,
     updateService,
     deleteService,
-    toggleServiceStatus,
-} from "../controllers/service.controller.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
-import validateObjectId from "../middlewares/validateObjectId.js";
+    toggleServiceStatus
+} from "../controllers/service.controllers.js";
+import { authMiddleware, authorize } from "../middleawares/authMiddleware.js";
+
+import validateObjectId from "../middleawares/validateObjectId.js";
 
 const router = Router();
 

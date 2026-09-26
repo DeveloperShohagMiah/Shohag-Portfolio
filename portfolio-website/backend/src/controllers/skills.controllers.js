@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import Skills from "../models/Skills.js";
-import ApiError from "../utils/apiError.js";
+import Skills from "../models/Skill.js";
 import ApiResponse from "../utils/apiresponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import ApiError from "../utils/apierror.js";
 
 const validateObjectId = (id) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {

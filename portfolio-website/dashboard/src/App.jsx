@@ -13,6 +13,9 @@ import { FaqSection } from './pages/FaqSection.jsx';
 import { TestimonialsSection } from './pages/TestimonialsSection.jsx';
 import { ContactSection } from './pages/ContactSection.jsx';
 import { ProfileSection } from './pages/ProfileSection.jsx';
+import Login from './pages/login.jsx';
+import Register from './pages/Register.jsx';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   return (
@@ -20,6 +23,11 @@ export default function App() {
       <DataProvider>
         <BrowserRouter>
           <Routes>
+
+            <Route path="/login" element={<Login />} />
+
+            <Route path="/register" element={<Register />} />
+
             <Route path="/" element={<Layout />}>
               <Route index element={<DashboardOverview />} />
               <Route path="profile" element={<ProfileSection />} />

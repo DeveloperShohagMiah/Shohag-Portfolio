@@ -7,9 +7,9 @@ import {
     updateFaq,
     deleteFaq,
     toggleFaqStatus,
-} from "../controllers/faq.controller.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
-import validateObjectId from "../middlewares/validateObjectId.js";
+} from "../controllers/faq.controllers.js";
+import { authMiddleware, authorize } from "../middleawares/authMiddleware.js";
+import validateObjectId from "../middleawares/validateObjectId.js";
 
 const router = Router();
 
