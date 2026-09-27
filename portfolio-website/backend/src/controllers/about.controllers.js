@@ -5,36 +5,49 @@ import About from "../models/About.js";
 
 export const getAbout = asyncHandler(async (req, res) => {
     // Singleton: there is only ever one About document, so no filter/id needed.
-    const about = await About.findOne();
+    let about = await About.findOne();
 
+    // Auto-create an empty singleton on first load instead of 404-ing —
+    // the admin panel needs *something* to populate the form with.
     if (!about) {
-        throw new ApiError(404, "About section has not been set up yet.");
+        about = await About.create({
+            headline: "",
+            bio: "",
+            image: "",
+            experience: 0,
+            totalProjects: 0,
+            location: "",
+            availableForHire: true,
+            coreStack: [],
+        });
     }
 
     res.status(200).json(new ApiResponse(200, about, "About section fetched successfully."));
 });
 
 export const updateAbout = asyncHandler(async (req, res) => {
-    const { headline, description, yearsOfExperience, completedProjects, stacks, isAvailable } = req.body;
+    const { headline, bio, image, experience, totalProjects, location, availableForHire, coreStack } = req.body;
 
-    if (!headline || !description) {
-        throw new ApiError(400, "Headline and description are required.");
+    if (!headline || !bio) {
+        throw new ApiError(400, "Headline and bio are required.");
     }
 
     const updateData = {
         headline,
-        description,
-        yearsOfExperience,
-        completedProjects,
-        stacks,
-        isAvailable,
+        bio,
+        image,
+        experience,
+        totalProjects,
+        location,
+        availableForHire,
+        coreStack,
     };
 
-    const about = await About.findOneAndUpdate(
+    const about = await About.findByIdAndUpdate(
         {},
         { $set: updateData },
         { new: true, upsert: true, runValidators: true }
     );
 
     res.status(200).json(new ApiResponse(200, about, "About section updated successfully."));
-});
+}); 

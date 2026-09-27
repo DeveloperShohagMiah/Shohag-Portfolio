@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
         },
         default: "user",
     },
+    isAvailable: {
+        type: Boolean,
+        default: true
+    }
 }, { timestamps: true });
 
 userSchema.pre("save", async function () {

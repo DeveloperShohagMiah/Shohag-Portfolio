@@ -17,6 +17,10 @@ const serviceSchema = new mongoose.Schema({
         type: String,
         required: [true, "Icon is required"],
     },
+    stacks: {
+        type: [String],
+        default: [],
+    },
     order: {
         type: Number,
         default: 0,

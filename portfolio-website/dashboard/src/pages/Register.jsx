@@ -8,8 +8,8 @@ import {
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
-import { useUserRegistrationMutation } from "@/redux/features/apiSlice";
 import { toast } from "react-hot-toast";
+import { useUserRegistrationMutation } from "@/redux/features/authApi";
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);

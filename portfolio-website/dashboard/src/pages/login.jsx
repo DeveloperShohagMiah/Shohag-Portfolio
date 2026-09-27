@@ -3,7 +3,7 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useUserLoginMutation } from "@/redux/features/apiSlice";
+import { useUserLoginMutation } from "@/redux/features/authApi";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);

@@ -1,24 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import { useData } from '../context/DataContext.jsx';
 import {
   Save,
   Plus,
   X,
-  Sparkles,
-  MapPin,
-  Calendar,
-  Briefcase,
-  Layers,
   Eye,
-  CheckCircle2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { RichContentEditor } from '../components/RichContentEditor.jsx';
-import { MarkdownRenderer } from '../components/MarkdownRenderer.jsx'; // <-- adjust path to wherever this actually lives
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+import { MarkdownRenderer } from '../components/MarkdownRenderer.jsx';
+import { useGetAboutQuery, useUpdateAboutMutation } from '@/redux/features/aboutApi.js';
 
 const bioTemplates = [
   {
@@ -42,9 +33,21 @@ Focused on end-to-end craftsmanship—from initial wireframes and interactive pr
   }
 ];
 
+const DEFAULT_ABOUT = {
+  headline: '',
+  bio: '',
+  image: '',
+  experience: 0,
+  totalProjects: 0,
+  location: '',
+  availableForHire: false,
+};
+
 export function AboutSection() {
-  const { about, updateAbout } = useData();
-  const [coreStack, setCoreStack] = useState(about.coreStack || []);
+  const [updateAbout, { isLoading: isSaving }] = useUpdateAboutMutation();
+  const { data: about, isLoading: isLoadingAbout, isError: isErrorAbout } = useGetAboutQuery();
+
+  const [coreStack, setCoreStack] = useState([]);
   const [newStackInput, setNewStackInput] = useState('');
   const [showLivePreview, setShowLivePreview] = useState(false);
 
@@ -53,20 +56,29 @@ export function AboutSection() {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm({
-    defaultValues: {
-      headline: about.headline,
-      bio: about.bio,
-      image: about.image,
-      experience: about.experience,
-      totalProjects: about.totalProjects,
-      location: about.location,
-      availableForHire: about.availableForHire
-    }
+    defaultValues: DEFAULT_ABOUT, // static — never depends on async data at mount time
   });
 
-  // Ensure bio is registered in react-hook-form
+  // Populate the form once the About data actually arrives from the server
+  useEffect(() => {
+    if (about) {
+      reset({
+        headline: about.headline,
+        bio: about.bio,
+        image: about.image,
+        experience: about.experience,
+        totalProjects: about.totalProjects,
+        location: about.location,
+        availableForHire: about.availableForHire,
+      });
+      setCoreStack(about.coreStack || []);
+    }
+  }, [about, reset]);
+
+  // Ensure bio is registered in react-hook-form (RichContentEditor isn't a native input)
   useEffect(() => {
     register('bio', {
       required: 'Bio description is required',
@@ -96,31 +108,24 @@ export function AboutSection() {
     setCoreStack(coreStack.filter(item => item !== tech));
   };
 
-  // Single source of truth for form submission.
-  // react-hook-form calls this with validated `data` once handleSubmit(onSubmit) fires.
   const onSubmit = async (data) => {
     const payload = {
       headline: data.headline,
       bio: data.bio,
-      coreStack: coreStack,
+      coreStack,
       image: data.image,
       experience: Number(data.experience),
       totalProjects: Number(data.totalProjects),
       location: data.location,
-      availableForHire: data.availableForHire
+      availableForHire: data.availableForHire,
     };
 
     try {
-      const response = await axios.put(`http://localhost:3000/api/about/update`, payload);
-
-      // Update local/context state only after the server confirms the save
-      updateAbout(payload);
-
+      await updateAbout(payload).unwrap();
       toast.success('About section updated successfully!');
-      return response.data;
     } catch (error) {
       const message =
-        error?.response?.data?.message ||
+        error?.data?.message ||
         error?.message ||
         'Something went wrong while saving. Please try again.';
       toast.error(message);
@@ -128,7 +133,21 @@ export function AboutSection() {
     }
   };
 
+  if (isLoadingAbout) {
+    return (
+      <div className="max-w-5xl mx-auto py-12 text-center text-sm text-zinc-500">
+        Loading About section...
+      </div>
+    );
+  }
 
+  if (isErrorAbout) {
+    return (
+      <div className="max-w-5xl mx-auto py-12 text-center text-sm text-rose-500">
+        Failed to load About section. Please refresh the page.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -249,7 +268,7 @@ export function AboutSection() {
                   className="flex-1 px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
                 />
                 <img
-                  src={previewImage || about.image}
+                  src={previewImage || about?.image}
                   alt="Avatar Preview"
                   className="w-11 h-11 rounded-xl object-cover ring-2 ring-zinc-200 dark:ring-zinc-700 shrink-0"
                   onError={(e) => {
@@ -291,7 +310,6 @@ export function AboutSection() {
                 </button>
               </div>
 
-              {/* Tag Chips */}
               <div className="flex flex-wrap gap-2">
                 {coreStack.map((tech) => (
                   <span
@@ -343,11 +361,11 @@ export function AboutSection() {
             <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end">
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isSaving}
                 className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 transition-opacity shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-4 h-4" />
-                {isSubmitting ? 'Saving...' : 'Save About Details'}
+                {isSubmitting || isSaving ? 'Saving...' : 'Save About Details'}
               </button>
             </div>
           </form>
@@ -362,16 +380,16 @@ export function AboutSection() {
             <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md">
               <div className="flex items-center gap-4">
                 <img
-                  src={previewImage || about.image}
+                  src={previewImage || about?.image}
                   alt="Profile"
                   className="w-16 h-16 rounded-2xl object-cover ring-4 ring-zinc-100 dark:ring-zinc-800 shrink-0"
                 />
                 <div>
                   <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                    {previewHeadline || about.headline}
+                    {previewHeadline || about?.headline}
                   </h4>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    {about.location}
+                    {about?.location}
                   </p>
                 </div>
               </div>
@@ -381,20 +399,20 @@ export function AboutSection() {
                   Bio Preview
                 </span>
                 <div className="max-h-56 overflow-y-auto text-xs pr-1">
-                  <MarkdownRenderer content={previewBio || about.bio} />
+                  <MarkdownRenderer content={previewBio || about?.bio} />
                 </div>
               </div>
 
               <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-2 gap-3 text-center">
                 <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
                   <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                    {previewExp || about.experience}+
+                    {previewExp || about?.experience}+
                   </span>
                   <p className="text-[10px] text-zinc-500">Years Experience</p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50">
                   <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                    {previewProj || about.totalProjects}+
+                    {previewProj || about?.totalProjects}+
                   </span>
                   <p className="text-[10px] text-zinc-500">Completed Projects</p>
                 </div>

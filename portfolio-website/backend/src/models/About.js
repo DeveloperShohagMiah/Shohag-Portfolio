@@ -4,46 +4,44 @@ const aboutSchema = new mongoose.Schema(
     {
         headline: {
             type: String,
-            required: [true, "Headline is required!"],
+            required: [true, "Headline is required"],
             trim: true,
-            maxlength: [120, "Headline must be 120 characters or fewer!"],
+            maxlength: [150, "Headline cannot exceed 150 characters."],
         },
-        description: {
+        bio: {
             type: String,
-            required: [true, "About description is required!"],
+            required: [true, "Bio is required"],
+            minlength: [20, "Bio must be at least 20 characters long."],
+        },
+        image: {
+            type: String,
             trim: true,
-            minlength: [20, "At least 20 characters are required!"],
-            maxlength: [1500, "Description must be 1500 characters or fewer!"],
         },
-        yearsOfExperience: {
+        experience: {
             type: Number,
+            default: 0,
             min: [0, "Experience cannot be negative."],
-            default: 0,
         },
-        completedProjects: {
+        totalProjects: {
             type: Number,
-            min: [0, "Completed projects cannot be negative."],
             default: 0,
+            min: [0, "Total projects cannot be negative."],
         },
-        stacks: {
-            type: [{ type: String, trim: true, maxlength: 40 }],
-            validate: {
-                validator: (s) => Array.isArray(s) && s.length > 0,
-                message: "At least one stack is required!",
-            },
+        location: {
+            type: String,
+            trim: true,
         },
-        isAvailable: {
+        availableForHire: {
             type: Boolean,
             default: true,
+        },
+        coreStack: {
+            type: [String],
+            default: [],
         },
     },
     { timestamps: true }
 );
-
-// Renamed to avoid confusion with the `isAvailable` field
-aboutSchema.statics.findAvailable = function () {
-    return this.find({ isAvailable: true });
-};
 
 const About = mongoose.model("About", aboutSchema);
 

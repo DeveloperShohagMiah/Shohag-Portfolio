@@ -18,7 +18,7 @@ import {
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useData } from '../context/DataContext.jsx';
 import toast from 'react-hot-toast';
-import { useUserLogoutMutation } from '@/redux/features/apiSlice.js';
+import { useUserLogoutMutation, useUserProfileQuery } from '@/redux/features/authApi.js';
 
 export function Header({ onMobileMenuToggle }) {
   const { theme, toggleTheme } = useTheme();
@@ -34,7 +34,8 @@ export function Header({ onMobileMenuToggle }) {
   const navigate = useNavigate()
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [userLogut, { isLoading, isError }] = useUserLogoutMutation()
+  const [userLogut, { isLoading: isLogoutLoading, isError: isLogoutError }] = useUserLogoutMutation()
+  const { data: profileData, isLoading: isProfileLoading, isError: isProfileError } = useUserProfileQuery();
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
@@ -66,6 +67,11 @@ export function Header({ onMobileMenuToggle }) {
         error?.message)
     }
   };
+
+  // Safe fallback — data is undefined while the query is pending or if it errors
+  const name = profileData?.data?.name ?? (isProfileLoading ? "Loading..." : "Unknown user");
+  const email = profileData?.data?.email ?? (isProfileLoading ? "" : "—");
+
 
   return (
     <header
@@ -233,10 +239,10 @@ export function Header({ onMobileMenuToggle }) {
               {/* Profile Header */}
               <div className="px-3 py-3 border-b border-zinc-100 dark:border-zinc-800/80 mb-1">
                 <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
-                  {profile.name}
+                  {name}
                 </p>
                 <p className="text-[11px] text-zinc-400 truncate mt-0.5">
-                  {profile.email}
+                  {email}
                 </p>
                 <div className="mt-2 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400">

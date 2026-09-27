@@ -19,11 +19,27 @@ import errorHandler from "./src/middleawares/errorHandler.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
+const allowedOrigins = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+
+if (allowedOrigins.length === 0) {
+  console.warn("⚠️  CLIENT_URL is not set in .env — CORS requests from your frontend will fail.");
+}
+
 app.use(cors({
-  origin: process.env.CLIENT_URL, // e.g. "http://localhost:5173" — never leave this wide open in production
+  origin: (origin, callback) => {
+    // Allow non-browser tools (Postman, curl) which send no origin header
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin} is not an allowed origin.`));
+  },
   credentials: true,
-  methods: ["POST", "GET", "PUT", "DELETE"]
 }));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
