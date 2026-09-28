@@ -1,36 +1,38 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useData } from '../context/DataContext.jsx';
 import { DynamicIcon } from '../components/DynamicIcon.jsx';
+import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {
-  Plus,
-  Edit2,
-  Trash2,
-  X,
-  Filter
-} from 'lucide-react';
+  useGetAllSkillsQuery,
+  useCreateSkillMutation,
+  useUpdateSkillMutation,
+  useDeleteSkillMutation,
+  useToggleSkillStatusMutation,
+} from '@/redux/features/skillApi.js';
 
 const CATEGORIES = ['All', 'Frontend', 'Backend', 'Database', 'DevOps & Cloud', 'Tools'];
 
 const AVAILABLE_SKILL_ICONS = [
-  'Atom',
-  'FileCode',
-  'Palette',
-  'Server',
-  'Database',
-  'Terminal',
-  'Workflow',
-  'Globe',
-  'Cpu',
-  'Cloud',
-  'ShieldCheck',
-  'Zap',
-  'Layers',
-  'Box'
+  'Atom', 'FileCode', 'Palette', 'Server', 'Database', 'Terminal', 'Workflow',
+  'Globe', 'Cpu', 'Cloud', 'ShieldCheck', 'Zap', 'Layers', 'Box'
 ];
 
-export function SkillsSection() {
-  const { skills, addSkill, updateSkill, deleteSkill, searchQuery } = useData();
+const DEFAULT_VALUES = {
+  name: '',
+  shortDescription: '',
+  category: 'Frontend',
+  icon: 'Atom',
+  proficiency: 90,
+  isActive: true,
+};
+
+export function SkillsSection({ searchQuery = '' }) {
+  const { data: skillsResponse, isLoading: isLoadingSkills, isError: isErrorSkills } = useGetAllSkillsQuery();
+  const [createSkill, { isLoading: isCreating }] = useCreateSkillMutation();
+  const [updateSkill, { isLoading: isUpdating }] = useUpdateSkillMutation();
+  const [deleteSkill] = useDeleteSkillMutation();
+  const [toggleSkillStatus] = useToggleSkillStatusMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
@@ -43,77 +45,100 @@ export function SkillsSection() {
     watch,
     setValue,
     formState: { errors, isSubmitting }
-  } = useForm({
-    defaultValues: {
-      skillName: '',
-      shortDescription: '',
-      category: 'Frontend',
-      icon: 'Atom',
-      proficiency: 90,
-      isActive: true
-    }
-  });
+  } = useForm({ defaultValues: DEFAULT_VALUES });
 
   const selectedIcon = watch('icon');
   const proficiencyVal = watch('proficiency');
+  const isSaving = isCreating || isUpdating || isSubmitting;
 
   const openCreateModal = () => {
     setEditingSkill(null);
-    reset({
-      skillName: '',
-      shortDescription: '',
-      category: 'Frontend',
-      icon: 'Atom',
-      proficiency: 90,
-      isActive: true
-    });
+    reset(DEFAULT_VALUES);
     setIsModalOpen(true);
   };
 
   const openEditModal = (skill) => {
     setEditingSkill(skill);
     reset({
-      skillName: skill.skillName,
+      name: skill.name,
       shortDescription: skill.shortDescription,
       category: skill.category,
       icon: skill.icon || 'Atom',
-      proficiency: skill.proficiency || 90,
-      isActive: skill.isActive
+      proficiency: skill.proficiency ?? 90,
+      isActive: skill.isActive,
     });
     setIsModalOpen(true);
   };
 
   const onSubmit = async (data) => {
-    if (editingSkill) {
-      updateSkill(editingSkill.id, {
-        skillName: data.skillName,
-        shortDescription: data.shortDescription,
-        category: data.category,
-        icon: data.icon,
-        proficiency: Number(data.proficiency),
-        isActive: data.isActive
-      });
-    } else {
-      addSkill({
-        skillName: data.skillName,
-        shortDescription: data.shortDescription,
-        category: data.category,
-        icon: data.icon,
-        proficiency: Number(data.proficiency),
-        isActive: data.isActive
-      });
+    const payload = {
+      name: data.name,
+      shortDescription: data.shortDescription,
+      category: data.category,
+      icon: data.icon,
+      proficiency: Number(data.proficiency),
+      isActive: data.isActive,
+    };
+
+    try {
+      if (editingSkill) {
+        await updateSkill({ id: editingSkill._id, ...payload }).unwrap();
+        toast.success('Skill updated successfully!');
+      } else {
+        await createSkill(payload).unwrap();
+        toast.success('Skill created successfully!');
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(error?.data?.message || error?.message || 'Failed to save skill.');
     }
-    setIsModalOpen(false);
   };
 
+  const handleToggleStatus = async (skill) => {
+    try {
+      await toggleSkillStatus(skill._id).unwrap();
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to update status.');
+    }
+  };
+
+  const handleDelete = async (skill) => {
+    if (!window.confirm(`Delete skill "${skill.name}"?`)) return;
+    try {
+      await deleteSkill(skill._id).unwrap();
+      toast.success('Skill deleted successfully!');
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to delete skill.');
+    }
+  };
+
+  if (isLoadingSkills) {
+    return (
+      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-zinc-500">
+        Loading skills...
+      </div>
+    );
+  }
+
+  if (isErrorSkills) {
+    return (
+      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-rose-500">
+        Failed to load skills. Please refresh the page.
+      </div>
+    );
+  }
+
+  // Backend wraps the array in ApiResponse — the actual list lives in `.data`
+  const skills = skillsResponse?.data || [];
+
   const filteredSkills = skills.filter((skill) => {
-    const matchesCategory =
-      selectedCategory === 'All' || skill.category === selectedCategory;
+    const q = searchQuery.toLowerCase();
+    const matchesCategory = selectedCategory === 'All' || skill.category === selectedCategory;
     const matchesSearch =
-      !searchQuery ||
-      skill.skillName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      skill.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      skill.category.toLowerCase().includes(searchQuery.toLowerCase());
+      !q ||
+      skill.name.toLowerCase().includes(q) ||
+      skill.shortDescription.toLowerCase().includes(q) ||
+      skill.category.toLowerCase().includes(q);
     return matchesCategory && matchesSearch;
   });
 
@@ -148,11 +173,10 @@ export function SkillsSection() {
             key={cat}
             type="button"
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
-              selectedCategory === cat
-                ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
-                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-            }`}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${selectedCategory === cat
+              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
+              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+              }`}
           >
             {cat}
           </button>
@@ -173,8 +197,8 @@ export function SkillsSection() {
         ) : (
           filteredSkills.map((skill) => (
             <div
-              key={skill.id}
-              id={`skill-card-${skill.id}`}
+              key={skill._id}
+              id={`skill-card-${skill._id}`}
               className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
             >
               <div>
@@ -185,7 +209,7 @@ export function SkillsSection() {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                        {skill.skillName}
+                        {skill.name}
                       </h3>
                       <span className="text-[11px] text-zinc-400 font-medium">
                         {skill.category}
@@ -194,11 +218,10 @@ export function SkillsSection() {
                   </div>
 
                   <span
-                    className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${
-                      skill.isActive
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
-                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                    }`}
+                    className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${skill.isActive
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
+                      : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                      }`}
                   >
                     {skill.isActive ? 'Active' : 'Hidden'}
                   </span>
@@ -208,7 +231,6 @@ export function SkillsSection() {
                   {skill.shortDescription}
                 </p>
 
-                {/* Proficiency bar */}
                 {skill.proficiency !== undefined && (
                   <div className="mt-4">
                     <div className="flex justify-between text-[11px] text-zinc-400 font-medium mb-1">
@@ -225,11 +247,10 @@ export function SkillsSection() {
                 )}
               </div>
 
-              {/* Action Buttons */}
               <div className="mt-5 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => updateSkill(skill.id, { isActive: !skill.isActive })}
+                  onClick={() => handleToggleStatus(skill)}
                   className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                 >
                   {skill.isActive ? 'Hide on site' : 'Show on site'}
@@ -246,11 +267,7 @@ export function SkillsSection() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (window.confirm(`Delete skill "${skill.skillName}"?`)) {
-                        deleteSkill(skill.id);
-                      }
-                    }}
+                    onClick={() => handleDelete(skill)}
                     className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                     title="Delete skill"
                   >
@@ -284,23 +301,21 @@ export function SkillsSection() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-5 space-y-5">
-              {/* Skill Name */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Skill / Technology Name *
                 </label>
                 <input
                   type="text"
-                  {...register('skillName', { required: 'Skill name is required' })}
+                  {...register('name', { required: 'Skill name is required' })}
                   placeholder="e.g. React & React Native"
                   className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-100"
                 />
-                {errors.skillName && (
-                  <p className="text-xs text-rose-500 mt-1">{errors.skillName.message}</p>
+                {errors.name && (
+                  <p className="text-xs text-rose-500 mt-1">{errors.name.message}</p>
                 )}
               </div>
 
-              {/* Category */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Category *
@@ -309,22 +324,22 @@ export function SkillsSection() {
                   {...register('category', { required: 'Category is required' })}
                   className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
                 >
-                  <option value="Frontend">Frontend</option>
-                  <option value="Backend">Backend</option>
-                  <option value="Database">Database</option>
-                  <option value="DevOps & Cloud">DevOps &amp; Cloud</option>
-                  <option value="Tools">Tools</option>
+                  {CATEGORIES.filter((c) => c !== 'All').map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
               </div>
 
-              {/* Short Description */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Short Description *
                 </label>
                 <textarea
                   rows={2}
-                  {...register('shortDescription', { required: 'Short description is required' })}
+                  {...register('shortDescription', {
+                    required: 'Short description is required',
+                    maxLength: { value: 200, message: 'Keep it under 200 characters' },
+                  })}
                   placeholder="e.g. Modern hooks, concurrent features, component lifecycles..."
                   className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-100"
                 />
@@ -333,7 +348,6 @@ export function SkillsSection() {
                 )}
               </div>
 
-              {/* Icon Picker */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Select Suitable Icon: {selectedIcon}
@@ -344,11 +358,10 @@ export function SkillsSection() {
                       key={iconKey}
                       type="button"
                       onClick={() => setValue('icon', iconKey)}
-                      className={`p-2 rounded-lg flex items-center justify-center transition-all ${
-                        selectedIcon === iconKey
-                          ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
-                          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                      }`}
+                      className={`p-2 rounded-lg flex items-center justify-center transition-all ${selectedIcon === iconKey
+                        ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                        }`}
                       title={iconKey}
                     >
                       <DynamicIcon name={iconKey} className="w-4 h-4" />
@@ -357,7 +370,6 @@ export function SkillsSection() {
                 </div>
               </div>
 
-              {/* Proficiency Slider */}
               <div>
                 <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   <span>Proficiency Level</span>
@@ -372,7 +384,6 @@ export function SkillsSection() {
                 />
               </div>
 
-              {/* isActive Switch */}
               <div className="pt-2">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -386,7 +397,6 @@ export function SkillsSection() {
                 </label>
               </div>
 
-              {/* Buttons */}
               <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3">
                 <button
                   type="button"
@@ -397,10 +407,10 @@ export function SkillsSection() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90"
+                  disabled={isSaving}
+                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingSkill ? 'Update Skill' : 'Add Skill'}
+                  {isSaving ? 'Saving...' : editingSkill ? 'Update Skill' : 'Add Skill'}
                 </button>
               </div>
             </form>

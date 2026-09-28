@@ -1,7 +1,10 @@
 import { Router } from "express";
+
+
 import {
     createSkill,
     getAllSkills,
+    getActiveSkills,
     getSkillById,
     updateSkill,
     deleteSkill,
@@ -12,11 +15,13 @@ import validateObjectId from "../middleawares/validateObjectId.js";
 
 const router = Router();
 
-// Public routes
-router.get("/", getAllSkills);
+// Public — only active skills. Must be declared before "/:id"
+router.get("/active", getActiveSkills);
+
+// Admin — full list including hidden skills
+router.get("/", authMiddleware, authorize("admin", "moderator"), getAllSkills);
 router.get("/:id", validateObjectId(), getSkillById);
 
-// Protected routes — admin/moderator only
 router.post("/", authMiddleware, authorize("admin", "moderator"), createSkill);
 router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateSkill);
 router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteSkill);

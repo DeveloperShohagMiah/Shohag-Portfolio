@@ -4,6 +4,8 @@ import { apiSlice } from "./features/apiSlice";
 import { authApi } from "./features/authApi";
 import { aboutApi } from "./features/aboutApi"
 import { servicesApi } from "./features/serviceApi";
+import { skillsApi } from "./features/skillApi";
+
 
 export const store = configureStore({
     reducer: {
