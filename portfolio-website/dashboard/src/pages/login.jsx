@@ -3,6 +3,7 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { motion } from "framer-motion";
 import { useUserLoginMutation } from "@/redux/features/authApi";
 
 const Login = () => {
@@ -50,8 +51,92 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#09090b] text-zinc-100 flex items-center justify-center px-4 py-12 antialiased">
-            <div className="w-full max-w-md space-y-8">
+        <div className="relative min-h-screen bg-[#09090b] text-zinc-100 flex items-center justify-center px-4 py-12 antialiased overflow-hidden">
+            {/* Animated Purple Gradient Wave Background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Purple Ambient Light Glow */}
+                <motion.div
+                    animate={{
+                        opacity: [0.35, 0.6, 0.35],
+                        scale: [1, 1.15, 1],
+                    }}
+                    transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-purple-900/20 rounded-full blur-[140px]"
+                />
+
+                {/* Primary Purple Wave */}
+                <motion.div
+                    animate={{
+                        x: ["-25%", "0%", "-25%"],
+                        y: ["0%", "5%", "0%"],
+                    }}
+                    transition={{
+                        duration: 16,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    className="absolute bottom-0 left-0 w-[200%] h-[400px] opacity-25"
+                >
+                    <svg
+                        viewBox="0 0 1200 120"
+                        preserveAspectRatio="none"
+                        className="w-full h-full fill-none"
+                    >
+                        <defs>
+                            <linearGradient id="purpleGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
+                                <stop offset="50%" stopColor="#6366f1" stopOpacity="0.5" />
+                                <stop offset="100%" stopColor="#d946ef" stopOpacity="0.8" />
+                            </linearGradient>
+                        </defs>
+                        <path
+                            d="M0,0 C150,90 350,-40 500,40 C650,120 900,10 1200,60 L1200,120 L0,120 Z"
+                            fill="url(#purpleGradient1)"
+                        />
+                    </svg>
+                </motion.div>
+
+                {/* Secondary Background Wave Layer */}
+                <motion.div
+                    animate={{
+                        x: ["0%", "-20%", "0%"],
+                        y: ["0%", "-6%", "0%"],
+                    }}
+                    transition={{
+                        duration: 22,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    className="absolute bottom-0 left-0 w-[200%] h-[450px] opacity-15"
+                >
+                    <svg
+                        viewBox="0 0 1200 120"
+                        preserveAspectRatio="none"
+                        className="w-full h-full fill-none"
+                    >
+                        <defs>
+                            <linearGradient id="purpleGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#c084fc" stopOpacity="0.7" />
+                                <stop offset="50%" stopColor="#a855f7" stopOpacity="0.3" />
+                                <stop offset="100%" stopColor="#818cf8" stopOpacity="0.7" />
+                            </linearGradient>
+                        </defs>
+                        <path
+                            d="M0,40 C200,120 400,0 600,60 C800,120 1000,10 1200,40 L1200,120 L0,120 Z"
+                            fill="url(#purpleGradient2)"
+                        />
+                    </svg>
+                </motion.div>
+
+                {/* Micro Dot Matrix Grid */}
+                <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
+            </div>
+
+            <div className="relative z-10 w-full max-w-md space-y-8">
                 {/* Header section */}
                 <div className="text-center space-y-2">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-100 text-zinc-900 font-semibold text-lg tracking-tight shadow-sm">
@@ -68,7 +153,7 @@ const Login = () => {
                 </div>
 
                 {/* Card wrapper */}
-                <div className="bg-[#121215] border border-zinc-800/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-sm">
+                <div className="bg-[#121215]/80 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-md">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-5"
@@ -94,9 +179,9 @@ const Login = () => {
                                     type="email"
                                     placeholder="you@example.com"
                                     autoComplete="email"
-                                    className={`w-full h-11 bg-[#09090b] border rounded-xl pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition-all duration-150 focus:ring-1 ${errors.email
+                                    className={`w-full h-11 bg-[#09090b]/80 border rounded-xl pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition-all duration-150 focus:ring-1 ${errors.email
                                         ? "border-red-500/80 focus:border-red-500 focus:ring-red-500"
-                                        : "border-zinc-800 focus:border-zinc-500 focus:ring-zinc-500"
+                                        : "border-zinc-800 focus:border-zinc-500 focus:ring-purple-500/50"
                                         }`}
                                     {...register("email", {
                                         required: "Email is required",
@@ -147,9 +232,9 @@ const Login = () => {
                                     type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     autoComplete="current-password"
-                                    className={`w-full h-11 bg-[#09090b] border rounded-xl pl-10 pr-11 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition-all duration-150 focus:ring-1 ${errors.password
+                                    className={`w-full h-11 bg-[#09090b]/80 border rounded-xl pl-10 pr-11 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition-all duration-150 focus:ring-1 ${errors.password
                                         ? "border-red-500/80 focus:border-red-500 focus:ring-red-500"
-                                        : "border-zinc-800 focus:border-zinc-500 focus:ring-zinc-500"
+                                        : "border-zinc-800 focus:border-zinc-500 focus:ring-purple-500/50"
                                         }`}
                                     {...register("password", {
                                         required: "Password is required",
@@ -182,7 +267,7 @@ const Login = () => {
                             <input
                                 id="remember"
                                 type="checkbox"
-                                className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-zinc-500 focus:ring-offset-0 transition"
+                                className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-purple-600 focus:ring-purple-500 focus:ring-offset-0 transition"
                                 {...register("remember")}
                             />
 

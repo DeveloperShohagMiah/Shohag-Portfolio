@@ -1,165 +1,223 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiArrowUpRight, FiGithub } from "react-icons/fi";
 import SectionHeader from "./SectionHeader";
 
 const PROJECTS = [
     {
-        number: "01",
+        id: "project-one",
         title: "Project One",
+        year: "2026",
         description:
             "A full-stack web application focused on delivering a fast, intuitive, and scalable user experience.",
         category: "Full-Stack Application",
         technologies: ["React", "Node.js", "MongoDB", "Tailwind CSS"],
         image:
-            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=85",
+            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1400&q=85",
         liveUrl: "#",
         githubUrl: "#",
-        span: "lg:col-span-8",
     },
     {
-        number: "02",
+        id: "project-two",
         title: "Project Two",
+        year: "2026",
         description:
             "A product interface built with responsive layouts, reusable components, and seamless interactions.",
         category: "Frontend Development",
         technologies: ["React", "JavaScript", "Tailwind CSS"],
         image:
-            "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=85",
+            "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=85",
         liveUrl: "#",
         githubUrl: "#",
-        span: "lg:col-span-4",
     },
     {
-        number: "03",
+        id: "project-three",
         title: "Project Three",
+        year: "2025",
         description:
             "A data-driven application combining a clean dashboard experience with a reliable backend architecture.",
         category: "Dashboard / SaaS",
         technologies: ["React", "Node.js", "PostgreSQL"],
         image:
-            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=85",
+            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=85",
         liveUrl: "#",
         githubUrl: "#",
-        span: "lg:col-span-4",
     },
     {
-        number: "04",
+        id: "project-four",
         title: "Project Four",
+        year: "2025",
         description:
             "An e-commerce experience designed around conversion, accessibility, and a frictionless shopping journey.",
         category: "E-Commerce",
-        technologies: ["React", "Next.js", "Stripe", "Tailwind CSS"],
+        technologies: ["Next.js", "Stripe", "Tailwind CSS"],
         image:
-            "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1600&q=85",
+            "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1400&q=85",
         liveUrl: "#",
         githubUrl: "#",
-        span: "lg:col-span-8",
     },
 ];
 
-function ProjectCard({ project }) {
+function ProjectRow({ project, active, onActivate }) {
     return (
-        <article
-            className={`group relative flex min-h-[420px] flex-col justify-end overflow-hidden rounded-2xl ${project.span}`}
+        <li
+            onMouseEnter={onActivate}
+            onFocus={onActivate}
+            className="border-t border-border/60 py-8 first:border-t-0 first:pt-0 lg:py-10"
         >
-            {/* Image */}
-            <img
-                src={project.image}
-                alt={project.title}
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            />
-
-            {/* Scrim */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-
-            {/* Number, top corner */}
-            <span className="absolute right-6 top-6 font-code text-sm text-white/50">
-                {project.number}
-            </span>
-
-            {/* Content */}
-            <div className="relative z-10 p-7 sm:p-9">
-                <span className="text-sm text-white/70">{project.category}</span>
-
-                <h3 className="mt-2 text-3xl font-bold leading-none tracking-tight text-white sm:text-4xl">
-                    {project.title}
-                </h3>
-
-                <p className="mt-4 max-w-md text-sm leading-6 text-white/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:text-base">
-                    {project.description}
-                </p>
-
-                <div className="mt-4 flex max-h-0 flex-wrap gap-x-4 gap-y-1 overflow-hidden opacity-0 transition-all duration-300 group-hover:max-h-20 group-hover:opacity-100">
-                    {project.technologies.map((tech) => (
-                        <span key={tech} className="text-xs text-white/50">
-                            {tech}
-                        </span>
-                    ))}
-                </div>
-
-                <div className="mt-6 flex items-center gap-5">
+            {/* Title row */}
+            <div className="flex items-baseline justify-between gap-6">
+                <h3 className="min-w-0">
                     <a
                         href={project.liveUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-white transition-opacity hover:opacity-80"
+                        className={`inline-flex items-start gap-2 font-display text-4xl font-semibold leading-[1.02] tracking-[-0.045em] transition-colors duration-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:text-5xl lg:text-6xl ${active
+                                ? "text-foreground"
+                                : "text-foreground lg:text-foreground/30"
+                            }`}
                     >
-                        View project
-                        <FiArrowUpRight size={14} />
+                        {project.title}
+                        <FiArrowUpRight
+                            aria-hidden="true"
+                            className={`mt-1 size-5 shrink-0 text-primary transition-all duration-500 sm:size-6 lg:size-7 ${active
+                                    ? "translate-x-0 opacity-100"
+                                    : "-translate-x-2 opacity-0"
+                                } max-lg:translate-x-0 max-lg:opacity-100`}
+                        />
                     </a>
-                    <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`View ${project.title} source on GitHub`}
-                        className="inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white"
-                    >
-                        <FiGithub size={14} />
-                        Source
-                    </a>
+                </h3>
+
+                <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
+                    {project.year}
+                </span>
+            </div>
+
+            {/* Mobile preview (desktop uses the sticky panel) */}
+            <img
+                src={project.image}
+                alt={`${project.title} preview`}
+                loading="lazy"
+                className="mt-6 aspect-[16/10] w-full rounded-xl border border-border/60 object-cover object-top lg:hidden"
+            />
+
+            {/* Details: always open on mobile, expands for the active row on desktop */}
+            <div
+                className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out motion-reduce:transition-none ${active
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[1fr] opacity-100 lg:grid-rows-[0fr] lg:opacity-0"
+                    }`}
+            >
+                <div className="overflow-hidden">
+                    <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
+                        {project.description}
+                    </p>
+
+                    <p className="mt-5 text-sm font-medium text-foreground">
+                        {project.category}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {project.technologies.join(", ")}
+                    </p>
+
+                    <div className="mt-6 flex items-center gap-3">
+                        <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        >
+                            Live demo
+                            <FiArrowUpRight size={14} aria-hidden="true" />
+                        </a>
+                        <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`${project.title} source code on GitHub`}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-border/70 px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        >
+                            <FiGithub size={14} aria-hidden="true" />
+                            Code
+                        </a>
+                    </div>
                 </div>
             </div>
-        </article>
+        </li>
     );
 }
 
 export default function Projects() {
+    const [activeId, setActiveId] = useState(PROJECTS[0].id);
+
     return (
-        <section id="portfolio" className="relative bg-background py-28 sm:py-32">
+        <section id="portfolio" className="relative bg-background py-28 sm:py-36">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 {/* Heading */}
-                <div className="max-w-2xl">
-                    <SectionHeader label={"Selected Works"} />
+                <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+                    <div className="lg:col-span-7">
+                        <SectionHeader label="Selected Works" />
+                        <h2 className="text-balance font-display text-5xl font-semibold leading-[0.95] tracking-[-0.05em] text-foreground sm:text-6xl lg:text-7xl">
+                            Work I&apos;m proud of.
+                        </h2>
+                    </div>
 
-                    <h2 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                        Things I&apos;ve built
-                    </h2>
-
-                    <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
-                        A selection of projects where design, engineering, and
-                        problem solving come together to create useful
-                        digital experiences.
+                    <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg lg:col-span-5 lg:justify-self-end">
+                        Projects where design, engineering, and problem solving
+                        come together to create useful digital experiences.
                     </p>
                 </div>
 
-                {/* Bento grid */}
-                <div className="mt-16 grid grid-cols-1 gap-5 lg:grid-cols-12">
-                    {PROJECTS.map((project) => (
-                        <ProjectCard key={project.number} project={project} />
-                    ))}
+                {/* Index + sticky preview */}
+                <div className="mt-16 grid gap-16 lg:mt-24 lg:grid-cols-12">
+                    <ul className="lg:col-span-7">
+                        {PROJECTS.map((project) => (
+                            <ProjectRow
+                                key={project.id}
+                                project={project}
+                                active={project.id === activeId}
+                                onActivate={() => setActiveId(project.id)}
+                            />
+                        ))}
+                    </ul>
+
+                    {/* Desktop preview */}
+                    <div className="relative hidden lg:col-span-5 lg:block">
+                        <div className="sticky top-28">
+                            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-border/60 bg-muted shadow-2xl shadow-primary/5">
+                                {PROJECTS.map((project) => (
+                                    <img
+                                        key={project.id}
+                                        src={project.image}
+                                        alt={
+                                            project.id === activeId
+                                                ? `${project.title} preview`
+                                                : ""
+                                        }
+                                        loading="lazy"
+                                        className={`absolute inset-0 h-full w-full object-cover object-top transition-all duration-700 ease-out motion-reduce:transition-none ${project.id === activeId
+                                                ? "scale-100 opacity-100"
+                                                : "scale-105 opacity-0"
+                                            }`}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* GitHub CTA */}
-                <div className="mt-16 flex justify-center">
+                {/* GitHub link */}
+                <div className="mt-20 border-t border-border/60 pt-8">
                     <a
                         href="https://github.com/"
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+                        className="group inline-flex items-center gap-2 text-lg font-medium text-foreground transition-colors hover:text-primary"
                     >
                         More projects on GitHub
-                        <FiArrowUpRight size={14} />
+                        <FiArrowUpRight
+                            aria-hidden="true"
+                            className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                        />
                     </a>
                 </div>
             </div>

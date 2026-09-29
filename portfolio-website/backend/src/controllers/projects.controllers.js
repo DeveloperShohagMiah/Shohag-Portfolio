@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Project from "../models/Project.js";
-import ApiError from "../utils/apierror.js";
-import ApiResponse from "../utils/apiresponse.js";
+import ApiError from "../utils/apiError.js";
+import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const validateObjectId = (id) => {
@@ -10,28 +10,41 @@ const validateObjectId = (id) => {
     }
 };
 
-export const createProject = asyncHandler(async (req, res) => {
-    const { name, description, image, tags, category, liveLink } = req.body;
+const duplicateMessage = (err) => {
+    const field = Object.keys(err.keyPattern || {})[0] || "field";
+    return `A project with this ${field} already exists.`;
+};
 
-    if (!name || !description || !image || !category) {
-        throw new ApiError(400, "Name, description, image and category are required.");
+export const createProject = asyncHandler(async (req, res) => {
+    const { title, description, image, stacks, githubLink, liveLink, category, order, isFeatured, isActive } = req.body;
+
+    if (!title || !description || !image) {
+        throw new ApiError(400, "Title, description and image are required.");
+    }
+
+    let finalOrder = order;
+    if (finalOrder === undefined) {
+        const last = await Project.findOne({ order: { $exists: true } }).sort({ order: -1 });
+        finalOrder = last ? last.order + 1 : 1;
     }
 
     try {
         const project = await Project.create({
-            name: name.trim(),
+            title: title.trim(),
             description,
             image,
-            tags,
-            category,
+            stacks,
+            githubLink,
             liveLink,
+            category,
+            order: finalOrder,
+            isFeatured,
+            isActive,
         });
 
         res.status(201).json(new ApiResponse(201, project, "Project created successfully."));
     } catch (err) {
-        if (err.code === 11000) {
-            throw new ApiError(409, "Project with this name already exists.");
-        }
+        if (err.code === 11000) throw new ApiError(409, duplicateMessage(err));
         throw err;
     }
 });
@@ -42,21 +55,21 @@ export const getAllProjects = asyncHandler(async (req, res) => {
     const filter = {};
     if (category) filter.category = category;
     if (status) filter.status = status;
-    if (tag) filter.tags = { $in: [tag] };
+    if (tag) filter.stacks = { $in: [tag] };
     if (search) {
         filter.$or = [
-            { name: { $regex: search, $options: "i" } },
+            { title: { $regex: search, $options: "i" } },
             { description: { $regex: search, $options: "i" } },
         ];
     }
 
     const pageNum = Math.max(1, Number(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, Number(limit) || 10)); // hard cap to avoid abuse
+    const limitNum = Math.min(100, Math.max(1, Number(limit) || 10));
     const skip = (pageNum - 1) * limitNum;
 
     const [projects, total] = await Promise.all([
         Project.find(filter)
-            .sort({ createdAt: -1 })
+            .sort({ order: 1, createdAt: -1 })
             .skip(skip)
             .limit(limitNum),
         Project.countDocuments(filter),
@@ -84,9 +97,7 @@ export const getProjectById = asyncHandler(async (req, res) => {
     validateObjectId(id);
 
     const project = await Project.findById(id);
-    if (!project) {
-        throw new ApiError(404, "Project not found.");
-    }
+    if (!project) throw new ApiError(404, "Project not found.");
 
     res.status(200).json(new ApiResponse(200, project, "Project fetched successfully."));
 });
@@ -95,26 +106,26 @@ export const updateProject = asyncHandler(async (req, res) => {
     const { id } = req.params;
     validateObjectId(id);
 
-    const { name, description, image, tags, category, liveLink } = req.body;
+    const { title, description, image, stacks, githubLink, liveLink, category, order, isFeatured, isActive } = req.body;
 
     const project = await Project.findById(id);
-    if (!project) {
-        throw new ApiError(404, "Project not found.");
-    }
+    if (!project) throw new ApiError(404, "Project not found.");
 
-    if (name !== undefined) project.name = name.trim();
+    if (title !== undefined) project.title = title.trim();
     if (description !== undefined) project.description = description;
     if (image !== undefined) project.image = image;
-    if (tags !== undefined) project.tags = tags;
-    if (category !== undefined) project.category = category;
+    if (stacks !== undefined) project.stacks = stacks;
+    if (githubLink !== undefined) project.githubLink = githubLink;
     if (liveLink !== undefined) project.liveLink = liveLink;
+    if (category !== undefined) project.category = category;
+    if (order !== undefined) project.order = order;
+    if (isFeatured !== undefined) project.isFeatured = isFeatured;
+    if (isActive !== undefined) project.isActive = isActive;
 
     try {
         await project.save();
     } catch (err) {
-        if (err.code === 11000) {
-            throw new ApiError(409, "Project with this name already exists.");
-        }
+        if (err.code === 11000) throw new ApiError(409, duplicateMessage(err));
         throw err;
     }
 
@@ -126,9 +137,7 @@ export const deleteProject = asyncHandler(async (req, res) => {
     validateObjectId(id);
 
     const project = await Project.findByIdAndDelete(id);
-    if (!project) {
-        throw new ApiError(404, "Project not found.");
-    }
+    if (!project) throw new ApiError(404, "Project not found.");
 
     res.status(200).json(new ApiResponse(200, null, "Project deleted successfully."));
 });
@@ -138,19 +147,13 @@ export const updateStatus = asyncHandler(async (req, res) => {
     validateObjectId(id);
 
     const { status } = req.body;
-
     const validStatuses = ["draft", "in-progress", "completed", "archived"];
     if (!status || !validStatuses.includes(status)) {
-        throw new ApiError(
-            400,
-            `Invalid status. Must be one of: ${validStatuses.join(", ")}`
-        );
+        throw new ApiError(400, `Invalid status. Must be one of: ${validStatuses.join(", ")}`);
     }
 
     const project = await Project.findById(id);
-    if (!project) {
-        throw new ApiError(404, "Project not found.");
-    }
+    if (!project) throw new ApiError(404, "Project not found.");
 
     project.status = status;
     await project.save();

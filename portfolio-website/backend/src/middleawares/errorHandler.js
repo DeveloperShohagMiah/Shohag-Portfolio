@@ -18,8 +18,11 @@ const errorHandler = (err, req, res, next) => {
 
     // Mongoose: validation errors
     if (err.name === "ValidationError") {
-        const messages = Object.values(err.errors).map((e) => e.message);
-        error = new ApiError(400, "Validation failed", messages);
+        const messages = Object.values(err.errors).map(
+            (error) => error.message
+        );
+
+        error = new ApiError(400, messages.join(", "));
     }
 
     // JWT: invalid token

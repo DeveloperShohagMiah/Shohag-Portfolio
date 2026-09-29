@@ -65,7 +65,7 @@ export const updateFaq = asyncHandler(async (req, res) => {
     const { id } = req.params;
     validateObjectId(id);
 
-    const { question, answer, order } = req.body;
+    const { question, answer, order, isActive } = req.body;
 
     const faq = await Faq.findById(id);
     if (!faq) {
@@ -75,6 +75,7 @@ export const updateFaq = asyncHandler(async (req, res) => {
     if (question !== undefined) faq.question = question.trim();
     if (answer !== undefined) faq.answer = answer.trim();
     if (order !== undefined) faq.order = order;
+    if (isActive !== undefined) faq.isActive = isActive;
 
     try {
         await faq.save();

@@ -54,14 +54,30 @@ export default function Contact() {
             className="relative overflow-hidden bg-background py-28 sm:py-36"
         >
 
+            <div
+                className="pointer-events-none absolute inset-0 blur-[125px] md:blur-[180px]"
+                style={{
+                    background:
+                        "radial-gradient(ellipse 120% 70% at 50% 110%, rgba(0, 90, 110, 0.8) 0%, rgba(0, 45, 60, 0.5) 40%, rgba(0, 0, 0, 0) 75%)",
+                    mixBlendMode: "screen",
+                }}
+                aria-hidden="true"
+            />
+
+            <div
+                className="pointer-events-none absolute inset-0 blur-[50px] md:blur-[72px]"
+                style={{
+                    background:
+                        "linear-gradient(to top, rgba(0, 130, 150, 0.25) 0%, rgba(0, 0, 0, 0) 35%)",
+                    mixBlendMode: "screen",
+                }}
+                aria-hidden="true"
+            />
+
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-
-                {/* =========================
-                    HEADER
-                ========================== */}
-
+                {/* HEADER */}
                 <div className="mb-16 max-w-3xl">
-                    <SectionHeader label={"Contact"} />
+                    <SectionHeader label="Contact" />
 
                     <h2 className="text-5xl font-semibold leading-[0.95] tracking-[-0.05em] text-foreground sm:text-6xl lg:text-7xl">
                         Let&apos;s work
@@ -70,27 +86,22 @@ export default function Contact() {
                     </h2>
 
                     <p className="mt-7 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-                        Have a project in mind? Send me a message and let&apos;s
-                        discuss how we can turn your idea into something great.
+                        Have a project in mind? Send me a message and let&apos;s discuss
+                        how we can turn your idea into something great.
                     </p>
                 </div>
 
-                {/* =========================
-                    MAIN CONTACT CARD
-                ========================== */}
-
+                {/* MAIN CONTACT CARD */}
                 <div className="relative grid overflow-hidden rounded-3xl border border-border/60 bg-card/40 backdrop-blur-xl lg:grid-cols-[0.7fr_1.3fr]">
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent opacity-100 transition-opacity duration-300"
+                    />
 
-                    <div aria-hidden="true" class="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-linear-to-r from-transparent via-foreground/20 to-transparent opacity-100 transition-opacity duration-300"></div>
+                    <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-80 w-[680px] -translate-x-1/2 [background:radial-gradient(ellipse_50%_50%_at_50%_50%,oklch(0.7_0_0/0.16),transparent_70%)] blur-2xl" />
 
-                    <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-80 w-[680px] -translate-x-1/2 [background:radial-gradient(ellipse_50%_50%_at_50%_50%,oklch(0.7_0_0/0.16),transparent_70%)] blur-2xl"></div>
-                    {/* =========================
-                        CONTACT INFO
-                    ========================== */}
-
+                    {/* CONTACT INFO */}
                     <div className="relative flex flex-col justify-between border-b border-border/60 p-8 sm:p-10 lg:border-b-0 lg:border-r lg:p-12">
-
-                        {/* Decorative number */}
                         <span className="pointer-events-none absolute right-8 top-6 font-code text-8xl font-bold text-foreground/[0.025]">
                             <FiMail />
                         </span>
@@ -105,19 +116,17 @@ export default function Contact() {
                             </h3>
 
                             <p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">
-                                Whether it&apos;s a new website, web application,
-                                SaaS product, or something completely different,
-                                I&apos;d love to hear about it.
+                                Whether it&apos;s a new website, web application, SaaS product,
+                                or something completely different, I&apos;d love to hear about
+                                it.
                             </p>
                         </div>
 
                         {/* Contact details */}
                         <div className="relative mt-14 space-y-7">
-
                             <div>
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                     <FiMail size={14} />
-
                                     <span className="font-code text-[10px] uppercase tracking-[0.15em]">
                                         Email
                                     </span>
@@ -128,7 +137,6 @@ export default function Contact() {
                                     className="group mt-2 inline-flex items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
                                 >
                                     hello@example.com
-
                                     <FiArrowUpRight
                                         size={14}
                                         className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
@@ -139,7 +147,6 @@ export default function Contact() {
                             <div>
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                     <FiMapPin size={14} />
-
                                     <span className="font-code text-[10px] uppercase tracking-[0.15em]">
                                         Location
                                     </span>
@@ -200,12 +207,8 @@ export default function Contact() {
                         </div>
                     </div>
 
-                    {/* =========================
-                        FORM
-                    ========================== */}
-
+                    {/* FORM */}
                     <div className="p-8 sm:p-10 lg:p-12">
-
                         {submitted ? (
                             <div className="flex min-h-[520px] flex-col items-center justify-center text-center">
                                 <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary">
@@ -217,16 +220,13 @@ export default function Contact() {
                                 </h3>
 
                                 <p className="mt-3 max-w-sm text-sm leading-7 text-muted-foreground">
-                                    Thanks for reaching out. I&apos;ll get back
-                                    to you as soon as possible.
+                                    Thanks for reaching out. I&apos;ll get back to you as soon as
+                                    possible.
                                 </p>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit}>
-
-                                {/* Name + Email */}
                                 <div className="grid gap-5 md:grid-cols-2">
-
                                     {/* Name */}
                                     <div>
                                         <label
@@ -314,10 +314,8 @@ export default function Contact() {
 
                                 {/* Submit area */}
                                 <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-
                                     <p className="max-w-sm text-xs leading-5 text-muted-foreground">
-                                        Your information is only used to respond
-                                        to your message.
+                                        Your information is only used to respond to your message.
                                     </p>
 
                                     <button
@@ -325,7 +323,6 @@ export default function Contact() {
                                         className="group inline-flex h-14 items-center justify-center gap-3 rounded-xl bg-primary px-7 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/20"
                                     >
                                         Send message
-
                                         <FiSend
                                             size={16}
                                             className="transition-transform duration-300 group-hover:translate-x-1"
@@ -348,7 +345,6 @@ export default function Contact() {
                         className="group inline-flex items-center gap-2 font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-primary"
                     >
                         Back to top
-
                         <FiArrowUpRight
                             size={13}
                             className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"

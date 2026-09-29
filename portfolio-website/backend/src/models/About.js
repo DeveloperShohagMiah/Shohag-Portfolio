@@ -4,14 +4,10 @@ const aboutSchema = new mongoose.Schema(
     {
         headline: {
             type: String,
-            required: [true, "Headline is required"],
             trim: true,
-            maxlength: [150, "Headline cannot exceed 150 characters."],
         },
         bio: {
             type: String,
-            required: [true, "Bio is required"],
-            minlength: [20, "Bio must be at least 20 characters long."],
         },
         image: {
             type: String,

@@ -15,6 +15,7 @@ import faqRouter from "./src/routes/faq.routes.js";
 import testimonialRouter from "./src/routes/testimonial.routes.js";
 import notFound from "./src/middleawares/notFound.js";
 import errorHandler from "./src/middleawares/errorHandler.js";
+import router from "./src/routes/blog.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +27,7 @@ const allowedOrigins = (process.env.CLIENT_URL || "")
   .filter(Boolean);
 
 if (allowedOrigins.length === 0) {
-  console.warn("⚠️  CLIENT_URL is not set in .env — CORS requests from your frontend will fail.");
+  console.warn("CLIENT_URL is not set in .env — CORS requests from your frontend will fail.");
 }
 
 app.use(cors({
@@ -52,6 +53,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRouter);
 app.use("/api/about", aboutRouter);
+app.use("/api/blogs", router)
 app.use("/api/services", serviceRouter);
 app.use("/api/projects", projectRouter);
 app.use("/api/skills", skillsRouter);

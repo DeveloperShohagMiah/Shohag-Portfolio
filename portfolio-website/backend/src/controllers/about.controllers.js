@@ -1,14 +1,12 @@
 import ApiError from "../utils/apiError.js";
-import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import About from "../models/About.js";
+import ApiResponse from "../utils/apiresponse.js";
 
 export const getAbout = asyncHandler(async (req, res) => {
-    // Singleton: there is only ever one About document, so no filter/id needed.
     let about = await About.findOne();
 
-    // Auto-create an empty singleton on first load instead of 404-ing —
-    // the admin panel needs *something* to populate the form with.
+    // Create singleton document if it doesn't exist
     if (!about) {
         about = await About.create({
             headline: "",
@@ -22,17 +20,19 @@ export const getAbout = asyncHandler(async (req, res) => {
         });
     }
 
-    res.status(200).json(new ApiResponse(200, about, "About section fetched successfully."));
+    res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                about,
+                "About section fetched successfully."
+            )
+        );
 });
 
 export const updateAbout = asyncHandler(async (req, res) => {
-    const { headline, bio, image, experience, totalProjects, location, availableForHire, coreStack } = req.body;
-
-    if (!headline || !bio) {
-        throw new ApiError(400, "Headline and bio are required.");
-    }
-
-    const updateData = {
+    const {
         headline,
         bio,
         image,
@@ -41,13 +41,38 @@ export const updateAbout = asyncHandler(async (req, res) => {
         location,
         availableForHire,
         coreStack,
-    };
+    } = req.body;
 
-    const about = await About.findByIdAndUpdate(
-        {},
-        { $set: updateData },
-        { new: true, upsert: true, runValidators: true }
+    if (!headline?.trim()) {
+        throw new ApiError(400, "Headline is required.");
+    }
+
+    if (!bio?.trim()) {
+        throw new ApiError(400, "Bio is required.");
+    }
+
+    const about = await About.findOne();
+
+    if (!about) {
+        throw new ApiError(404, "About section not found.");
+    }
+
+    about.headline = headline.trim();
+    about.bio = bio.trim();
+    about.image = image?.trim() || "";
+    about.experience = Number(experience);
+    about.totalProjects = Number(totalProjects);
+    about.location = location?.trim() || "";
+    about.availableForHire = Boolean(availableForHire);
+    about.coreStack = Array.isArray(coreStack) ? coreStack : [];
+
+    await about.save();
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            about,
+            "About section updated successfully."
+        )
     );
-
-    res.status(200).json(new ApiResponse(200, about, "About section updated successfully."));
-}); 
+});

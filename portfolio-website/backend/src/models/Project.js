@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
-    name: {
+    title: {
         type: String,
-        required: [true, "Name is required"],
+        required: [true, "Title is required"],
         unique: true,
         trim: true
     },
@@ -15,17 +15,16 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: [true, "Image is required"]
     },
-    tags: {
+    stacks: {
         type: [String],
-        required: [true, "Tags must be included"],
-        validate: {
-            validator: (v) => Array.isArray(v) && v.length > 0,
-            message: "At least one tag is required"
-        }
+        default: [],
     },
-    category: {
+    githubLink: {
         type: String,
-        required: [true, "Category should be added"]
+        validate: {
+            validator: (v) => !v || /^https?:\/\/.+/.test(v),
+            message: "GitHub link must be a valid URL"
+        }
     },
     liveLink: {
         type: String,
@@ -33,6 +32,10 @@ const projectSchema = new mongoose.Schema({
             validator: (v) => !v || /^https?:\/\/.+/.test(v),
             message: "Live link must be a valid URL"
         }
+    },
+    category: {
+        type: String,
+        trim: true,
     },
     status: {
         type: String,

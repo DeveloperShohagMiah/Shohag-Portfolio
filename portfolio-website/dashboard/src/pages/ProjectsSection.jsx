@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useData } from '../context/DataContext.jsx';
 import {
   Plus,
   Edit2,
@@ -8,14 +7,33 @@ import {
   ExternalLink,
   Github,
   Star,
-  Layers,
   X,
   FolderGit2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import {
+  useGetAllProjectsQuery,
+  useCreateProjectMutation,
+  useUpdateProjectMutation,
+  useDeleteProjectMutation,
+} from '@/redux/features/projectApi.js';
 
-export function ProjectsSection() {
-  const { projects, addProject, updateProject, deleteProject, searchQuery } = useData();
+const DEFAULT_VALUES = {
+  title: '',
+  description: '',
+  image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80',
+  githubLink: '',
+  liveLink: '',
+  order: 1,
+  isFeatured: false,
+  isActive: true,
+};
+
+export function ProjectsSection({ searchQuery = '' }) {
+  const { data: projectsResponse, isLoading: isLoadingProjects, isError: isErrorProjects } = useGetAllProjectsQuery();
+  const [createProject, { isLoading: isCreating }] = useCreateProjectMutation();
+  const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
+  const [deleteProject] = useDeleteProjectMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
@@ -29,33 +47,20 @@ export function ProjectsSection() {
     reset,
     watch,
     formState: { errors, isSubmitting }
-  } = useForm({
-    defaultValues: {
-      title: '',
-      description: '',
-      image: '',
-      githubLink: '',
-      liveLink: '',
-      order: 1,
-      isFeatured: false,
-      isActive: true
-    }
-  });
+  } = useForm({ defaultValues: DEFAULT_VALUES });
 
   const previewImage = watch('image');
+  const isSaving = isCreating || isUpdating || isSubmitting;
+
+  // Backend nests the paginated result inside ApiResponse: { data: { projects, pagination } }
+  const projects = projectsResponse?.data?.projects || [];
 
   const openCreateModal = () => {
     setEditingProject(null);
     setStacks([]);
     reset({
-      title: '',
-      description: '',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80',
-      githubLink: 'https://github.com/shohagmiah/',
-      liveLink: 'https://demo.app',
+      ...DEFAULT_VALUES,
       order: projects.length + 1,
-      isFeatured: false,
-      isActive: true
     });
     setIsModalOpen(true);
   };
@@ -93,43 +98,76 @@ export function ProjectsSection() {
   };
 
   const onSubmit = async (data) => {
-    if (editingProject) {
-      updateProject(editingProject.id, {
-        title: data.title,
-        description: data.description,
-        image: data.image,
-        stacks: stacks,
-        githubLink: data.githubLink,
-        liveLink: data.liveLink,
-        order: Number(data.order),
-        isFeatured: data.isFeatured,
-        isActive: data.isActive
-      });
-    } else {
-      addProject({
-        title: data.title,
-        description: data.description,
-        image: data.image,
-        stacks: stacks,
-        githubLink: data.githubLink,
-        liveLink: data.liveLink,
-        order: Number(data.order),
-        isFeatured: data.isFeatured,
-        isActive: data.isActive
-      });
+    const payload = {
+      title: data.title,
+      description: data.description,
+      image: data.image,
+      stacks,
+      githubLink: data.githubLink,
+      liveLink: data.liveLink,
+      order: Number(data.order),
+      isFeatured: data.isFeatured,
+      isActive: data.isActive
+    };
+
+    try {
+      if (editingProject) {
+        await updateProject({ id: editingProject._id, ...payload }).unwrap();
+        toast.success('Project updated successfully!');
+      } else {
+        await createProject(payload).unwrap();
+        toast.success('Project created successfully!');
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(error?.data?.message || error?.message || 'Failed to save project.');
     }
-    setIsModalOpen(false);
   };
+
+  const handleToggleFeatured = async (proj) => {
+    try {
+      await updateProject({ id: proj._id, isFeatured: !proj.isFeatured }).unwrap();
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to update featured status.');
+    }
+  };
+
+  const handleDelete = async (proj) => {
+    if (!window.confirm(`Delete "${proj.title}"?`)) return;
+    try {
+      await deleteProject(proj._id).unwrap();
+      toast.success('Project deleted successfully!');
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to delete project.');
+    }
+  };
+
+  if (isLoadingProjects) {
+    return (
+      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-zinc-500">
+        Loading projects...
+      </div>
+    );
+  }
+
+  if (isErrorProjects) {
+    return (
+      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-rose-500">
+        Failed to load projects. Please refresh the page.
+      </div>
+    );
+  }
 
   const filteredProjects = projects
     .slice()
     .sort((a, b) => a.order - b.order)
     .filter((project) => {
+      const q = searchQuery.toLowerCase();
       const matchesSearch =
-        !searchQuery ||
-        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.stacks.some((st) => st.toLowerCase().includes(searchQuery.toLowerCase()));
+        !q ||
+        project.title.toLowerCase().includes(q) ||
+        project.description.toLowerCase().includes(q) ||
+        (project.stacks || []).some((st) => st.toLowerCase().includes(q));
 
       const matchesFeatured = filterFeatured ? project.isFeatured : true;
       return matchesSearch && matchesFeatured;
@@ -153,11 +191,10 @@ export function ProjectsSection() {
             id="filter-featured-projects-btn"
             type="button"
             onClick={() => setFilterFeatured(!filterFeatured)}
-            className={`px-3 py-2 text-xs font-medium rounded-xl border transition-colors ${
-              filterFeatured
-                ? 'bg-amber-500 text-white border-transparent'
-                : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-            }`}
+            className={`px-3 py-2 text-xs font-medium rounded-xl border transition-colors ${filterFeatured
+              ? 'bg-amber-500 text-white border-transparent'
+              : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+              }`}
           >
             {filterFeatured ? '★ Featured Only' : 'All Projects'}
           </button>
@@ -174,7 +211,7 @@ export function ProjectsSection() {
         </div>
       </div>
 
-      {/* Projects List/Grid */}
+      {/* Projects Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProjects.length === 0 ? (
           <div className="col-span-full p-12 text-center rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
@@ -189,12 +226,11 @@ export function ProjectsSection() {
         ) : (
           filteredProjects.map((proj) => (
             <div
-              key={proj.id}
-              id={`project-card-${proj.id}`}
+              key={proj._id}
+              id={`project-card-${proj._id}`}
               className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
             >
               <div>
-                {/* Project Image & Overlay badges */}
                 <div className="relative aspect-video w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                   <img
                     src={proj.image}
@@ -213,11 +249,10 @@ export function ProjectsSection() {
                       </span>
                     )}
                     <span
-                      className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${
-                        proj.isActive
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-zinc-800/80 text-white backdrop-blur-xs'
-                      }`}
+                      className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${proj.isActive
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-zinc-800/80 text-white backdrop-blur-xs'
+                        }`}
                     >
                       {proj.isActive ? 'Active' : 'Draft'}
                     </span>
@@ -235,7 +270,6 @@ export function ProjectsSection() {
                     {proj.description}
                   </p>
 
-                  {/* Stacks */}
                   <div className="mt-3 flex flex-wrap gap-1">
                     {proj.stacks &&
                       proj.stacks.map((tech, idx) => (
@@ -250,7 +284,6 @@ export function ProjectsSection() {
                 </div>
               </div>
 
-              {/* Links & Actions footer */}
               <div className="p-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {proj.githubLink && (
@@ -280,12 +313,11 @@ export function ProjectsSection() {
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => updateProject(proj.id, { isFeatured: !proj.isFeatured })}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      proj.isFeatured
-                        ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30'
-                        : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
-                    }`}
+                    onClick={() => handleToggleFeatured(proj)}
+                    className={`p-1.5 rounded-lg transition-colors ${proj.isFeatured
+                      ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                      : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
+                      }`}
                     title={proj.isFeatured ? 'Remove from featured' : 'Mark as featured'}
                   >
                     <Star className={`w-4 h-4 ${proj.isFeatured ? 'fill-current' : ''}`} />
@@ -300,11 +332,7 @@ export function ProjectsSection() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (window.confirm(`Delete "${proj.title}"?`)) {
-                        deleteProject(proj.id);
-                      }
-                    }}
+                    onClick={() => handleDelete(proj)}
                     className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                     title="Delete project"
                   >
@@ -338,7 +366,6 @@ export function ProjectsSection() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-5 space-y-5">
-              {/* Title & Order */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
@@ -371,7 +398,6 @@ export function ProjectsSection() {
                 </div>
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Project Description *
@@ -387,7 +413,6 @@ export function ProjectsSection() {
                 )}
               </div>
 
-              {/* Image URL & Preview */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Project Cover Image URL *
@@ -413,7 +438,6 @@ export function ProjectsSection() {
                 )}
               </div>
 
-              {/* Stacks */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Technologies / Stacks
@@ -455,7 +479,6 @@ export function ProjectsSection() {
                 </div>
               </div>
 
-              {/* GitHub Link & Live Link */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
@@ -482,7 +505,6 @@ export function ProjectsSection() {
                 </div>
               </div>
 
-              {/* Toggles: isFeatured & isActive */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
                   <input
@@ -513,7 +535,6 @@ export function ProjectsSection() {
                 </label>
               </div>
 
-              {/* Modal Buttons */}
               <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3">
                 <button
                   type="button"
@@ -524,10 +545,10 @@ export function ProjectsSection() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90"
+                  disabled={isSaving}
+                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingProject ? 'Update Project' : 'Create Project'}
+                  {isSaving ? 'Saving...' : editingProject ? 'Update Project' : 'Create Project'}
                 </button>
               </div>
             </form>

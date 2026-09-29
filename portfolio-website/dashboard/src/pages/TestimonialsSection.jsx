@@ -1,17 +1,31 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useData } from '../context/DataContext.jsx';
+import { Plus, Edit2, Trash2, Star, MessageSquareQuote, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {
-  Plus,
-  Edit2,
-  Trash2,
-  Star,
-  MessageSquareQuote,
-  X
-} from 'lucide-react';
+  useGetAllTestimonialsQuery,
+  useCreateTestimonialMutation,
+  useUpdateTestimonialMutation,
+  useDeleteTestimonialMutation,
+  useToggleTestimonialStatusMutation,
+} from '@/redux/features/testimonialsApi.js';
 
-export function TestimonialsSection() {
-  const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial, searchQuery } = useData();
+const DEFAULT_VALUES = {
+  name: '',
+  role: '',
+  company: '',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+  message: '',
+  rating: 5,
+  isActive: true,
+};
+
+export function TestimonialsSection({ searchQuery = '' }) {
+  const { data: testimonialsResponse, isLoading: isLoadingTestimonials, isError: isErrorTestimonials } = useGetAllTestimonialsQuery();
+  const [createTestimonial, { isLoading: isCreating }] = useCreateTestimonialMutation();
+  const [updateTestimonial, { isLoading: isUpdating }] = useUpdateTestimonialMutation();
+  const [deleteTestimonial] = useDeleteTestimonialMutation();
+  const [toggleTestimonialStatus] = useToggleTestimonialStatusMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState(null);
@@ -23,42 +37,27 @@ export function TestimonialsSection() {
     watch,
     setValue,
     formState: { errors, isSubmitting }
-  } = useForm({
-    defaultValues: {
-      clientName: '',
-      role: '',
-      company: '',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-      feedback: '',
-      rating: 5,
-      isActive: true
-    }
-  });
+  } = useForm({ defaultValues: DEFAULT_VALUES });
 
   const selectedRating = watch('rating');
+  const isSaving = isCreating || isUpdating || isSubmitting;
+
+  const testimonials = testimonialsResponse?.data || [];
 
   const openCreateModal = () => {
     setEditingTestimonial(null);
-    reset({
-      clientName: '',
-      role: 'Head of Engineering',
-      company: '',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-      feedback: '',
-      rating: 5,
-      isActive: true
-    });
+    reset({ ...DEFAULT_VALUES, role: 'Head of Engineering' });
     setIsModalOpen(true);
   };
 
   const openEditModal = (item) => {
     setEditingTestimonial(item);
     reset({
-      clientName: item.clientName,
+      name: item.name,
       role: item.role,
       company: item.company,
       avatar: item.avatar,
-      feedback: item.feedback,
+      message: item.message,
       rating: item.rating,
       isActive: item.isActive
     });
@@ -66,36 +65,71 @@ export function TestimonialsSection() {
   };
 
   const onSubmit = async (data) => {
-    if (editingTestimonial) {
-      updateTestimonial(editingTestimonial.id, {
-        clientName: data.clientName,
-        role: data.role,
-        company: data.company,
-        avatar: data.avatar,
-        feedback: data.feedback,
-        rating: Number(data.rating),
-        isActive: data.isActive
-      });
-    } else {
-      addTestimonial({
-        clientName: data.clientName,
-        role: data.role,
-        company: data.company,
-        avatar: data.avatar,
-        feedback: data.feedback,
-        rating: Number(data.rating),
-        isActive: data.isActive
-      });
+    const payload = {
+      name: data.name,
+      role: data.role,
+      company: data.company,
+      avatar: data.avatar,
+      message: data.message,
+      rating: Number(data.rating),
+      isActive: data.isActive
+    };
+
+    try {
+      if (editingTestimonial) {
+        await updateTestimonial({ id: editingTestimonial._id, ...payload }).unwrap();
+        toast.success('Testimonial updated successfully!');
+      } else {
+        await createTestimonial(payload).unwrap();
+        toast.success('Testimonial added successfully!');
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(error?.data?.message || error?.message || 'Failed to save testimonial.');
     }
-    setIsModalOpen(false);
   };
 
-  const filteredTestimonials = testimonials.filter((t) => {
+  const handleToggleStatus = async (item) => {
+    try {
+      await toggleTestimonialStatus(item._id).unwrap();
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to update status.');
+    }
+  };
+
+  const handleDelete = async (item) => {
+    if (!window.confirm(`Delete review from "${item.name}"?`)) return;
+    try {
+      await deleteTestimonial(item._id).unwrap();
+      toast.success('Testimonial deleted successfully!');
+    } catch (error) {
+      toast.error(error?.data?.message || 'Failed to delete testimonial.');
+    }
+  };
+
+  if (isLoadingTestimonials) {
     return (
-      !searchQuery ||
-      t.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.feedback.toLowerCase().includes(searchQuery.toLowerCase())
+      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-zinc-500">
+        Loading testimonials...
+      </div>
+    );
+  }
+
+  if (isErrorTestimonials) {
+    return (
+      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-rose-500">
+        Failed to load testimonials. Please refresh the page.
+      </div>
+    );
+  }
+
+  const filteredTestimonials = testimonials.filter((t) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      !q ||
+      t.name.toLowerCase().includes(q) ||
+      (t.company || '').toLowerCase().includes(q) ||
+      t.message.toLowerCase().includes(q)
     );
   });
 
@@ -138,8 +172,8 @@ export function TestimonialsSection() {
         ) : (
           filteredTestimonials.map((item) => (
             <div
-              key={item.id}
-              id={`testimonial-card-${item.id}`}
+              key={item._id}
+              id={`testimonial-card-${item._id}`}
               className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
             >
               <div>
@@ -147,57 +181,53 @@ export function TestimonialsSection() {
                   <div className="flex items-center gap-3">
                     <img
                       src={item.avatar}
-                      alt={item.clientName}
+                      alt={item.name}
                       className="w-12 h-12 rounded-full object-cover ring-2 ring-zinc-100 dark:ring-zinc-800"
                     />
                     <div>
                       <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                        {item.clientName}
+                        {item.name}
                       </h3>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        {item.role} at{' '}
-                        <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                          {item.company}
-                        </span>
+                        {item.role}{item.company ? ` at ` : ''}
+                        {item.company && (
+                          <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                            {item.company}
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
 
                   <span
-                    className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${
-                      item.isActive
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
-                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                    }`}
+                    className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${item.isActive
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
+                      : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                      }`}
                   >
                     {item.isActive ? 'Active' : 'Hidden'}
                   </span>
                 </div>
 
-                {/* Rating stars */}
                 <div className="flex items-center gap-1 text-amber-400 mb-3">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 ${
-                        i < item.rating
-                          ? 'fill-current'
-                          : 'text-zinc-300 dark:text-zinc-700'
-                      }`}
+                      className={`w-4 h-4 ${i < item.rating ? 'fill-current' : 'text-zinc-300 dark:text-zinc-700'
+                        }`}
                     />
                   ))}
                 </div>
 
                 <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed italic">
-                  "{item.feedback}"
+                  "{item.message}"
                 </p>
               </div>
 
-              {/* Actions footer */}
               <div className="mt-6 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => updateTestimonial(item.id, { isActive: !item.isActive })}
+                  onClick={() => handleToggleStatus(item)}
                   className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                 >
                   {item.isActive ? 'Deactivate' : 'Activate'}
@@ -214,11 +244,7 @@ export function TestimonialsSection() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (window.confirm(`Delete review from "${item.clientName}"?`)) {
-                        deleteTestimonial(item.id);
-                      }
-                    }}
+                    onClick={() => handleDelete(item)}
                     className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                     title="Delete Testimonial"
                   >
@@ -252,7 +278,6 @@ export function TestimonialsSection() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-5 space-y-5">
-              {/* Client Name & Avatar URL */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
@@ -260,12 +285,12 @@ export function TestimonialsSection() {
                   </label>
                   <input
                     type="text"
-                    {...register('clientName', { required: 'Client name is required' })}
+                    {...register('name', { required: 'Client name is required' })}
                     placeholder="e.g. Sarah Jenkins"
                     className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
                   />
-                  {errors.clientName && (
-                    <p className="text-xs text-rose-500 mt-1">{errors.clientName.message}</p>
+                  {errors.name && (
+                    <p className="text-xs text-rose-500 mt-1">{errors.name.message}</p>
                   )}
                 </div>
 
@@ -275,22 +300,21 @@ export function TestimonialsSection() {
                   </label>
                   <input
                     type="url"
-                    {...register('avatar', { required: 'Avatar URL is required' })}
+                    {...register('avatar')}
                     placeholder="https://..."
                     className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
                   />
                 </div>
               </div>
 
-              {/* Role & Company */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                    Role / Position *
+                    Role / Position
                   </label>
                   <input
                     type="text"
-                    {...register('role', { required: 'Role is required' })}
+                    {...register('role')}
                     placeholder="e.g. VP of Engineering"
                     className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
                   />
@@ -298,34 +322,35 @@ export function TestimonialsSection() {
 
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                    Company Name *
+                    Company Name
                   </label>
                   <input
                     type="text"
-                    {...register('company', { required: 'Company is required' })}
+                    {...register('company')}
                     placeholder="e.g. Apex Tech"
                     className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
                   />
                 </div>
               </div>
 
-              {/* Feedback Quote */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Feedback / Testimonial Quote *
                 </label>
                 <textarea
                   rows={3}
-                  {...register('feedback', { required: 'Feedback is required' })}
+                  {...register('message', {
+                    required: 'Feedback is required',
+                    minLength: { value: 10, message: 'Feedback must be at least 10 characters' }
+                  })}
                   placeholder="Shohag delivered our core dashboard weeks ahead of schedule with remarkable craftsmanship..."
                   className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 resize-y"
                 />
-                {errors.feedback && (
-                  <p className="text-xs text-rose-500 mt-1">{errors.feedback.message}</p>
+                {errors.message && (
+                  <p className="text-xs text-rose-500 mt-1">{errors.message.message}</p>
                 )}
               </div>
 
-              {/* Rating selector */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
                   Rating: {selectedRating} Stars
@@ -339,18 +364,16 @@ export function TestimonialsSection() {
                       className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                       <Star
-                        className={`w-6 h-6 ${
-                          star <= selectedRating
-                            ? 'text-amber-400 fill-amber-400'
-                            : 'text-zinc-300 dark:text-zinc-700'
-                        }`}
+                        className={`w-6 h-6 ${star <= selectedRating
+                          ? 'text-amber-400 fill-amber-400'
+                          : 'text-zinc-300 dark:text-zinc-700'
+                          }`}
                       />
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* isActive */}
               <div className="pt-2">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -364,7 +387,6 @@ export function TestimonialsSection() {
                 </label>
               </div>
 
-              {/* Modal Buttons */}
               <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3">
                 <button
                   type="button"
@@ -375,10 +397,10 @@ export function TestimonialsSection() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90"
+                  disabled={isSaving}
+                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingTestimonial ? 'Update Testimonial' : 'Save Testimonial'}
+                  {isSaving ? 'Saving...' : editingTestimonial ? 'Update Testimonial' : 'Save Testimonial'}
                 </button>
               </div>
             </form>

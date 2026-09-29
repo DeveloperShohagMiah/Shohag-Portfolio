@@ -4,80 +4,144 @@ const blogSchema = new mongoose.Schema(
     {
         title: {
             type: String,
-            required: [true, "Blog title is required!"],
-            unique: true,
+            required: [true, "Title is required"],
             trim: true,
-            minlength: [5, "Blog title must be at least 5 characters long."],
-            maxlength: [200, "Blog title cannot exceed 200 characters."]
+            minlength: [5, "Title must be at least 5 characters long."],
+            maxlength: [150, "Title cannot exceed 150 characters."],
         },
-        slug: { type: String, unique: true, lowercase: true },
+
+        slug: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true,
+            index: true,
+        },
+
+        excerpt: {
+            type: String,
+            trim: true,
+            maxlength: [300, "Excerpt cannot exceed 300 characters."],
+        },
 
         content: {
             type: String,
-            required: [true, "Blog content is required!"],
-            trim: true,
-            minlength: [20, "Blog content must be at least 20 characters long."]
+            required: [true, "Content is required"],
         },
 
-        image: {
+        coverImage: {
             type: String,
-            trim: true
-        },
-
-
-        category: {
-            type: String,
-            required: [true, "Category is required!"],
             trim: true,
-            lowercase: true,
-            enum: { values: ["backend", "frontend", "devops", "career"], message: "Invalid category." }
         },
 
         tags: {
-            type: [{ type: String, trim: true, lowercase: true }],
-            validate: {
-                validator: (v) => Array.isArray(v) && v.length > 0,
-                message: "At least one tag is required."
-            }
+            type: [String],
+            default: [],
         },
 
+        category: {
+            type: String,
+            trim: true,
+        },
 
-        isActive: {
+        author: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+
+        isPublished: {
             type: Boolean,
-            default: true
+            default: false,
         },
 
         isFeatured: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
+
+        publishedAt: {
+            type: Date,
+        },
+
+        views: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        readTimeMinutes: {
+            type: Number,
+            min: 1,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
     }
 );
 
-// Indexes
-blogSchema.index({ isActive: 1, createdAt: -1 });
-blogSchema.index({ isFeatured: 1, isActive: 1 });
-blogSchema.index({ category: 1, isActive: 1 });
-blogSchema.index({ tags: 1, isActive: 1 });
+/* =========================================================
+   INDEXES
+========================================================= */
 
-// after the schema definition
+blogSchema.index({
+    isPublished: 1,
+    publishedAt: -1,
+});
+
+blogSchema.index({
+    category: 1,
+});
+
+/* =========================================================
+   PRE VALIDATE
+   Auto-generate slug from title
+========================================================= */
+
 blogSchema.pre("validate", function () {
-    if (this.isModified("title")) {
+    if (this.title && (!this.slug || this.isModified("title"))) {
         this.slug = this.title
-            .toLowerCase()
+            .toString()
             .trim()
+            .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)/g, "");
     }
 });
 
-// Static method
-blogSchema.statics.findActiveBlogs = function () {
-    return this.find({ isActive: true }).sort({ createdAt: -1 });
+/* =========================================================
+   PRE SAVE
+   Keep publishedAt synchronized with isPublished
+========================================================= */
+
+blogSchema.pre("save", function () {
+    if (this.isModified("isPublished")) {
+        if (this.isPublished && !this.publishedAt) {
+            this.publishedAt = new Date();
+        }
+
+        if (!this.isPublished) {
+            this.publishedAt = undefined;
+        }
+    }
+});
+
+/* =========================================================
+   STATIC METHODS
+========================================================= */
+
+blogSchema.statics.findPublished = function () {
+    return this.find({
+        isPublished: true,
+    }).sort({
+        publishedAt: -1,
+    });
 };
+
+/* =========================================================
+   MODEL
+========================================================= */
 
 const Blog = mongoose.model("Blog", blogSchema);
 
