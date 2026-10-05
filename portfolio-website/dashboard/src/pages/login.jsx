@@ -65,7 +65,7 @@ const Login = () => {
                         repeat: Infinity,
                         ease: "easeInOut",
                     }}
-                    className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-purple-900/20 rounded-full blur-[140px]"
+                    className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-purple-900/20  blur-[140px]"
                 />
 
                 {/* Primary Purple Wave */}
@@ -153,7 +153,7 @@ const Login = () => {
                 </div>
 
                 {/* Card wrapper */}
-                <div className="bg-[#121215]/80 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+                <div className="bg-[#121215]/80 border border-zinc-800/80  p-6 sm:p-8 shadow-2xl backdrop-blur-md">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-5"

@@ -174,7 +174,7 @@ export default function Skills() {
 
                 {/* Category navigation */}
                 <div className="mt-14 overflow-x-auto pb-2 scrollbar-hide">
-                    <div className="flex min-w-max items-center gap-2 rounded-2xl border border-border/60 bg-card/30 p-1.5 backdrop-blur-sm bg-gradient gradient-border">
+                    <div className="flex min-w-max items-center gap-2  border border-border/60 bg-card/30 p-1.5 backdrop-blur-sm bg-gradient gradient-border">
                         {CATEGORIES.map((category) => {
                             const isActive = activeCategory === category;
 
@@ -184,7 +184,7 @@ export default function Skills() {
                                     type="button"
                                     onClick={() => setActiveCategory(category)}
                                     className={`relative rounded-xl px-4 py-2.5 font-medium font-display text-xs transition-all duration-300 sm:px-5 ${isActive
-                                        ? "bg-muted text-muted-foreground shadow-sm"
+                                        ? "bg-primary text-primary-foreground shadow-sm"
                                         : "text-muted-foreground hover:bg-muted hover:text-muted-foreground"
                                         }`}
                                 >
@@ -209,7 +209,7 @@ export default function Skills() {
                 </div>
 
                 {/* Skills */}
-                <div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border/60 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-5 grid gap-px overflow-hidden  border border-border/60 bg-border/60 sm:grid-cols-2 lg:grid-cols-4">
                     {filteredSkills.map((skill, index) => {
                         const Icon = skill.icon;
 
@@ -241,7 +241,7 @@ export default function Skills() {
 
                                 {/* Category */}
                                 <div className="mt-5 flex items-center gap-2">
-                                    <span className="h-1 w-1 rounded-full bg-primary" />
+                                    <span className="h-1 w-1  bg-primary" />
 
                                     <span className="font-code text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
                                         {skill.category}
@@ -251,7 +251,7 @@ export default function Skills() {
                                 {/* Hover accent */}
                                 <div
                                     aria-hidden="true"
-                                    className="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-linear-to-r from-transparent via-foreground/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                    className="pointer-events-none absolute inset-x-7 top-0 h-[1.5px] bg-linear-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                                 />
 
                             </div>

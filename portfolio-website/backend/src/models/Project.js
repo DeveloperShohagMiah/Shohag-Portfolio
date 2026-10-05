@@ -4,7 +4,6 @@ const projectSchema = new mongoose.Schema({
     title: {
         type: String,
         required: [true, "Title is required"],
-        unique: true,
         trim: true
     },
     description: {
@@ -13,7 +12,6 @@ const projectSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        required: [true, "Image is required"]
     },
     stacks: {
         type: [String],
@@ -47,8 +45,10 @@ const projectSchema = new mongoose.Schema({
     },
     order: {
         type: Number,
-        unique: true,
-        sparse: true
+        default: 1
+        // ❌ REMOVED: unique: true, sparse: true
+        // Reason: every project defaulted to order: 1,
+        // causing E11000 duplicate key errors on the 2nd insert.
     },
     isFeatured: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true }

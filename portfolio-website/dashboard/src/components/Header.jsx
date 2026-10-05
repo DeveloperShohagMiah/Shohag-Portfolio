@@ -152,14 +152,14 @@ export function Header({ onMobileMenuToggle }) {
           >
             <Bell className="w-4 h-4" />
             {unreadNotifCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-900 animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2  bg-rose-500 ring-2 ring-white dark:ring-zinc-900 animate-pulse" />
             )}
           </button>
 
           {showNotifications && (
             <div
               id="notifications-panel"
-              className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 mt-2 w-80 sm:w-96  bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
             >
               <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                 <div>
@@ -221,10 +221,10 @@ export function Header({ onMobileMenuToggle }) {
               <img
                 src={profile.avatar}
                 alt={profile.name}
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+                className="w-8 h-8  object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
               />
               <span
-                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
+                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5  ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
                   }`}
                 title={profile.isAvailable !== false ? 'Available for work' : 'Not available'}
               />
@@ -234,7 +234,7 @@ export function Header({ onMobileMenuToggle }) {
           {showProfileMenu && (
             <div
               id="profile-menu"
-              className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 p-2"
+              className="absolute right-0 mt-2 w-64  bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 p-2"
             >
               {/* Profile Header */}
               <div className="px-3 py-3 border-b border-zinc-100 dark:border-zinc-800/80 mb-1">

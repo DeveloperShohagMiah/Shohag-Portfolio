@@ -69,7 +69,7 @@ const DeleteModal = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 sm:p-7 text-zinc-900 dark:text-zinc-100 z-10 antialiased overflow-hidden"
+            className="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800  shadow-2xl p-6 sm:p-7 text-zinc-900 dark:text-zinc-100 z-10 antialiased overflow-hidden"
             role="dialog"
             aria-modal="true"
           >
@@ -140,7 +140,7 @@ const DeleteModal = ({
               >
                 {isLoading ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white  animate-spin" />
                     <span>Deleting...</span>
                   </>
                 ) : (
@@ -296,7 +296,7 @@ export function FaqSection() {
       {/* FAQ Items Accordion / List */}
       <div className="space-y-3">
         {filteredFaqs.length === 0 ? (
-          <div className="p-12 text-center rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
+          <div className="p-12 text-center  border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
             <HelpCircle className="w-8 h-8 text-zinc-400 mx-auto mb-3" />
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
               No FAQ items found
@@ -313,7 +313,7 @@ export function FaqSection() {
               <div
                 key={faqId}
                 id={`faq-item-${faqId}`}
-                className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs transition-all"
+                className=" bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs transition-all"
               >
                 <div className="p-4 sm:p-5 flex items-center justify-between gap-4">
                   <div
@@ -330,9 +330,9 @@ export function FaqSection() {
 
                   <div className="flex items-center gap-3 shrink-0">
                     <span
-                      className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${faq.isActive
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
-                          : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                      className={`px-2.5 py-0.5 text-xs font-medium  ${faq.isActive
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
+                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
                         }`}
                     >
                       {faq.isActive ? 'Active' : 'Draft'}
@@ -387,7 +387,7 @@ export function FaqSection() {
           id="faq-modal"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs"
         >
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-xl w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-zinc-900  max-w-xl w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                 {editingFaq ? 'Edit FAQ Item' : 'Add FAQ Item'}

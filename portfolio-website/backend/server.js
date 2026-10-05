@@ -16,7 +16,8 @@ import testimonialRouter from "./src/routes/testimonial.routes.js";
 import notFound from "./src/middleawares/notFound.js";
 import errorHandler from "./src/middleawares/errorHandler.js";
 import router from "./src/routes/blog.routes.js";
-
+import profileRouter from "./src/routes/profile.routes.js";
+import contactMessageRouter from "./src/routes/contactMessage.routes.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -58,7 +59,9 @@ app.use("/api/services", serviceRouter);
 app.use("/api/projects", projectRouter);
 app.use("/api/skills", skillsRouter);
 app.use("/api/faqs", faqRouter);
+app.use("/api/profile", profileRouter);
 app.use("/api/testimonials", testimonialRouter);
+app.use("/api/contact-messages", contactMessageRouter);
 
 // 404 handler — after all real routes
 app.use(notFound);

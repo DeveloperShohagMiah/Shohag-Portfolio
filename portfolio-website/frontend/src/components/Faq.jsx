@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FiArrowUpRight, FiPlus, FiMinus } from "react-icons/fi";
 import SectionHeader from "./SectionHeader";
 
@@ -50,6 +50,160 @@ const FAQS = [
     },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Reveal-on-scroll hook                                             */
+/* ------------------------------------------------------------------ */
+function useReveal(options = {}) {
+    const ref = useRef(null);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        const node = ref.current;
+        if (!node) return;
+
+        const prefersReduced = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+        if (prefersReduced) {
+            setVisible(true);
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.12, rootMargin: "0px 0px -60px 0px", ...options }
+        );
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [options]);
+
+    return [ref, visible];
+}
+
+function Reveal({ children, delay = 0, as: Tag = "div", className = "" }) {
+    const [ref, visible] = useReveal();
+
+    return (
+        <Tag
+            ref={ref}
+            style={{ transitionDelay: `${delay}ms` }}
+            className={`transform-gpu transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                } ${className}`}
+        >
+            {children}
+        </Tag>
+    );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Ambient glow + corner accents (shared visual language)            */
+/* ------------------------------------------------------------------ */
+function CardAmbientGlow() {
+    return (
+        <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-px z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        >
+            <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,theme(colors.primary/25),transparent_70%)] blur-2xl animate-[pulseGlow_4s_ease-in-out_infinite]" />
+            <div className="absolute -inset-1/2 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,theme(colors.primary/20)_60deg,transparent_120deg,theme(colors.primary/10)_240deg,transparent_360deg)] opacity-40" />
+        </div>
+    );
+}
+
+function CardAccents({ inset = "inset-x-6" }) {
+    return (
+        <>
+            <div
+                aria-hidden="true"
+                className={`pointer-events-none absolute ${inset} top-0 z-20 h-[1.5px] bg-gradient-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
+            />
+            <div className="pointer-events-none absolute left-0 top-0 z-20 h-8 w-8 border-l border-t border-primary/0 transition-all duration-500 group-hover:h-12 group-hover:w-12 group-hover:border-primary/50" />
+            <div className="pointer-events-none absolute bottom-0 right-0 z-20 h-8 w-8 border-b border-r border-primary/0 transition-all duration-500 group-hover:h-12 group-hover:w-12 group-hover:border-primary/50" />
+        </>
+    );
+}
+
+/* ------------------------------------------------------------------ */
+/*  FAQ item                                                          */
+/* ------------------------------------------------------------------ */
+function FaqItem({ faq, index, isOpen, onToggle }) {
+    return (
+        <Reveal
+            as="div"
+            delay={index * 40}
+            className="group relative clip-polygon border border-border/60 bg-card/40 backdrop-blur transition-all duration-500 ease-out shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.25)] hover:border-primary/40 hover:bg-card/70 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_24px_48px_-16px_rgba(0,0,0,0.45),0_0_60px_-12px_theme(colors.primary/50),inset_0_1px_0_0_rgba(255,255,255,0.06)]"
+        >
+            <CardAmbientGlow />
+            <CardAccents inset="inset-x-6 sm:inset-x-8" />
+
+            <button
+                type="button"
+                onClick={onToggle}
+                aria-expanded={isOpen}
+                aria-controls={`faq-panel-${index}`}
+                id={`faq-trigger-${index}`}
+                className="relative z-10 flex w-full items-start gap-5 p-5 text-left sm:items-center sm:gap-6 sm:p-7 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+                {/* Number */}
+                <span
+                    className={`w-7 shrink-0 pt-1 font-code text-[10px] transition-colors duration-300 ${isOpen
+                            ? "text-primary"
+                            : "text-muted-foreground/40 group-hover:text-primary/60"
+                        }`}
+                >
+                    {String(index + 1).padStart(2, "0")}
+                </span>
+
+                {/* Question */}
+                <span
+                    className={`flex-1 text-base font-medium tracking-tight transition-colors duration-300 sm:text-lg ${isOpen
+                            ? "text-foreground"
+                            : "text-muted-foreground group-hover:text-foreground"
+                        }`}
+                >
+                    {faq.question}
+                </span>
+
+                {/* Toggle icon */}
+                <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center clip-polygon border transition-all duration-500 ${isOpen
+                            ? "border-primary/60 bg-primary/10 text-primary shadow-[0_0_20px_-4px_theme(colors.primary/60)]"
+                            : "border-border text-muted-foreground group-hover:border-primary/40 group-hover:text-primary"
+                        }`}
+                >
+                    {isOpen ? <FiMinus size={14} /> : <FiPlus size={14} />}
+                </span>
+            </button>
+
+            {/* Answer */}
+            <div
+                id={`faq-panel-${index}`}
+                role="region"
+                aria-labelledby={`faq-trigger-${index}`}
+                className={`relative z-10 grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    }`}
+            >
+                <div className="overflow-hidden">
+                    <div className="px-5 pb-6 pl-[68px] pr-6 sm:px-7 sm:pb-7 sm:pl-[92px] sm:pr-16">
+                        <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
+                            {faq.answer}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </Reveal>
+    );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section                                                           */
+/* ------------------------------------------------------------------ */
 export default function FAQ() {
     const [openIndex, setOpenIndex] = useState(0);
 
@@ -62,111 +216,55 @@ export default function FAQ() {
             id="faq"
             className="relative overflow-hidden bg-background py-28 sm:py-36"
         >
-            <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-border to-transparent"></div>
+            {/* Top divider */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+            />
+
+            {/* Ambient glows */}
+            <div className="pointer-events-none absolute -left-32 top-40 h-80 w-80 bg-primary/10 blur-[120px]" />
+            <div className="pointer-events-none absolute -right-32 bottom-20 h-80 w-80 bg-primary/5 blur-[120px]" />
 
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-
-                {/* =====================================================
-                    HEADER
-                ====================================================== */}
-
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="max-w-3xl">
-                        <SectionHeader label={"FAQ"} />
-
-                        <h2 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-3xl">
-                            I turn
-                            <span className="text-gradient">ideas into web experiences.</span>
+                {/* HEADER */}
+                <Reveal className="grid gap-8 lg:grid-cols-12 lg:items-end">
+                    <div className="lg:col-span-7">
+                        <SectionHeader label="Frequently Asked Questions" />
+                        <h2 className="text-balance font-display text-5xl font-semibold leading-[0.95] tracking-[-0.05em] text-foreground sm:text-6xl lg:text-7xl">
+                            Questions,{" "}
+                            <span className="text-gradient">answered.</span>
                         </h2>
                     </div>
+
+                    <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg lg:col-span-5 lg:justify-self-end">
+                        Everything you need to know about working together — from
+                        services and pricing to timelines and support.
+                    </p>
+                </Reveal>
+
+                {/* FAQ LIST */}
+                <div className="mt-16 flex flex-col gap-4 lg:mt-20">
+                    {FAQS.map((faq, index) => (
+                        <FaqItem
+                            key={faq.question}
+                            faq={faq}
+                            index={index}
+                            isOpen={openIndex === index}
+                            onToggle={() => toggleFAQ(index)}
+                        />
+                    ))}
                 </div>
 
-                {/* =====================================================
-                    FAQ LIST
-                ====================================================== */}
-
-                <div className="mt-20 flex flex-col gap-2 items-center">
-
-                    {FAQS.map((faq, index) => {
-                        const isOpen = openIndex === index;
-
-                        return (
-                            <div
-                                key={faq.question}
-                                className="group border border-border/70 p-2 rounded-xl"
-                            >
-                                <button
-                                    type="button"
-                                    onClick={() => toggleFAQ(index)}
-                                    aria-expanded={isOpen}
-                                    className="flex w-full items-center gap-5 py-2 text-left sm:py-3"
-                                >
-                                    {/* Number */}
-                                    <span
-                                        className={`w-7 shrink-0 pt-1 font-code text-[10px] transition-colors duration-300 ${isOpen
-                                            ? "text-primary"
-                                            : "text-muted-foreground/40"
-                                            }`}
-                                    >
-                                        {String(index + 1).padStart(2, "0")}
-                                    </span>
-
-                                    {/* Question */}
-                                    <span
-                                        className={`flex-1 text-base font-medium tracking-tight transition-colors duration-300 sm:text-sm ${isOpen
-                                            ? "text-foreground"
-                                            : "text-muted-foreground group-hover:text-foreground"
-                                            }`}
-                                    >
-                                        {faq.question}
-                                    </span>
-
-                                    {/* Icon */}
-                                    <span
-                                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen
-                                            ? "border-primary/30 bg-primary text-primary-foreground"
-                                            : "border-border text-muted-foreground group-hover:border-primary/30 group-hover:text-foreground"
-                                            }`}
-                                    >
-                                        {isOpen ? (
-                                            <FiMinus size={14} />
-                                        ) : (
-                                            <FiPlus size={14} />
-                                        )}
-                                    </span>
-                                </button>
-
-                                {/* Answer */}
-                                <div
-                                    className={`grid transition-[grid-template-rows,opacity] duration-400 ease-out ${isOpen
-                                        ? "grid-rows-[1fr] opacity-100"
-                                        : "grid-rows-[0fr] opacity-0"
-                                        }`}
-                                >
-                                    <div className="overflow-hidden">
-                                        <div className="pb-7 pl-12 pr-10 sm:pl-12 sm:pr-20">
-                                            <p className="max-w-3xl text-xs leading-7 text-muted-foreground sm:text-sm">
-                                                {faq.answer}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* =====================================================
-                    BOTTOM CTA
-                ====================================================== */}
-
-                <div className="mt-12 flex flex-col gap-6 border-t border-border/70 pt-10 sm:flex-row sm:items-center sm:justify-between">
-
+                {/* BOTTOM CTA */}
+                <Reveal
+                    delay={200}
+                    className="mt-16 flex flex-col gap-6 border-t border-border/60 pt-10 sm:flex-row sm:items-center sm:justify-between"
+                >
                     <div>
                         <p className="text-sm font-medium text-foreground">
                             Still have a question?
                         </p>
-
                         <p className="mt-1 text-sm text-muted-foreground">
                             Let&apos;s talk about your project directly.
                         </p>
@@ -174,17 +272,20 @@ export default function FAQ() {
 
                     <a
                         href="#contact"
-                        className="group inline-flex w-fit items-center gap-3 rounded-full bg-foreground px-6 py-3.5 text-sm font-semibold text-background transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10"
+                        className="group/cta inline-flex w-fit items-center gap-3 bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_30px_-6px_theme(colors.primary/60)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                         Get in touch
-
                         <FiArrowUpRight
                             size={16}
-                            className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+                            aria-hidden="true"
+                            className="transition-transform duration-300 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1"
                         />
                     </a>
-                </div>
+                </Reveal>
             </div>
+
+            {/* Bottom divider */}
+            <div className="absolute -bottom-28 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:-bottom-36" />
         </section>
     );
 }

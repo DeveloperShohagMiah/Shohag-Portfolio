@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { DynamicIcon } from '../components/DynamicIcon.jsx';
-import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   useGetAllSkillsQuery,
@@ -28,7 +28,7 @@ const DEFAULT_VALUES = {
 };
 
 export function SkillsSection({ searchQuery = '' }) {
-  const { data: skillsResponse, isLoading: isLoadingSkills, isError: isErrorSkills } = useGetAllSkillsQuery();
+  const { data: skillsResponse, isLoading: isLoadingSkills, isError: isErrorSkills, error } = useGetAllSkillsQuery();
   const [createSkill, { isLoading: isCreating }] = useCreateSkillMutation();
   const [updateSkill, { isLoading: isUpdating }] = useUpdateSkillMutation();
   const [deleteSkill] = useDeleteSkillMutation();
@@ -122,8 +122,20 @@ export function SkillsSection({ searchQuery = '' }) {
 
   if (isErrorSkills) {
     return (
-      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-rose-500">
-        Failed to load skills. Please refresh the page.
+      <div className="p-12 text-center  border border-dashed border-rose-300 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/20">
+        <p className="text-sm font-semibold text-rose-600 dark:text-rose-400 mb-2">
+          Failed to load skills
+        </p>
+        <p className="text-xs text-zinc-500 mb-4">
+          {error?.data?.message || error?.message || 'Something went wrong'}
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Retry
+        </button>
       </div>
     );
   }
@@ -186,7 +198,7 @@ export function SkillsSection({ searchQuery = '' }) {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredSkills.length === 0 ? (
-          <div className="col-span-full p-12 text-center rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
+          <div className="col-span-full p-12 text-center  border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
               No skills found
             </p>
@@ -199,7 +211,7 @@ export function SkillsSection({ searchQuery = '' }) {
             <div
               key={skill._id}
               id={`skill-card-${skill._id}`}
-              className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
+              className="p-5  bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between gap-3">
@@ -218,7 +230,7 @@ export function SkillsSection({ searchQuery = '' }) {
                   </div>
 
                   <span
-                    className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${skill.isActive
+                    className={`px-2 py-0.5 text-[10px] font-medium  ${skill.isActive
                       ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
                       : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
                       }`}
@@ -237,9 +249,9 @@ export function SkillsSection({ searchQuery = '' }) {
                       <span>Proficiency</span>
                       <span>{skill.proficiency}%</span>
                     </div>
-                    <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800  overflow-hidden">
                       <div
-                        className="h-full bg-zinc-900 dark:bg-zinc-100 rounded-full transition-all duration-500"
+                        className="h-full bg-zinc-900 dark:bg-zinc-100  transition-all duration-500"
                         style={{ width: `${skill.proficiency}%` }}
                       />
                     </div>
@@ -286,7 +298,7 @@ export function SkillsSection({ searchQuery = '' }) {
           id="skill-modal"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs"
         >
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900  max-w-lg w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                 {editingSkill ? 'Edit Skill' : 'Add New Skill'}

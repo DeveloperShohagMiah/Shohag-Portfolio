@@ -175,7 +175,7 @@ export function ServicesSection({ searchQuery = '' }) {
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredServices.length === 0 ? (
-          <div className="col-span-full p-12 text-center rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
+          <div className="col-span-full p-12 text-center  border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
               No services found
             </p>
@@ -188,7 +188,7 @@ export function ServicesSection({ searchQuery = '' }) {
             <div
               key={service._id}
               id={`service-card-${service._id}`}
-              className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
+              className="p-6  bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between gap-3">
@@ -196,7 +196,7 @@ export function ServicesSection({ searchQuery = '' }) {
                     <DynamicIcon name={service.icon} className="w-5 h-5" />
                   </div>
                   <span
-                    className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${service.isActive
+                    className={`px-2.5 py-0.5 text-xs font-medium  ${service.isActive
                       ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
                       : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
                       }`}
@@ -264,7 +264,7 @@ export function ServicesSection({ searchQuery = '' }) {
           id="service-modal"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs"
         >
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900  max-w-lg w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                 {editingService ? 'Edit Service' : 'Add New Service'}

@@ -56,7 +56,7 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
         <div className="h-16 flex items-center px-4 border-b border-zinc-100 dark:border-zinc-800/80 justify-between shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center shrink-0 shadow-xs">
-              <Sparkles className="w-5 h-5 text-amber-400" />
+              <Sparkles className="w-5 h-5 text-purple-700" />
             </div>
             <div
               className={`flex flex-col transition-all duration-300 whitespace-nowrap overflow-hidden ${collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
@@ -125,7 +125,7 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
                   {/* Unread message badge */}
                   {badgeValue && (
                     <span
-                      className={`ml-auto px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white shrink-0 ${collapsed ? 'absolute top-1 right-2' : ''
+                      className={`ml-auto px-1.5 py-0.5 text-[10px] font-bold  bg-emerald-500 text-white shrink-0 ${collapsed ? 'absolute top-1 right-2' : ''
                         }`}
                     >
                       {badgeValue}
@@ -139,7 +139,7 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
                     <div className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap flex items-center gap-1.5 border border-zinc-700/40 dark:border-zinc-300/40 animate-in fade-in zoom-in-95 duration-100">
                       {item.name}
                       {badgeValue && (
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+                        <span className="w-2 h-2  bg-emerald-400 inline-block" />
                       )}
                     </div>
                   </div>
@@ -162,10 +162,10 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) 
               <img
                 src={profile.avatar}
                 alt={profile.name}
-                className="w-9 h-9 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+                className="w-9 h-9  object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
               />
               <span
-                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
+                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5  ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
                   }`}
                 title={profile.isAvailable !== false ? 'Available for work' : 'Not available'}
               />

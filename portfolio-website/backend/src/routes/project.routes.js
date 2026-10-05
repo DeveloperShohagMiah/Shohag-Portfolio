@@ -5,7 +5,6 @@ import {
     getProjectById,
     updateProject,
     deleteProject,
-    updateStatus,
 } from "../controllers/projects.controllers.js";
 import { authMiddleware, authorize } from "../middleawares/authMiddleware.js";
 import validateObjectId from "../middleawares/validateObjectId.js";
@@ -20,6 +19,5 @@ router.get("/:id", validateObjectId(), getProjectById);
 router.post("/", authMiddleware, authorize("admin", "moderator"), createProject);
 router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateProject);
 router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteProject);
-router.patch("/:id/status", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateStatus);
 
 export default router;

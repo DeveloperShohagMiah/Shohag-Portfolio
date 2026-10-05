@@ -12,8 +12,8 @@ const errorHandler = (err, req, res, next) => {
 
     // Mongoose: duplicate key (e.g. duplicate email)
     if (err.code === 11000) {
-        const field = Object.keys(err.keyValue).join(", ");
-        error = new ApiError(409, `Duplicate value for field: ${field}`);
+        const messages = Object.values(err.errors).map((error) => error.message)
+        error = new ApiError(409, messages.join(", "));
     }
 
     // Mongoose: validation errors

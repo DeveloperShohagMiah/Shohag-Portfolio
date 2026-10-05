@@ -56,7 +56,7 @@ const DeleteModal = ({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="relative w-full max-w-lg bg-[#121215] border border-zinc-800/80 rounded-2xl shadow-2xl p-6 sm:p-7 text-zinc-100 z-10 antialiased overflow-hidden"
+                        className="relative w-full max-w-lg bg-[#121215] border border-zinc-800/80  shadow-2xl p-6 sm:p-7 text-zinc-100 z-10 antialiased overflow-hidden"
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="delete-modal-title"
@@ -121,7 +121,7 @@ const DeleteModal = ({
                             >
                                 {isLoading ? (
                                     <>
-                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white  animate-spin" />
                                         <span>Deleting...</span>
                                     </>
                                 ) : (

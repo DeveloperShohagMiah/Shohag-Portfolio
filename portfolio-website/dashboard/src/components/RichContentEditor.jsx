@@ -296,7 +296,7 @@ export function RichContentEditor({
             </div>
 
             {/* Editor Frame */}
-            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs overflow-hidden focus-within:ring-2 focus-within:ring-zinc-900 dark:focus-within:ring-zinc-100 focus-within:border-transparent transition-all">
+            <div className=" border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs overflow-hidden focus-within:ring-2 focus-within:ring-zinc-900 dark:focus-within:ring-zinc-100 focus-within:border-transparent transition-all">
                 {/* Toolbar (available when in Write or Split mode) */}
                 {viewMode !== 'preview' && (
                     <div className="flex flex-wrap items-center justify-between gap-1 p-2 bg-zinc-50/90 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300">
@@ -617,7 +617,7 @@ export function RichContentEditor({
                     </div>
 
                     <div className="flex items-center gap-2 text-[10px]">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span className="inline-block w-1.5 h-1.5  bg-emerald-500" />
                         <span>Markdown &amp; GFM enabled</span>
                     </div>
                 </div>
@@ -634,7 +634,7 @@ export function RichContentEditor({
             {/* Insert Link Modal */}
             {showLinkModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs">
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-5 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                    <div className="bg-white dark:bg-zinc-900  max-w-md w-full p-5 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
                         <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
                             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                                 <LinkIcon className="w-4 h-4 text-emerald-500" />
@@ -700,7 +700,7 @@ export function RichContentEditor({
             {/* Insert Image Modal */}
             {showImageModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs">
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-md w-full p-5 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                    <div className="bg-white dark:bg-zinc-900  max-w-md w-full p-5 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
                         <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
                             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                                 <ImageIcon className="w-4 h-4 text-emerald-500" />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Eye, Plus, Save, X } from 'lucide-react';
+import { Eye, Plus, RefreshCw, Save, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { RichContentEditor } from '../components/RichContentEditor.jsx';
@@ -10,6 +10,7 @@ import {
   useGetAboutQuery,
   useUpdateAboutMutation,
 } from '@/redux/features/aboutApi.js';
+import { PlaneLoader } from '../ui/Loader.jsx';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80';
@@ -53,7 +54,7 @@ export function AboutSection() {
     data: aboutResponse,
     isLoading: isLoadingAbout,
     isError: isErrorAbout,
-    error: aboutError,
+    error
   } = useGetAboutQuery();
 
   const [updateAbout, { isLoading: isSaving }] =
@@ -224,15 +225,7 @@ export function AboutSection() {
    */
   if (isLoadingAbout) {
     return (
-      <div className="max-w-5xl mx-auto py-16">
-        <div className="flex flex-col items-center justify-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-zinc-300 dark:border-zinc-700 border-t-zinc-900 dark:border-t-zinc-100 animate-spin" />
-
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Loading About section...
-          </p>
-        </div>
-      </div>
+      <PlaneLoader />
     );
   }
 
@@ -241,17 +234,20 @@ export function AboutSection() {
    */
   if (isErrorAbout) {
     return (
-      <div className="max-w-5xl mx-auto py-16">
-        <div className="rounded-2xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 p-6 text-center">
-          <h2 className="text-sm font-semibold text-rose-600 dark:text-rose-400">
-            Failed to load About section
-          </h2>
-
-          <p className="mt-1 text-xs text-rose-500/80 dark:text-rose-400/70">
-            {aboutError?.data?.message ||
-              'Please refresh the page and try again.'}
-          </p>
-        </div>
+      <div className="p-12 text-center  border border-dashed border-rose-300 dark:border-rose-900 bg-rose-50/50 dark:bg-rose-950/20">
+        <p className="text-sm font-semibold text-rose-600 dark:text-rose-400 mb-2">
+          Failed to load About section data.
+        </p>
+        <p className="text-xs text-zinc-500 mb-4">
+          {error?.data?.message || error?.message || 'Something went wrong'}
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Retry
+        </button>
       </div>
     );
   }
@@ -294,8 +290,8 @@ export function AboutSection() {
       ========================================================== */}
       <div
         className={`grid grid-cols-1 ${showLivePreview
-            ? 'lg:grid-cols-3'
-            : 'lg:grid-cols-1'
+          ? 'lg:grid-cols-3'
+          : 'lg:grid-cols-1'
           } gap-6`}
       >
         {/* =======================================================
@@ -311,7 +307,7 @@ export function AboutSection() {
           <form
             id="about-form"
             onSubmit={handleSubmit(onSubmit)}
-            className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm p-5 sm:p-7 space-y-7"
+            className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800  shadow-sm p-5 sm:p-7 space-y-7"
           >
             {/* ===================================================
                 HEADLINE
@@ -647,7 +643,7 @@ export function AboutSection() {
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+              <div className="p-5  bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
                 {/* Profile */}
                 <div className="flex items-center gap-3">
                   <img
@@ -656,7 +652,7 @@ export function AboutSection() {
                       FALLBACK_IMAGE
                     }
                     alt="Profile"
-                    className="w-14 h-14 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0"
+                    className="w-14 h-14  object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0"
                     onError={(event) => {
                       event.currentTarget.src =
                         FALLBACK_IMAGE;
@@ -676,7 +672,7 @@ export function AboutSection() {
 
                     {previewAvailableForHire && (
                       <span className="inline-flex items-center gap-1.5 mt-2 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span className="w-1.5 h-1.5  bg-emerald-500" />
                         Available for Hire
                       </span>
                     )}

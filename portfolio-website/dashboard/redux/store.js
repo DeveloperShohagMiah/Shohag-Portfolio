@@ -7,7 +7,8 @@ import { servicesApi } from "./features/serviceApi";
 import { skillsApi } from "./features/skillApi";
 import { projectsApi } from "./features/projectApi";
 import { blogApi } from "./features/blogsApi";
-
+import { profileApi } from "./features/profileApi";
+import { contactMessagesApi } from "./features/contactMessageApi";
 
 export const store = configureStore({
     reducer: {

@@ -85,7 +85,7 @@ const Register = () => {
                 </div>
 
                 {/* Card */}
-                <div className="bg-[#121215] border border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                <div className="bg-[#121215] border border-zinc-800  p-6 sm:p-8 shadow-xl">
 
                     <form
                         onSubmit={handleSubmit(onSubmit)}
