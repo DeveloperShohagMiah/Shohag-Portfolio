@@ -19,7 +19,7 @@ const router = Router();
 router.get("/active", getActiveSkills);
 
 // Admin — full list including hidden skills
-router.get("/", authMiddleware, authorize("admin", "moderator"), getAllSkills);
+router.get("/", getAllSkills);
 router.get("/:id", validateObjectId(), getSkillById);
 
 router.post("/", authMiddleware, authorize("admin", "moderator"), createSkill);

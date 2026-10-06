@@ -7,11 +7,13 @@ import Projects from './components/Projects'
 import Contact from './components/Contact '
 import Blog from './components/Blogs'
 import FAQ from './components/Faq'
+import PopUpModal from './ui/PopUpModal'
 
 const App = () => {
   return (
     <>
       <Navbar />
+      <PopUpModal />
       <Hero />
       <About />
       <Services />

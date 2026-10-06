@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import { DataProvider } from './context/DataContext.jsx';
+import { ProtectedRoute } from './components/ProtectedRoute.jsx';
+import { PublicRoute } from './components/PublicRoute.jsx';
 import { Layout } from './components/Layout.jsx';
 import { DashboardOverview } from './pages/DashboardOverview.jsx';
 import { AboutSection } from './pages/AboutSection.jsx';
@@ -24,11 +26,19 @@ export default function App() {
         <BrowserRouter>
           <Routes>
 
-            <Route path="/login" element={<Login />} />
+            {/* Public-only routes */}
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
-            <Route path="/register" element={<Register />} />
-
-            <Route path="/" element={<Layout />}>
+            {/* Protected routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<DashboardOverview />} />
               <Route path="profile" element={<ProfileSection />} />
               <Route path="about" element={<AboutSection />} />
@@ -41,8 +51,10 @@ export default function App() {
               <Route path="contact" element={<ContactSection />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
+
           </Routes>
         </BrowserRouter>
+        <Toaster position="top-right" />
       </DataProvider>
     </ThemeProvider>
   );

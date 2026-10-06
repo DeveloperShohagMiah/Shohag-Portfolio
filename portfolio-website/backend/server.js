@@ -22,24 +22,37 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 
-const allowedOrigins = (process.env.CLIENT_URL || "")
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
-  .map((url) => url.trim())
+  .map((origin) => origin.trim())
   .filter(Boolean);
 
 if (allowedOrigins.length === 0) {
-  console.warn("CLIENT_URL is not set in .env — CORS requests from your frontend will fail.");
+  console.warn("⚠️ ALLOWED_ORIGINS is not configured.");
 }
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow non-browser tools (Postman, curl) which send no origin header
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS blocked: ${origin} is not an allowed origin.`));
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Non-browser requests
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.warn(`🚫 CORS blocked: ${origin}`);
+
+      return callback(
+        new Error(`CORS blocked: ${origin} is not allowed.`)
+      );
+    },
+
+    credentials: true,
+  })
+);
 
 
 app.use(express.json());

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     FiArrowRight,
@@ -8,121 +8,45 @@ import {
     FiEye,
     FiShare2,
     FiCheck,
+    FiBookOpen,
 } from "react-icons/fi";
+import { motion, useReducedMotion, useInView } from "framer-motion";
+import { useRef } from "react";
 import SectionHeader from "./SectionHeader";
-
-const BLOG_POSTS = [
-    {
-        number: "01",
-        title: "Building Modern React Applications",
-        excerpt:
-            "Mastering React 19 Actions and Concurrent Transitions. React 19 introduces transformative paradigms for handling async mutations natively without boilerplate state machines.",
-        category: "Development",
-        date: "Sep 02, 2026",
-        readTime: "6 min read",
-        views: 1248,
-        tags: ["React", "JavaScript", "WebDev"],
-        image:
-            "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=1600&q=85",
-        slug: "#",
-        featured: true,
-        published: true,
-    },
-    {
-        number: "02",
-        title: "Designing Interfaces That Feel Simple",
-        excerpt:
-            "Why good interfaces often come down to removing unnecessary complexity and focusing on what matters.",
-        category: "UI / UX",
-        date: "Aug 24, 2026",
-        readTime: "5 min read",
-        views: 986,
-        tags: ["UI/UX", "Design", "Frontend"],
-        image:
-            "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=85",
-        slug: "#",
-        featured: false,
-        published: true,
-    },
-    {
-        number: "03",
-        title: "My Approach to Clean Code",
-        excerpt:
-            "Some principles I follow when writing code that is easier to understand, extend, and maintain.",
-        category: "Engineering",
-        date: "Aug 16, 2026",
-        readTime: "4 min read",
-        views: 742,
-        tags: ["Clean Code", "JavaScript", "Engineering"],
-        image:
-            "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=85",
-        slug: "#",
-        featured: false,
-        published: true,
-    },
-    {
-        number: "04",
-        title: "From Idea to Production",
-        excerpt:
-            "A look at the process I use to turn an initial idea into a polished and production-ready web experience.",
-        category: "Process",
-        date: "Aug 08, 2026",
-        readTime: "7 min read",
-        views: 531,
-        tags: ["Development", "Process", "Production"],
-        image:
-            "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=85",
-        slug: "#",
-        featured: false,
-        published: true,
-    },
-];
+import { useGetPublicBlogsQuery } from "../redux/features/publicApi";
 
 /* ------------------------------------------------------------------ */
-/*  Reveal-on-scroll hook                                             */
+/*  Motion variants                                                    */
 /* ------------------------------------------------------------------ */
-function useReveal(options = {}) {
+const EASE = [0.22, 1, 0.36, 1];
+
+const fadeUp = {
+    hidden: { opacity: 0, y: 24 },
+    show: (custom = 0) => ({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.9, ease: EASE, delay: custom },
+    }),
+};
+
+const stagger = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+};
+
+function ScrollReveal({ children, delay = 0, className = "", amount = 0.15, as: Tag = motion.div }) {
     const ref = useRef(null);
-    const [visible, setVisible] = useState(false);
-
-    useEffect(() => {
-        const node = ref.current;
-        if (!node) return;
-
-        const prefersReduced = window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        ).matches;
-        if (prefersReduced) {
-            setVisible(true);
-            return;
-        }
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setVisible(true);
-                    observer.disconnect();
-                }
-            },
-            { threshold: 0.12, rootMargin: "0px 0px -60px 0px", ...options }
-        );
-
-        observer.observe(node);
-        return () => observer.disconnect();
-    }, [options]);
-
-    return [ref, visible];
-}
-
-function Reveal({ children, delay = 0, as: Tag = "div", className = "" }) {
-    const [ref, visible] = useReveal();
+    const reduced = useReducedMotion();
+    const inView = useInView(ref, { once: true, amount });
 
     return (
         <Tag
             ref={ref}
-            style={{ transitionDelay: `${delay}ms` }}
-            className={`transform-gpu transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-                } ${className}`}
+            initial={reduced ? "show" : "hidden"}
+            animate={inView ? "show" : "hidden"}
+            variants={fadeUp}
+            custom={delay}
+            className={className}
         >
             {children}
         </Tag>
@@ -130,14 +54,13 @@ function Reveal({ children, delay = 0, as: Tag = "div", className = "" }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Card chrome — same DNA as Services / Projects                     */
+/*  Card chrome                                                        */
 /* ------------------------------------------------------------------ */
 const cardChrome = `
   group relative clip-polygon flex flex-col overflow-hidden
-  border border-border/60 bg-card/40 backdrop-blur
-  transition-all duration-500 ease-out
+  border border-border/60 bg-card/40 backdrop-blur-md
+  transition-[border-color,background-color,box-shadow] duration-500 ease-out
   shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.25)]
-  hover:-translate-y-1.5
   hover:border-primary/40
   hover:bg-card/70
   hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_24px_48px_-16px_rgba(0,0,0,0.45),0_0_60px_-12px_theme(colors.primary/50),inset_0_1px_0_0_rgba(255,255,255,0.06)]
@@ -169,7 +92,7 @@ function CardAccents({ inset = "inset-x-6" }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Meta pill — for views / date / read time                          */
+/*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 function MetaPill({ icon: Icon, children }) {
     return (
@@ -180,11 +103,59 @@ function MetaPill({ icon: Icon, children }) {
     );
 }
 
+function formatDate(input) {
+    if (!input) return "";
+    try {
+        const d = new Date(input);
+        if (Number.isNaN(d.getTime())) return String(input);
+        return d.toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+        });
+    } catch {
+        return String(input);
+    }
+}
+
+function normalizePost(raw, index) {
+    const tags = Array.isArray(raw.tags)
+        ? raw.tags.map((t) => (typeof t === "string" ? t : t?.name ?? "")).filter(Boolean)
+        : [];
+
+    const date =
+        raw.date || raw.publishedAt || raw.createdAt || raw.updatedAt || "";
+
+    const readTime =
+        raw.readTime ||
+        raw.readingTime ||
+        (raw.content
+            ? `${Math.max(1, Math.ceil(String(raw.content).split(/\s+/).length / 200))} min read`
+            : "3 min read");
+
+    return {
+        id: raw._id || raw.id || raw.slug || `post-${index}`,
+        number: raw.number || String(index + 1).padStart(2, "0"),
+        title: raw.title || "Untitled post",
+        excerpt: raw.excerpt || raw.description || raw.summary || "",
+        category: raw.category || "General",
+        date: formatDate(date),
+        readTime,
+        views: raw.views ?? raw.viewsCount ?? 0,
+        tags,
+        image: raw.image || raw.coverImage || raw.thumbnail || "",
+        slug: raw.slug || raw._id || "#",
+        featured: Boolean(raw.featured ?? raw.isFeatured),
+        published: raw.published ?? raw.isActive ?? true,
+    };
+}
+
 /* ------------------------------------------------------------------ */
-/*  Share button — with copied feedback state                         */
+/*  Share button                                                       */
 /* ------------------------------------------------------------------ */
 function ShareButton({ post }) {
     const [copied, setCopied] = useState(false);
+    const reduced = useReducedMotion();
 
     const handleShare = async () => {
         const shareData = {
@@ -192,7 +163,7 @@ function ShareButton({ post }) {
             text: post.excerpt,
             url:
                 post.slug && post.slug !== "#"
-                    ? post.slug
+                    ? window.location.origin + "/blogs/" + post.slug
                     : window.location.href,
         };
 
@@ -200,7 +171,7 @@ function ShareButton({ post }) {
             if (navigator.share) {
                 await navigator.share(shareData);
             } else {
-                await navigator.clipboard.writeText(window.location.href);
+                await navigator.clipboard.writeText(shareData.url);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             }
@@ -210,10 +181,13 @@ function ShareButton({ post }) {
     };
 
     return (
-        <button
+        <motion.button
             type="button"
             onClick={handleShare}
             aria-label={`Share ${post.title}`}
+            whileHover={reduced ? undefined : { y: -1 }}
+            whileTap={reduced ? undefined : { scale: 0.97 }}
+            transition={{ duration: 0.2, ease: EASE }}
             className="group/share inline-flex items-center gap-2 text-xs font-medium text-muted-foreground transition-colors duration-300 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
             {copied ? (
@@ -226,36 +200,37 @@ function ShareButton({ post }) {
                 />
             )}
             <span>{copied ? "Copied" : "Share"}</span>
-        </button>
+        </motion.button>
     );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Featured post — asymmetric hero card                              */
+/*  Featured post                                                      */
 /* ------------------------------------------------------------------ */
 function FeaturedPost({ post }) {
+    const reduced = useReducedMotion();
+
     return (
-        <Reveal as="article" className={`${cardChrome} p-6 sm:p-8 lg:p-10`}>
+        <ScrollReveal as={motion.article} className={`${cardChrome} p-6 sm:p-8 lg:p-10`}>
             <CardAmbientGlow />
             <CardAccents inset="inset-x-6 sm:inset-x-8 lg:inset-x-10" />
 
-            {/* Number */}
             <div className="absolute right-6 top-6 z-20 font-code text-xs text-muted-foreground/30 transition-colors duration-300 group-hover:text-primary/70 sm:right-8 sm:top-8">
                 {post.number}
             </div>
 
             <div className="relative z-10 grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-12">
                 {/* Image */}
-                <a
-                    href={post.slug}
-                    className="relative block overflow-hidden rounded-md bg-muted lg:col-span-7 xl:col-span-7"
+                <Link
+                    to={post.slug === "#" ? "#" : `/blogs/${post.slug}`}
+                    className="group/image relative block overflow-hidden rounded-md bg-muted lg:col-span-7"
                 >
                     <div className="aspect-[16/10]">
                         <img
                             src={post.image}
                             alt={post.title}
                             loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                            className="h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/image:scale-[1.03]"
                         />
                     </div>
 
@@ -266,16 +241,16 @@ function FeaturedPost({ post }) {
 
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-70" />
 
-                    <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-5 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                    <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-5 opacity-0 transition-opacity duration-500 group-hover/image:opacity-100">
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-medium text-neutral-900 backdrop-blur-sm">
                             Read article
                             <FiArrowUpRight size={13} aria-hidden="true" />
                         </span>
                     </div>
-                </a>
+                </Link>
 
                 {/* Copy */}
-                <div className="lg:col-span-5 xl:col-span-5">
+                <div className="lg:col-span-5">
                     <div className="flex items-center gap-3">
                         <span className="h-px w-8 bg-primary" aria-hidden="true" />
                         <span className="font-code text-[11px] uppercase tracking-[0.18em] text-primary">
@@ -283,7 +258,6 @@ function FeaturedPost({ post }) {
                         </span>
                     </div>
 
-                    {/* Category chip */}
                     <div className="mt-5 flex flex-wrap items-center gap-2">
                         <span className="border border-border/60 bg-background/50 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-all duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90">
                             {post.category}
@@ -291,47 +265,50 @@ function FeaturedPost({ post }) {
                     </div>
 
                     <h3 className="mt-5 font-display text-3xl font-semibold leading-[1.08] tracking-tight text-foreground sm:text-4xl">
-                        <a
-                            href={post.slug}
+                        <Link
+                            to={post.slug === "#" ? "#" : `/blogs/${post.slug}`}
                             className="transition-colors duration-300 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                         >
                             {post.title}
-                        </a>
+                        </Link>
                     </h3>
 
                     <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground">
                         {post.excerpt}
                     </p>
 
-                    {/* Meta row */}
                     <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
-                        <MetaPill icon={FiCalendar}>{post.date}</MetaPill>
-                        <span aria-hidden="true" className="text-border">
-                            ·
-                        </span>
-                        <MetaPill icon={FiClock}>{post.readTime}</MetaPill>
-                        <span aria-hidden="true" className="text-border">
-                            ·
-                        </span>
-                        <MetaPill icon={FiEye}>{post.views} views</MetaPill>
+                        {post.date && <MetaPill icon={FiCalendar}>{post.date}</MetaPill>}
+                        {post.readTime && (
+                            <>
+                                <span aria-hidden="true" className="text-border">·</span>
+                                <MetaPill icon={FiClock}>{post.readTime}</MetaPill>
+                            </>
+                        )}
+                        {post.views > 0 && (
+                            <>
+                                <span aria-hidden="true" className="text-border">·</span>
+                                <MetaPill icon={FiEye}>{post.views} views</MetaPill>
+                            </>
+                        )}
                     </div>
 
-                    {/* Tags */}
-                    <div className="mt-6 flex flex-wrap gap-2">
-                        {post.tags.map((tag) => (
-                            <span
-                                key={tag}
-                                className="border border-border/60 bg-background/50 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-all duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90"
-                            >
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
+                    {post.tags.length > 0 && (
+                        <div className="mt-6 flex flex-wrap gap-2">
+                            {post.tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="border border-border/60 bg-background/50 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-all duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
 
-                    {/* Actions */}
                     <div className="mt-8 flex items-center gap-6">
                         <Link
-                            to={post.slug === "#" ? "#" : post.slug}
+                            to={post.slug === "#" ? "#" : `/blogs/${post.slug}`}
                             className="group/cta inline-flex items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                         >
                             Read article
@@ -346,84 +323,93 @@ function FeaturedPost({ post }) {
                     </div>
                 </div>
             </div>
-        </Reveal>
+        </ScrollReveal>
     );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Regular post card                                                 */
+/*  Regular post card                                                  */
 /* ------------------------------------------------------------------ */
 function PostCard({ post, index }) {
+    const reduced = useReducedMotion();
+
     return (
-        <Reveal as="article" delay={index * 80} className={cardChrome}>
+        <ScrollReveal
+            as={motion.article}
+            delay={index * 0.08}
+            className={cardChrome}
+        >
             <CardAmbientGlow />
             <CardAccents inset="inset-x-0" />
 
             {/* Image */}
-            <a
-                href={post.slug}
-                className="relative z-10 block overflow-hidden border-b border-border/60"
+            <Link
+                to={post.slug === "#" ? "#" : `/blogs/${post.slug}`}
+                className="group/image relative z-10 block overflow-hidden border-b border-border/60"
             >
                 <div className="aspect-[16/10]">
                     <img
                         src={post.image}
                         alt={post.title}
                         loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                        className="h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/image:scale-[1.03]"
                     />
                 </div>
 
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
 
-                {/* Number */}
                 <span className="absolute left-5 top-5 border border-white/10 bg-black/40 px-3 py-1.5 font-code text-[10px] text-white/70 backdrop-blur-md">
                     {post.number}
                 </span>
 
-                {/* Category */}
-                <span className="absolute bottom-4 left-4 border border-white/10 bg-black/40 px-3 py-1.5 font-code text-[10px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md">
-                    {post.category}
-                </span>
+                {post.category && (
+                    <span className="absolute bottom-4 left-4 border border-white/10 bg-black/40 px-3 py-1.5 font-code text-[10px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md">
+                        {post.category}
+                    </span>
+                )}
 
-                {/* Hover CTA */}
-                <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-4 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                <div className="pointer-events-none absolute inset-0 flex items-end justify-end p-4 opacity-0 transition-opacity duration-500 group-hover/image:opacity-100">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 text-[11px] font-medium text-neutral-900 backdrop-blur-sm">
                         Read
                         <FiArrowUpRight size={12} aria-hidden="true" />
                     </span>
                 </div>
-            </a>
+            </Link>
 
             {/* Body */}
             <div className="relative z-10 flex flex-1 flex-col p-6 sm:p-7">
                 <h3 className="font-display text-xl font-semibold leading-snug tracking-tight text-foreground transition-colors duration-300 group-hover:text-primary sm:text-2xl">
-                    <a
-                        href={post.slug}
+                    <Link
+                        to={post.slug === "#" ? "#" : `/blogs/${post.slug}`}
                         className="focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                     >
                         {post.title}
-                    </a>
+                    </Link>
                 </h3>
 
-                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-7 text-muted-foreground">
-                    {post.excerpt}
-                </p>
+                {post.excerpt && (
+                    <p className="mt-3 line-clamp-3 flex-1 text-sm leading-7 text-muted-foreground">
+                        {post.excerpt}
+                    </p>
+                )}
 
-                {/* Meta row */}
                 <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <MetaPill icon={FiCalendar}>{post.date}</MetaPill>
-                    <span aria-hidden="true" className="text-border">
-                        ·
-                    </span>
-                    <MetaPill icon={FiClock}>{post.readTime}</MetaPill>
-                    <span aria-hidden="true" className="text-border">
-                        ·
-                    </span>
-                    <MetaPill icon={FiEye}>{post.views}</MetaPill>
+                    {post.date && <MetaPill icon={FiCalendar}>{post.date}</MetaPill>}
+                    {post.readTime && (
+                        <>
+                            <span aria-hidden="true" className="text-border">·</span>
+                            <MetaPill icon={FiClock}>{post.readTime}</MetaPill>
+                        </>
+                    )}
+                    {post.views > 0 && (
+                        <>
+                            <span aria-hidden="true" className="text-border">·</span>
+                            <MetaPill icon={FiEye}>{post.views}</MetaPill>
+                        </>
+                    )}
                 </div>
 
-                {/* Tags */}
-                {post.tags?.length > 0 && (
+                {post.tags.length > 0 && (
                     <div className="mt-6 flex flex-wrap gap-2">
                         {post.tags.map((tag) => (
                             <span
@@ -436,10 +422,9 @@ function PostCard({ post, index }) {
                     </div>
                 )}
 
-                {/* Footer */}
                 <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-5">
                     <Link
-                        to={post.slug === "#" ? "#" : post.slug}
+                        to={post.slug === "#" ? "#" : `/blogs/${post.slug}`}
                         className="group/cta inline-flex items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                         Read article
@@ -453,34 +438,93 @@ function PostCard({ post, index }) {
                     <ShareButton post={post} />
                 </div>
             </div>
-        </Reveal>
+        </ScrollReveal>
     );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Section                                                           */
+/*  Skeleton + Empty                                                   */
+/* ------------------------------------------------------------------ */
+function BlogSkeleton() {
+    return (
+        <div className="mt-16 lg:mt-20 animate-pulse">
+            <div className={`${cardChrome} p-10`}>
+                <div className="grid gap-8 lg:grid-cols-12">
+                    <div className="aspect-[16/10] bg-muted/30 rounded-md lg:col-span-7" />
+                    <div className="space-y-4 lg:col-span-5">
+                        <div className="h-3 w-24 bg-muted/40 rounded" />
+                        <div className="h-6 w-3/4 bg-muted/40 rounded" />
+                        <div className="h-3 w-full bg-muted/30 rounded" />
+                        <div className="h-3 w-5/6 bg-muted/30 rounded" />
+                    </div>
+                </div>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                    <div key={i} className={`${cardChrome} h-80`} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function EmptyBlogs() {
+    return (
+        <div className="mt-16 lg:mt-20 border border-dashed border-border/60 bg-card/20 p-16 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center clip-polygon border border-primary/30 bg-primary/5 text-primary">
+                <FiBookOpen size={22} />
+            </div>
+            <p className="mt-5 font-code text-[10px] uppercase tracking-[0.24em] text-primary">
+                No posts yet
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+                New articles are on the way. Check back soon.
+            </p>
+        </div>
+    );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section                                                            */
 /* ------------------------------------------------------------------ */
 export default function Blog() {
-    const [featuredPost, ...otherPosts] = BLOG_POSTS;
+    const { data, isLoading, isError } = useGetPublicBlogsQuery({ limit: 20 });
+
+    const rawList = data?.data?.blogs ?? data?.data ?? data ?? [];
+    console.log("rawList", rawList);
+    const posts = useMemo(
+        () =>
+            Array.isArray(rawList)
+                ? rawList
+                    .map(normalizePost)
+                    .filter((p) => p.published)
+                    .sort((a, b) => {
+                        // featured first, then by date
+                        if (a.featured !== b.featured) return a.featured ? -1 : 1;
+                        return new Date(b.date || 0) - new Date(a.date || 0);
+                    })
+                : [],
+        [rawList]
+    );
+
+    const [featuredPost, ...otherPosts] = posts;
 
     return (
         <section
             id="blog"
             className="relative overflow-hidden bg-background py-28 sm:py-36"
         >
-            {/* Top divider */}
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
             />
 
-            {/* Ambient glows — same as Services / Projects */}
             <div className="pointer-events-none absolute -left-32 top-40 h-80 w-80 bg-primary/10 blur-[120px]" />
             <div className="pointer-events-none absolute -right-32 bottom-20 h-80 w-80 bg-primary/5 blur-[120px]" />
 
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
                 {/* HEADER */}
-                <Reveal className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
+                <ScrollReveal className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
                     <div className="max-w-3xl">
                         <SectionHeader label="Blog" />
 
@@ -490,14 +534,13 @@ export default function Blog() {
                         </h2>
 
                         <p className="mt-7 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-                            Notes about development, design, technology, and lessons
-                            learned while building digital products.
+                            Notes about development, design, technology, and lessons learned
+                            while building digital products.
                         </p>
                     </div>
 
-                    {/* View all */}
-                    <a
-                        href="#"
+                    <Link
+                        to="/blogs"
                         className="group inline-flex w-fit items-center gap-2 border border-border/70 bg-card/30 px-5 py-3 text-sm font-medium text-foreground backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                         View all posts
@@ -506,22 +549,34 @@ export default function Blog() {
                             aria-hidden="true"
                             className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                         />
-                    </a>
-                </Reveal>
+                    </Link>
+                </ScrollReveal>
 
-                {/* FEATURED POST */}
-                <div className="mt-16 lg:mt-20">
-                    <FeaturedPost post={featuredPost} />
-                </div>
+                {/* LOADING / ERROR / EMPTY / CONTENT */}
+                {isLoading ? (
+                    <BlogSkeleton />
+                ) : isError ? (
+                    <div className="mt-16 text-center text-sm text-muted-foreground">
+                        Failed to load blog posts. Please try again later.
+                    </div>
+                ) : posts.length === 0 ? (
+                    <EmptyBlogs />
+                ) : (
+                    <>
+                        <div className="mt-16 lg:mt-20">
+                            <FeaturedPost post={featuredPost} />
+                        </div>
 
-                {/* OTHER POSTS */}
-                <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {otherPosts.map((post, index) => (
-                        <PostCard key={post.number} post={post} index={index} />
-                    ))}
-                </div>
+                        {otherPosts.length > 0 && (
+                            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                {otherPosts.map((post, index) => (
+                                    <PostCard key={post.id} post={post} index={index} />
+                                ))}
+                            </div>
+                        )}
+                    </>
+                )}
 
-                {/* Bottom divider */}
                 <div className="absolute -bottom-28 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:-bottom-36" />
             </div>
         </section>

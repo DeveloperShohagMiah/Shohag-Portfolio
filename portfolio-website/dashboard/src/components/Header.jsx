@@ -15,10 +15,15 @@ import {
   ShieldCheck,
   RefreshCw
 } from 'lucide-react';
+import { useDispatch } from 'react-redux';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { useData } from '../context/DataContext.jsx';
 import toast from 'react-hot-toast';
-import { useUserLogoutMutation, useUserProfileQuery } from '@/redux/features/authApi.js';
+import {
+  authApi,
+  useUserLogoutMutation,
+  useUserProfileQuery
+} from '@/redux/features/authApi.js';
 
 export function Header({ onMobileMenuToggle }) {
   const { theme, toggleTheme } = useTheme();
@@ -31,11 +36,16 @@ export function Header({ onMobileMenuToggle }) {
     setSearchQuery,
     resetAllToDefault
   } = useData();
-  const navigate = useNavigate()
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [userLogut, { isLoading: isLogoutLoading, isError: isLogoutError }] = useUserLogoutMutation()
-  const { data: profileData, isLoading: isProfileLoading, isError: isProfileError } = useUserProfileQuery();
+
+  const [userLogout, { isLoading: isLogoutLoading }] = useUserLogoutMutation();
+  const { data: profileData, isLoading: isProfileLoading } = useUserProfileQuery();
+
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
@@ -56,22 +66,26 @@ export function Header({ onMobileMenuToggle }) {
 
   const handleLogout = async () => {
     try {
-      const response = await userLogut()
-      toast.success(response?.data?.message || response?.message);
-
-      setShowProfileMenu(false);
-      navigate("/login")
+      const response = await userLogout().unwrap();
+      toast.success(response?.message || "Logged out successfully");
     } catch (error) {
-      toast.error(error?.data?.message ||
+      toast.error(
+        error?.data?.message ||
         error?.data?.error ||
-        error?.message)
+        error?.message ||
+        "Logout failed"
+      );
+    } finally {
+      // 🧹 Wipe entire RTK Query cache — removes cached user instantly
+      dispatch(authApi.util.resetApiState());
+      setShowProfileMenu(false);
+      navigate("/login", { replace: true });
     }
   };
 
   // Safe fallback — data is undefined while the query is pending or if it errors
   const name = profileData?.data?.name ?? (isProfileLoading ? "Loading..." : "Unknown user");
   const email = profileData?.data?.email ?? (isProfileLoading ? "" : "—");
-
 
   return (
     <header
@@ -113,7 +127,7 @@ export function Header({ onMobileMenuToggle }) {
 
       {/* Right: Dark/Light Mode, Notifications, Profile */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Reset Database button for easy testing */}
+        {/* Reset Database button */}
         <button
           type="button"
           onClick={resetAllToDefault}
@@ -152,14 +166,14 @@ export function Header({ onMobileMenuToggle }) {
           >
             <Bell className="w-4 h-4" />
             {unreadNotifCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2  bg-rose-500 ring-2 ring-white dark:ring-zinc-900 animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-zinc-900 animate-pulse" />
             )}
           </button>
 
           {showNotifications && (
             <div
               id="notifications-panel"
-              className="absolute right-0 mt-2 w-80 sm:w-96  bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
             >
               <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                 <div>
@@ -221,10 +235,10 @@ export function Header({ onMobileMenuToggle }) {
               <img
                 src={profile.avatar}
                 alt={profile.name}
-                className="w-8 h-8  object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
               />
               <span
-                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5  ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
+                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white dark:ring-zinc-900 ${profile.isAvailable !== false ? 'bg-emerald-500' : 'bg-zinc-400'
                   }`}
                 title={profile.isAvailable !== false ? 'Available for work' : 'Not available'}
               />
@@ -234,7 +248,7 @@ export function Header({ onMobileMenuToggle }) {
           {showProfileMenu && (
             <div
               id="profile-menu"
-              className="absolute right-0 mt-2 w-64  bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 p-2"
+              className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 p-2"
             >
               {/* Profile Header */}
               <div className="px-3 py-3 border-b border-zinc-100 dark:border-zinc-800/80 mb-1">
@@ -251,8 +265,8 @@ export function Header({ onMobileMenuToggle }) {
                   </span>
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded-md ${profile.isAvailable !== false
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-                      : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
                       }`}
                   >
                     ● {profile.isAvailable !== false ? 'Available' : 'Booked'}
@@ -286,10 +300,11 @@ export function Header({ onMobileMenuToggle }) {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left"
+                  disabled={isLogoutLoading}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left disabled:opacity-50"
                 >
                   <LogOut className="w-4 h-4" />
-                  Log out
+                  {isLogoutLoading ? 'Logging out...' : 'Log out'}
                 </button>
               </div>
             </div>

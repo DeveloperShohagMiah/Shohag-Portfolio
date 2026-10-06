@@ -422,7 +422,7 @@
    ========================================================================== */
 
 @utility text-gradient {
-    background: linear-gradient(135deg, var(--primary), var(--chart-2));
+    background: linear-gradient(110deg, var(--primary), transparent);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -457,7 +457,7 @@
     position: relative;
     padding: 2px;
     border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, var(--muted), var(--secondary));
+    background: linear-gradient(180deg, var(--muted), var(--secondary));
 }
 
 @utility scrollbar-hide {

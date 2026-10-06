@@ -1,15 +1,13 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import apiSlice from "./apiSlice";
 
 export const authApi = apiSlice.injectEndpoints({
-
     endpoints: (builder) => ({
         userRegistration: builder.mutation({
             query: (data) => ({
                 url: "/auth/register",
                 method: "POST",
-                body: data
-            })
+                body: data,
+            }),
         }),
 
         userLogin: builder.mutation({
@@ -17,9 +15,8 @@ export const authApi = apiSlice.injectEndpoints({
                 url: "/auth/login",
                 method: "POST",
                 body: data,
-
             }),
-            invalidatesTags: ["User"]
+            invalidatesTags: ["User"], // 👈 triggers userProfile refetch
         }),
 
         userLogout: builder.mutation({
@@ -27,18 +24,22 @@ export const authApi = apiSlice.injectEndpoints({
                 url: "/auth/logout",
                 method: "POST",
             }),
-
             invalidatesTags: ["User"],
         }),
 
         userProfile: builder.query({
             query: () => ({
                 url: "/auth/profile",
-                method: "GET"
+                method: "GET",
             }),
-            providesTags: ["User"]
-        })
-    })
-})
+            providesTags: ["User"],
+        }),
+    }),
+});
 
-export const { useUserRegistrationMutation, useUserLoginMutation, useUserLogoutMutation, useUserProfileQuery } = authApi;
+export const {
+    useUserRegistrationMutation,
+    useUserLoginMutation,
+    useUserLogoutMutation,
+    useUserProfileQuery,
+} = authApi;

@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { useUserLoginMutation } from "@/redux/features/authApi";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();
     const [userLogin, { isLoading }] = useUserLoginMutation();
 
     const {
@@ -37,7 +36,6 @@ const Login = () => {
                 "Login successful"
             );
 
-            navigate("/");
         } catch (error) {
             console.error("Login failed:", error);
 
@@ -54,38 +52,21 @@ const Login = () => {
         <div className="relative min-h-screen bg-[#09090b] text-zinc-100 flex items-center justify-center px-4 py-12 antialiased overflow-hidden">
             {/* Animated Purple Gradient Wave Background */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                {/* Purple Ambient Light Glow */}
                 <motion.div
                     animate={{
                         opacity: [0.35, 0.6, 0.35],
                         scale: [1, 1.15, 1],
                     }}
-                    transition={{
-                        duration: 10,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
-                    className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-purple-900/20  blur-[140px]"
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-purple-900/20 blur-[140px]"
                 />
 
-                {/* Primary Purple Wave */}
                 <motion.div
-                    animate={{
-                        x: ["-25%", "0%", "-25%"],
-                        y: ["0%", "5%", "0%"],
-                    }}
-                    transition={{
-                        duration: 16,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
+                    animate={{ x: ["-25%", "0%", "-25%"], y: ["0%", "5%", "0%"] }}
+                    transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute bottom-0 left-0 w-[200%] h-[400px] opacity-25"
                 >
-                    <svg
-                        viewBox="0 0 1200 120"
-                        preserveAspectRatio="none"
-                        className="w-full h-full fill-none"
-                    >
+                    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full fill-none">
                         <defs>
                             <linearGradient id="purpleGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
@@ -100,24 +81,12 @@ const Login = () => {
                     </svg>
                 </motion.div>
 
-                {/* Secondary Background Wave Layer */}
                 <motion.div
-                    animate={{
-                        x: ["0%", "-20%", "0%"],
-                        y: ["0%", "-6%", "0%"],
-                    }}
-                    transition={{
-                        duration: 22,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
+                    animate={{ x: ["0%", "-20%", "0%"], y: ["0%", "-6%", "0%"] }}
+                    transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute bottom-0 left-0 w-[200%] h-[450px] opacity-15"
                 >
-                    <svg
-                        viewBox="0 0 1200 120"
-                        preserveAspectRatio="none"
-                        className="w-full h-full fill-none"
-                    >
+                    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full fill-none">
                         <defs>
                             <linearGradient id="purpleGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" stopColor="#c084fc" stopOpacity="0.7" />
@@ -132,48 +101,31 @@ const Login = () => {
                     </svg>
                 </motion.div>
 
-                {/* Micro Dot Matrix Grid */}
                 <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
             </div>
 
             <div className="relative z-10 w-full max-w-md space-y-8">
-                {/* Header section */}
                 <div className="text-center space-y-2">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-100 text-zinc-900 font-semibold text-lg tracking-tight shadow-sm">
                         S
                     </div>
-
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
                         Welcome back
                     </h1>
-
                     <p className="text-sm text-zinc-400 font-normal leading-relaxed">
                         Sign in to access your portfolio dashboard
                     </p>
                 </div>
 
-                {/* Card wrapper */}
-                <div className="bg-[#121215]/80 border border-zinc-800/80  p-6 sm:p-8 shadow-2xl backdrop-blur-md">
-                    <form
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-5"
-                        noValidate
-                    >
-                        {/* Email Field */}
+                <div className="bg-[#121215]/80 border border-zinc-800/80 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                        {/* Email */}
                         <div className="space-y-2">
-                            <label
-                                htmlFor="email"
-                                className="block text-sm font-medium text-zinc-200 leading-none"
-                            >
+                            <label htmlFor="email" className="block text-sm font-medium text-zinc-200 leading-none">
                                 Email
                             </label>
-
                             <div className="relative">
-                                <Mail
-                                    size={18}
-                                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
-                                />
-
+                                <Mail size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                                 <input
                                     id="email"
                                     type="email"
@@ -192,7 +144,6 @@ const Login = () => {
                                     })}
                                 />
                             </div>
-
                             {errors.email && (
                                 <p className="text-xs font-medium text-red-400 leading-none">
                                     {errors.email.message}
@@ -200,33 +151,22 @@ const Login = () => {
                             )}
                         </div>
 
-                        {/* Password Field */}
+                        {/* Password */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <label
-                                    htmlFor="password"
-                                    className="text-sm font-medium text-zinc-200 leading-none"
-                                >
+                                <label htmlFor="password" className="text-sm font-medium text-zinc-200 leading-none">
                                     Password
                                 </label>
-
                                 <button
                                     type="button"
                                     className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors duration-150"
-                                    onClick={() => {
-                                        toast("Password reset is not available yet.");
-                                    }}
+                                    onClick={() => toast("Password reset is not available yet.")}
                                 >
                                     Forgot password?
                                 </button>
                             </div>
-
                             <div className="relative">
-                                <Lock
-                                    size={18}
-                                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
-                                />
-
+                                <Lock size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                                 <input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
@@ -244,7 +184,6 @@ const Login = () => {
                                         },
                                     })}
                                 />
-
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword((prev) => !prev)}
@@ -254,7 +193,6 @@ const Login = () => {
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
-
                             {errors.password && (
                                 <p className="text-xs font-medium text-red-400 leading-none">
                                     {errors.password.message}
@@ -262,7 +200,7 @@ const Login = () => {
                             )}
                         </div>
 
-                        {/* Remember Me */}
+                        {/* Remember */}
                         <div className="flex items-center gap-2.5 pt-1">
                             <input
                                 id="remember"
@@ -270,16 +208,12 @@ const Login = () => {
                                 className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-purple-600 focus:ring-purple-500 focus:ring-offset-0 transition"
                                 {...register("remember")}
                             />
-
-                            <label
-                                htmlFor="remember"
-                                className="text-sm text-zinc-400 hover:text-zinc-300 cursor-pointer select-none transition-colors duration-150"
-                            >
+                            <label htmlFor="remember" className="text-sm text-zinc-400 hover:text-zinc-300 cursor-pointer select-none transition-colors duration-150">
                                 Remember me
                             </label>
                         </div>
 
-                        {/* Submit Action */}
+                        {/* Submit */}
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -289,7 +223,6 @@ const Login = () => {
                         </button>
                     </form>
 
-                    {/* Registration Footer */}
                     <p className="text-center text-sm text-zinc-400 mt-6 font-normal">
                         Don't have an account?{" "}
                         <Link
@@ -301,7 +234,6 @@ const Login = () => {
                     </p>
                 </div>
 
-                {/* Legal / Copyright */}
                 <p className="text-center text-xs text-zinc-500 font-normal">
                     © {new Date().getFullYear()} Shohag Miah. All rights reserved.
                 </p>
