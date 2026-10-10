@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
     FiArrowUpRight,
     FiCheck,
@@ -8,9 +8,10 @@ import {
     FiMapPin,
     FiSend,
     FiAlertCircle,
+    FiUser,
+    FiMessageSquare,
 } from "react-icons/fi";
 import { motion, useReducedMotion, useInView } from "framer-motion";
-import { useRef } from "react";
 import SectionHeader from "./SectionHeader";
 import { useSendMessageMutation } from "../redux/features/publicApi";
 
@@ -28,13 +29,12 @@ const fadeUp = {
     }),
 };
 
-const stagger = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-};
-
-/* Scroll-triggered reveal */
-function ScrollReveal({ children, delay = 0, className = "", amount = 0.15 }) {
+function ScrollReveal({
+    children,
+    delay = 0,
+    className = "",
+    amount = 0.15,
+}) {
     const ref = useRef(null);
     const reduced = useReducedMotion();
     const inView = useInView(ref, { once: true, amount });
@@ -54,7 +54,7 @@ function ScrollReveal({ children, delay = 0, className = "", amount = 0.15 }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Ambient glow + accents                                             */
+/*  Ambient glow + corner accents                                      */
 /* ------------------------------------------------------------------ */
 function CardAmbientGlow() {
     return (
@@ -62,8 +62,8 @@ function CardAmbientGlow() {
             aria-hidden="true"
             className="pointer-events-none absolute -inset-px z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         >
-            <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,theme(colors.primary/25),transparent_70%)] blur-2xl animate-[pulseGlow_4s_ease-in-out_infinite]" />
-            <div className="absolute -inset-1/2 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,theme(colors.primary/20)_60deg,transparent_120deg,theme(colors.primary/10)_240deg,transparent_360deg)] opacity-40" />
+            <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,theme(colors.primary/25),transparent_70%)] blur-2xl animate-[pulseGlow_4s_ease-in-out_infinite] motion-reduce:animate-none" />
+            <div className="absolute -inset-1/2 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,theme(colors.primary/20)_60deg,transparent_120deg,theme(colors.primary/10)_240deg,transparent_360deg)] opacity-40 motion-reduce:animate-none" />
         </div>
     );
 }
@@ -101,9 +101,10 @@ function ContactInfo() {
 
     return (
         <div className="relative flex flex-col justify-between border-b border-border/60 p-8 sm:p-10 lg:border-b-0 lg:border-r lg:p-12">
+            {/* Watermark */}
             <span
                 aria-hidden="true"
-                className="pointer-events-none absolute right-6 top-6 font-code text-8xl font-bold text-foreground/[0.03]"
+                className="pointer-events-none absolute right-6 top-6 text-8xl font-bold text-foreground/[0.03]"
             >
                 <FiMail />
             </span>
@@ -123,6 +124,7 @@ function ContactInfo() {
                 </p>
             </div>
 
+            {/* Contact details */}
             <div className="relative z-10 mt-12 space-y-6">
                 {details.map(({ icon: Icon, label, value, href }) => (
                     <div key={label}>
@@ -151,10 +153,11 @@ function ContactInfo() {
                     </div>
                 ))}
 
+                {/* Availability */}
                 <div className="flex items-center gap-3">
                     <span className="relative flex h-2.5 w-2.5">
-                        <span className="absolute inline-flex h-full w-full animate-ping bg-primary opacity-50" />
-                        <span className="relative inline-flex h-2.5 w-2.5 bg-primary" />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-50 motion-reduce:animate-none" />
+                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
                     </span>
 
                     <span className="font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
@@ -163,6 +166,7 @@ function ContactInfo() {
                 </div>
             </div>
 
+            {/* Socials */}
             <div className="relative z-10 mt-12">
                 <p className="mb-4 font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Social
@@ -171,7 +175,11 @@ function ContactInfo() {
                 <div className="flex gap-2">
                     {[
                         { icon: FiGithub, href: "https://github.com/", label: "GitHub" },
-                        { icon: FiLinkedin, href: "https://linkedin.com/", label: "LinkedIn" },
+                        {
+                            icon: FiLinkedin,
+                            href: "https://linkedin.com/",
+                            label: "LinkedIn",
+                        },
                         { icon: FiMail, href: "mailto:hello@example.com", label: "Email" },
                     ].map(({ icon: Icon, href, label }) => (
                         <a
@@ -180,7 +188,7 @@ function ContactInfo() {
                             target={href.startsWith("http") ? "_blank" : undefined}
                             rel={href.startsWith("http") ? "noreferrer" : undefined}
                             aria-label={label}
-                            className="flex h-10 w-10 items-center justify-center clip-polygon border border-border/70 text-muted-foreground transition-all duration-300 hover:border-primary/50 hover:bg-primary/10 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                            className="flex h-10 w-10 items-center justify-center clip-polygon border border-border/70 text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/10 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                         >
                             <Icon size={16} aria-hidden="true" />
                         </a>
@@ -221,9 +229,8 @@ function ContactForm() {
                 message: formData.message.trim(),
             }).unwrap();
 
-            setStatus("success");;
+            setStatus("success");
             setFormData({ name: "", email: "", subject: "", message: "" });
-
             setTimeout(() => setStatus("idle"), 5000);
         } catch (err) {
             console.error("Send failed:", err);
@@ -233,7 +240,7 @@ function ContactForm() {
     };
 
     const inputClasses =
-        "h-14 w-full border border-border/70 bg-background/40 px-4 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground/40 hover:border-border focus:border-primary focus:bg-background/70 focus:ring-4 focus:ring-primary/10";
+        "h-12 w-full border border-border/70 bg-background/40 px-4 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground/40 hover:border-border focus:border-primary focus:bg-background/70 focus:ring-4 focus:ring-primary/10 disabled:opacity-60";
 
     const labelClasses =
         "mb-2 block font-code text-[10px] uppercase tracking-[0.16em] text-muted-foreground";
@@ -245,12 +252,17 @@ function ContactForm() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, ease: EASE }}
-                className="relative flex min-h-[520px] flex-col items-center justify-center text-center"
+                className="relative flex min-h-[480px] flex-col items-center justify-center text-center"
             >
                 <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 20,
+                        delay: 0.1,
+                    }}
                     className="flex h-20 w-20 items-center justify-center clip-polygon border border-primary/30 bg-primary/10 text-primary shadow-[0_0_40px_-8px_theme(colors.primary/60)]"
                 >
                     <FiCheck size={30} aria-hidden="true" />
@@ -275,79 +287,108 @@ function ContactForm() {
             className="relative z-10"
             initial={false}
             animate={{ opacity: 1 }}
+            noValidate
         >
+            {/* Row: Name + Email */}
             <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                    <label htmlFor="name" className={labelClasses}>
+                    <label htmlFor="contact-name" className={labelClasses}>
                         Your name
                     </label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="John Doe"
-                        className={inputClasses}
-                        disabled={isLoading}
-                    />
+                    <div className="relative">
+                        <FiUser
+                            size={14}
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                        />
+                        <input
+                            id="contact-name"
+                            name="name"
+                            type="text"
+                            required
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="John Doe"
+                            className={`${inputClasses} pl-10`}
+                            disabled={isLoading}
+                        />
+                    </div>
                 </div>
 
                 <div>
-                    <label htmlFor="email" className={labelClasses}>
+                    <label htmlFor="contact-email" className={labelClasses}>
                         Email address
                     </label>
+                    <div className="relative">
+                        <FiMail
+                            size={14}
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                        />
+                        <input
+                            id="contact-email"
+                            name="email"
+                            type="email"
+                            required
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="john@example.com"
+                            className={`${inputClasses} pl-10`}
+                            disabled={isLoading}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Subject */}
+            <div className="mt-5">
+                <label htmlFor="contact-subject" className={labelClasses}>
+                    Subject
+                </label>
+                <div className="relative">
+                    <FiMessageSquare
+                        size={14}
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                    />
                     <input
-                        id="email"
-                        name="email"
-                        type="email"
+                        id="contact-subject"
+                        name="subject"
+                        type="text"
                         required
-                        value={formData.email}
+                        value={formData.subject}
                         onChange={handleChange}
-                        placeholder="john@example.com"
-                        className={inputClasses}
+                        placeholder="What can I help you with?"
+                        className={`${inputClasses} pl-10`}
                         disabled={isLoading}
                     />
                 </div>
             </div>
 
+            {/* Message */}
             <div className="mt-5">
-                <label htmlFor="subject" className={labelClasses}>
-                    Subject
-                </label>
-                <input
-                    id="subject"
-                    name="subject"
-                    type="text"
-                    required
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder="What can I help you with?"
-                    className={inputClasses}
-                    disabled={isLoading}
-                />
-            </div>
-
-            <div className="mt-5">
-                <label htmlFor="message" className={labelClasses}>
+                <label htmlFor="contact-message" className={labelClasses}>
                     Message
                 </label>
                 <textarea
-                    id="message"
+                    id="contact-message"
                     name="message"
                     required
-                    rows={7}
+                    rows={6}
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Tell me about your project..."
-                    className="w-full resize-none border border-border/70 bg-background/40 px-4 py-4 text-sm leading-7 text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground/40 hover:border-border focus:border-primary focus:bg-background/70 focus:ring-4 focus:ring-primary/10 disabled:opacity-60"
+                    placeholder="Tell me about your project…"
+                    className="w-full resize-none border border-border/70 bg-background/40 px-4 py-3.5 text-sm leading-7 text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground/40 hover:border-border focus:border-primary focus:bg-background/70 focus:ring-4 focus:ring-primary/10 disabled:opacity-60"
                     disabled={isLoading}
                 />
             </div>
 
-            <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-sm text-xs leading-5 text-muted-foreground">
+            {/* Submit row */}
+            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p
+                    className="max-w-sm text-xs leading-5 text-muted-foreground"
+                    role={status === "error" ? "alert" : undefined}
+                >
                     {status === "error" ? (
                         <span className="inline-flex items-center gap-1.5 text-rose-500">
                             <FiAlertCircle size={12} aria-hidden="true" />
@@ -361,12 +402,15 @@ function ContactForm() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="group/send inline-flex h-14 items-center justify-center gap-3 bg-primary px-7 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_30px_-6px_theme(colors.primary/60)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    className="group/send inline-flex h-12 items-center justify-center gap-3 bg-primary px-7 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_30px_-6px_theme(colors.primary/60)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
                     {isLoading ? (
                         <>
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
-                            Sending...
+                            <span
+                                aria-hidden="true"
+                                className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground"
+                            />
+                            Sending…
                         </>
                     ) : (
                         <>
@@ -385,14 +429,14 @@ function ContactForm() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Animated background blobs                                          */
+/*  Animated backdrop                                                  */
 /* ------------------------------------------------------------------ */
 function AnimatedBackdrop() {
     const reduced = useReducedMotion();
 
     return (
         <>
-            {/* Purple ambient backdrop */}
+            {/* Purple ambient */}
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 blur-[125px] md:blur-[180px]"
@@ -413,7 +457,7 @@ function AnimatedBackdrop() {
                 }}
             />
 
-            {/* Animated primary glows */}
+            {/* Drifting glows */}
             <motion.div
                 aria-hidden="true"
                 className="pointer-events-none absolute -left-32 top-40 h-80 w-80 bg-primary/10 blur-[120px]"
@@ -472,8 +516,8 @@ export default function Contact() {
                     </div>
 
                     <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg lg:col-span-5 lg:justify-self-end">
-                        Have a project in mind? Send me a message and let&apos;s discuss
-                        how we can turn your idea into something great.
+                        Have a project in mind? Send me a message and let&apos;s discuss how
+                        we can turn your idea into something great.
                     </p>
                 </ScrollReveal>
 
@@ -513,6 +557,12 @@ export default function Contact() {
                     </a>
                 </ScrollReveal>
             </div>
+
+            {/* Bottom divider — anchored to the section */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+            />
         </section>
     );
 }

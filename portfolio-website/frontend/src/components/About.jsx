@@ -4,39 +4,53 @@ import {
     FiMapPin,
     FiTerminal,
     FiCircle,
+    FiAward,
+    FiCode,
+    FiTrendingUp,
 } from "react-icons/fi";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import SectionHeader from "./SectionHeader";
-import fallbackProfileImage from "../assets/about.png";
+import fallbackaboutImage from "../assets/about.png";
 import Button from "./Button";
 import { useGetPublicAboutDataQuery } from "../redux/features/publicApi";
 import { MarkdownRenderer } from "./MarkDownRenderer";
 
 /* ------------------------------------------------------------------ */
-/*  Fallbacks                                                          */
+/*  Fallback data                                                      */
 /* ------------------------------------------------------------------ */
-const FALLBACK_STACK = [
-    "React",
-    "Node.js",
-    "MongoDB",
-    "PostgreSQL",
-    "Tailwind CSS",
-    "Express",
-];
-
-const FALLBACK_STATS = [
-    { value: "06+", label: "Years building" },
-    { value: "40+", label: "Projects shipped" },
-    { value: "∞", label: "Still learning" },
-];
-
-const FALLBACK_STORY = [
-    "I'm a full-stack developer focused on building modern web applications that are simple to use, fast to load, and enjoyable to interact with.",
-    "I enjoy working from the first idea all the way through development and deployment — combining thoughtful UI with solid backend architecture.",
-];
+const FALLBACK_ABOUT = {
+    name: "Your Name",
+    role: "Full-stack developer",
+    location: "Remote · Worldwide",
+    avatar: "",
+    bio: [
+        "I'm a full-stack developer focused on building modern web applications that are simple to use, fast to load, and enjoyable to interact with.",
+        "I enjoy working from the first idea all the way through development and deployment — combining thoughtful UI with solid backend architecture.",
+    ].join("\n\n"),
+    coreStack: [
+        "React",
+        "Node.js",
+        "MongoDB",
+        "PostgreSQL",
+        "Tailwind CSS",
+        "Express",
+    ],
+    stats: [
+        { value: "06+", label: "Years building" },
+        { value: "40+", label: "Projects shipped" },
+        { value: "∞", label: "Still learning" },
+    ],
+    ctaText: "Let's work together",
+    ctaUrl: "#contact",
+    isAvailable: true,
+    availabilityText: "Available",
+    developerTag: "DEV / 001",
+    roleLabel: "A little story of mine",
+    stackLabel: "Core stack",
+};
 
 /* ------------------------------------------------------------------ */
-/*  Motion variants                                                    */
+/*  Motion                                                             */
 /* ------------------------------------------------------------------ */
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -51,12 +65,9 @@ const fadeUp = {
 
 const stagger = {
     hidden: {},
-    show: {
-        transition: { staggerChildren: 0.08, delayChildren: 0.05 },
-    },
+    show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
 
-/* Reveal-on-scroll wrapper (viewport-triggered) */
 function ScrollReveal({
     children,
     delay = 0,
@@ -87,23 +98,22 @@ function ScrollReveal({
 /* ------------------------------------------------------------------ */
 const cardChrome = `
   group/card relative clip-polygon flex flex-col overflow-hidden
-  border border-border/50 bg-card/30 backdrop-blur-md
-  transition-all duration-700 ease-out
+  border border-border/50 bg-card/40 backdrop-blur-md
+  transition-[border-color,background-color,box-shadow,transform] duration-500 ease-out
   shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.25)]
-  hover:-translate-y-1
   hover:border-primary/40
-  hover:bg-card/60
-  hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_24px_48px_-16px_rgba(0,0,0,0.45),0_0_80px_-16px_theme(colors.primary/40),inset_0_1px_0_0_rgba(255,255,255,0.06)]
+  hover:bg-card/70
+  hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_24px_48px_-16px_rgba(0,0,0,0.45),0_0_60px_-12px_theme(colors.primary/50),inset_0_1px_0_0_rgba(255,255,255,0.06)]
 `;
 
 function CardAmbientGlow() {
     return (
         <div
             aria-hidden="true"
-            className="pointer-events-none absolute -inset-px z-0 opacity-0 transition-opacity duration-700 group-hover/card:opacity-100"
+            className="pointer-events-none absolute -inset-px z-0 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
         >
-            <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,theme(colors.primary/20),transparent_70%)] blur-3xl" />
-            <div className="absolute -inset-1/2 animate-[spin_12s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,theme(colors.primary/15)_60deg,transparent_120deg,theme(colors.primary/8)_240deg,transparent_360deg)] opacity-30" />
+            <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,theme(colors.primary/25),transparent_70%)] blur-2xl animate-[pulseGlow_4s_ease-in-out_infinite] motion-reduce:animate-none" />
+            <div className="absolute -inset-1/2 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,theme(colors.primary/20)_60deg,transparent_120deg,theme(colors.primary/10)_240deg,transparent_360deg)] opacity-40 motion-reduce:animate-none" />
         </div>
     );
 }
@@ -113,7 +123,7 @@ function CardAccents({ inset = "inset-x-6" }) {
         <>
             <div
                 aria-hidden="true"
-                className={`pointer-events-none absolute ${inset} top-0 z-20 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent opacity-0 transition-opacity duration-700 group-hover/card:opacity-100`}
+                className={`pointer-events-none absolute ${inset} top-0 z-20 h-[1.5px] bg-gradient-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover/card:opacity-100`}
             />
             <div className="pointer-events-none absolute left-0 top-0 z-20 h-8 w-8 border-l border-t border-primary/0 transition-all duration-500 group-hover/card:h-12 group-hover/card:w-12 group-hover/card:border-primary/50" />
             <div className="pointer-events-none absolute bottom-0 right-0 z-20 h-8 w-8 border-b border-r border-primary/0 transition-all duration-500 group-hover/card:h-12 group-hover/card:w-12 group-hover/card:border-primary/50" />
@@ -146,18 +156,26 @@ const markdownStyles = `
 `;
 
 /* ------------------------------------------------------------------ */
-/*  Profile Panel                                                      */
+/*  Sticky Profile Card                                                */
 /* ------------------------------------------------------------------ */
-function ProfilePanel({ profile }) {
-    const { name, location, avatar, isAvailable } = profile;
+function ProfileCard({ about }) {
+    const {
+        name,
+        role,
+        location,
+        avatar,
+        isAvailable,
+        developerTag,
+        availabilityText,
+    } = about;
     const reduced = useReducedMotion();
 
     return (
-        <ScrollReveal className={`${cardChrome} min-h-[600px] lg:min-h-[640px]`}>
+        <ScrollReveal className={`${cardChrome} lg:sticky lg:top-24`}>
             <CardAmbientGlow />
-            <CardAccents inset="inset-x-8 sm:inset-x-10" />
+            <CardAccents inset="inset-x-6 sm:inset-x-8" />
 
-            {/* Technical grid — visible in both modes */}
+            {/* Technical grid backdrop */}
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,var(--grid-color)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-color)_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_40%,black_35%,transparent_85%)]"
@@ -166,246 +184,301 @@ function ProfilePanel({ profile }) {
                 }}
             />
 
-            {/* Top-left mark */}
-            <div className="absolute left-8 top-8 z-20 flex items-center gap-2 font-code text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
-                <FiCircle size={6} className="fill-primary text-primary" />
-                <span>DEV / 001</span>
-            </div>
-
-            {/* Top-right status */}
-            <div className="absolute right-8 top-8 z-20 flex items-center gap-2">
-                {isAvailable !== false && (
-                    <span className="font-code text-[10px] uppercase tracking-[0.2em] text-primary">
-                        Available
-                    </span>
-                )}
-                <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary shadow-lg shadow-primary/50" />
-                </span>
-            </div>
-
-            <div className="relative z-10 flex h-full flex-col justify-between p-8 sm:p-10">
-                {/* Avatar */}
-                <div className="flex flex-1 items-center justify-center py-12">
-                    <motion.div
-                        className="group/avatar relative"
-                        initial={reduced ? false : { opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 1, ease: EASE, delay: 0.15 }}
-                    >
-                        {/* Outer orbit rings */}
-                        <div className="absolute -inset-8 rounded-full border border-border/50 transition-all duration-700 group-hover/card:-inset-10 group-hover/card:border-primary/30" />
-                        <div className="absolute -inset-16 rounded-full border border-border/20" />
-
-                        {/* Glow */}
-                        <div className="absolute inset-0 -z-10 rounded-full bg-primary/25 blur-[100px] transition-all duration-700 group-hover/card:bg-primary/40" />
-
-                        {/* Photo frame */}
-                        <div className="relative h-64 w-64 overflow-hidden rounded-full border border-border/60 bg-muted/20 p-1.5 shadow-2xl shadow-primary/20 sm:h-72 sm:w-72 lg:h-80 lg:w-80">
-                            <div className="h-full w-full overflow-hidden rounded-full">
-                                <img
-                                    src={avatar || fallbackProfileImage}
-                                    alt={name || "Profile"}
-                                    className="h-full w-full object-cover brightness-[0.75] contrast-[1.08] saturate-[0.9] transition-transform duration-1000 group-hover/card:scale-105"
-                                    onError={(e) => {
-                                        e.currentTarget.src = fallbackProfileImage;
-                                    }}
-                                />
-                            </div>
-                            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-muted/40 via-transparent to-transparent" />
-                        </div>
-
-                        {/* Orbit dots */}
-                        <div className="absolute -right-6 top-16 h-3 w-3 rounded-full bg-primary shadow-lg shadow-primary/60" />
-                        <div className="absolute -bottom-2 left-12 h-2 w-2 rounded-full bg-primary/60" />
-                    </motion.div>
-                </div>
-
-                {/* Profile info */}
-                <div className="relative border-t border-border/60 pt-6">
-                    <div className="flex items-end justify-between gap-4">
-                        <div>
-                            <p className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                                {name || "Your Name"}
-                            </p>
-
-                            <div className="mt-2.5 flex items-center gap-2 font-code text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                                <FiMapPin size={12} aria-hidden="true" />
-                                <span>{location || "Remote · Worldwide"}</span>
-                            </div>
-                        </div>
-
-                        <FiTerminal
-                            size={22}
-                            aria-hidden="true"
-                            className="text-muted-foreground/40"
-                        />
+            {/* Top meta strip */}
+            <div className="relative z-10 flex items-center justify-between border-b border-border/50 px-6 py-4">
+                {developerTag && (
+                    <div className="flex items-center gap-2 font-code text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
+                        <FiCircle size={6} className="fill-primary text-primary" />
+                        <span>{developerTag}</span>
                     </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                    {isAvailable && availabilityText && (
+                        <span className="font-code text-[10px] uppercase tracking-[0.2em] text-primary">
+                            {availabilityText}
+                        </span>
+                    )}
+                    <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-primary shadow-[0_0_12px_theme(colors.primary/60)]" />
+                    </span>
                 </div>
+            </div>
+
+            {/* Avatar block */}
+            <div className="relative z-10 flex flex-col items-center px-6 pt-10">
+                <motion.div
+                    className="group/avatar relative"
+                    initial={reduced ? false : { opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1, ease: EASE, delay: 0.15 }}
+                >
+                    <div className="absolute -inset-6 rounded-full border border-border/40 transition-all duration-700 group-hover/card:-inset-8 group-hover/card:border-primary/30" />
+                    <div className="absolute inset-0 -z-10 rounded-full bg-primary/20 blur-[80px] transition-all duration-700 group-hover/card:bg-primary/35" />
+
+                    <div className="relative h-52 w-52 overflow-hidden rounded-full border border-border/60 bg-muted/20 p-1.5 shadow-2xl shadow-primary/20 sm:h-60 sm:w-60">
+                        <div className="h-full w-full overflow-hidden rounded-full">
+                            <img
+                                src={avatar || fallbackaboutImage}
+                                alt={name}
+                                className="h-full w-full object-cover brightness-[0.78] contrast-[1.08] saturate-[0.9] transition-transform duration-1000 group-hover/card:scale-105"
+                                onError={(e) => {
+                                    e.currentTarget.currentSrc = fallbackaboutImage;
+                                }}
+                            />
+                        </div>
+                        <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-muted/40 via-transparent to-transparent" />
+                    </div>
+
+                    <div className="absolute -right-4 top-12 h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_12px_theme(colors.primary/60)]" />
+                    <div className="absolute -bottom-1 left-8 h-2 w-2 rounded-full bg-primary/60" />
+                </motion.div>
+            </div>
+
+            {/* Name & role & location */}
+            <div className="relative z-10 px-6 pb-6 pt-7 text-center">
+                <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-[1.65rem]">
+                    {name}
+                </h3>
+
+                {role && (
+                    <p className="mt-2 font-code text-[10px] uppercase tracking-[0.24em] text-primary">
+                        {role}
+                    </p>
+                )}
+
+                <div className="mt-4 flex items-center justify-center gap-2 font-code text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                    <FiMapPin size={11} aria-hidden="true" />
+                    <span>{location}</span>
+                </div>
+            </div>
+
+            {/* Terminal strip */}
+            <div className="relative z-10 flex items-center justify-between border-t border-border/50 px-6 py-3">
+                <div className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-rose-500/70" />
+                    <span className="h-2 w-2 rounded-full bg-amber-500/70" />
+                    <span className="h-2 w-2 rounded-full bg-emerald-500/70" />
+                </div>
+                <FiTerminal
+                    size={14}
+                    aria-hidden="true"
+                    className="text-muted-foreground/40"
+                />
             </div>
         </ScrollReveal>
     );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Stats strip                                                        */
+/*  Stat card                                                          */
 /* ------------------------------------------------------------------ */
-function StatsStrip({ stats }) {
+function StatCard({ stat, index, icon: Icon }) {
     return (
         <motion.div
-            className="grid grid-cols-3 border-y border-border/60"
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeUp}
+            className="group/stat relative flex flex-col gap-3 rounded-lg border border-border/50 bg-card/30 p-5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-card/60"
         >
-            {stats.map((stat, index) => (
-                <motion.div
-                    key={stat.label || index}
-                    variants={fadeUp}
-                    className={`group/stat relative py-7 ${index !== 0 ? "border-l border-border/60 pl-5 sm:pl-7" : ""
-                        }`}
-                >
-                    <p className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                        {stat.value}
-                    </p>
-                    <p className="mt-2 max-w-[120px] font-code text-[10px] uppercase leading-5 tracking-[0.14em] text-muted-foreground">
-                        {stat.label}
-                    </p>
+            {/* Icon chip */}
+            <div className="flex items-center justify-between">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md border border-primary/20 bg-primary/5 text-primary transition-colors duration-300 group-hover/stat:border-primary/40 group-hover/stat:bg-primary/10">
+                    <Icon size={14} aria-hidden="true" />
+                </div>
+                <span className="font-code text-[10px] tabular-nums text-muted-foreground/40">
+                    {String(index + 1).padStart(2, "0")}
+                </span>
+            </div>
 
-                    {/* Underline hover accent */}
-                    <span className="absolute bottom-0 left-0 h-px w-0 bg-primary transition-all duration-700 group-hover/stat:w-full" />
-                </motion.div>
-            ))}
+            <div>
+                <p className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                    {stat.value}
+                </p>
+                <p className="mt-1 font-code text-[10px] uppercase leading-5 tracking-[0.14em] text-muted-foreground">
+                    {stat.label}
+                </p>
+            </div>
+
+            {/* Bottom hover accent */}
+            <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-5 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover/stat:opacity-100"
+            />
         </motion.div>
     );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Content Panel                                                      */
+/*  Editorial Content Column                                           */
 /* ------------------------------------------------------------------ */
-function ContentPanel({ profile }) {
-    const { role, bio, story, stack, stats, ctaText, ctaUrl } = profile;
+function ContentPanel({ about }) {
+    const {
+        role,
+        bio,
+        coreStack,
+        stats,
+        ctaText,
+        ctaUrl,
+        roleLabel,
+        stackLabel,
+    } = about;
 
-    // Normalize story/bio into one markdown string
-    let markdownContent;
-    if (typeof story === "string" && story.trim()) {
-        markdownContent = story;
-    } else if (Array.isArray(story) && story.length > 0) {
-        markdownContent = story.join("\n\n");
-    } else if (bio) {
-        markdownContent = bio;
-    } else {
-        markdownContent = FALLBACK_STORY.join("\n\n");
-    }
-
-    const stackList =
-        Array.isArray(stack) && stack.length > 0 ? stack : FALLBACK_STACK;
-    const statsList =
-        Array.isArray(stats) && stats.length > 0 ? stats : FALLBACK_STATS;
+    const statIcons = [FiAward, FiCode, FiTrendingUp];
 
     return (
-        <ScrollReveal
-            delay={0.12}
-            className={`${cardChrome} p-7 sm:p-10 lg:p-12`}
-        >
-            <CardAmbientGlow />
-            <CardAccents inset="inset-x-7 sm:inset-x-10 lg:inset-x-12" />
+        <div className="space-y-6">
+            {/* --- Bio card --- */}
+            <ScrollReveal className={cardChrome}>
+                <CardAmbientGlow />
+                <CardAccents inset="inset-x-7 sm:inset-x-10" />
 
-            {/* Role label */}
-            <div className="relative z-10 flex items-center gap-3">
-                <span className="h-px w-8 bg-primary/60" />
-                <p className="font-code text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
-                    {role || "A little story of mine"}
-                </p>
-            </div>
+                <div className="relative z-10 p-7 sm:p-10">
+                    {/* Eyebrow */}
+                    <div className="flex items-center gap-3">
+                        <span aria-hidden="true" className="h-px w-8 bg-primary/60" />
+                        <p className="font-code text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
+                            {roleLabel || role}
+                        </p>
+                    </div>
 
-            {/* Markdown content */}
-            <div className={`relative z-10 mt-8 max-w-2xl ${markdownStyles}`}>
-                <MarkdownRenderer content={markdownContent} />
-            </div>
-
-            {/* Stack */}
-            <div className="relative z-10 mt-10 border-t border-border/60 pt-8">
-                <div className="flex items-center justify-between gap-4">
-                    <p className="font-code text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                        Core stack
-                    </p>
-                    <span className="font-code text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50">
-                        {String(stackList.length).padStart(2, "0")} technologies
-                    </span>
+                    {/* Markdown content */}
+                    <div className={`mt-8 max-w-2xl ${markdownStyles}`}>
+                        <MarkdownRenderer content={bio} />
+                    </div>
                 </div>
+            </ScrollReveal>
 
+            {/* --- Stats row --- */}
+            {stats?.length > 0 && (
                 <motion.div
-                    className="mt-5 flex flex-wrap gap-2"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-3"
                     variants={stagger}
                     initial="hidden"
                     whileInView="show"
-                    viewport={{ once: true, amount: 0.2 }}
+                    viewport={{ once: true, amount: 0.3 }}
                 >
-                    {stackList.map((item) => (
-                        <motion.span
-                            key={item}
-                            variants={fadeUp}
-                            className="group/tag inline-flex items-center gap-1.5 border border-border/60 bg-background/50 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/5 hover:text-primary/90 hover:shadow-[0_4px_12px_-4px_theme(colors.primary/40)]"
-                        >
-                            <span className="h-1 w-1 rounded-full bg-primary/40 transition-colors duration-300 group-hover/tag:bg-primary" />
-                            {item}
-                        </motion.span>
+                    {stats.slice(0, 3).map((stat, index) => (
+                        <StatCard
+                            key={stat.label || index}
+                            stat={stat}
+                            index={index}
+                            icon={statIcons[index] || FiAward}
+                        />
                     ))}
                 </motion.div>
-            </div>
+            )}
 
-            {/* Stats */}
-            <div className="relative z-10 mt-10">
-                <StatsStrip stats={statsList} />
-            </div>
+            {/* --- Stack + CTA combined card --- */}
+            <ScrollReveal delay={0.12} className={cardChrome}>
+                <CardAmbientGlow />
+                <CardAccents inset="inset-x-7 sm:inset-x-10" />
 
-            {/* CTA */}
-            <motion.div
-                className="relative z-10 mt-10"
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
-            >
-                <Button
-                    to={ctaUrl || "#contact"}
-                    className="group/cta inline-flex items-center gap-2 clip-polygon bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_40px_-6px_theme(colors.primary/60)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                >
-                    {ctaText || "Let's work together"}
-                    <FiArrowUpRight
-                        size={17}
-                        aria-hidden="true"
-                        className="transition-transform duration-300 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1"
-                    />
-                </Button>
-            </motion.div>
-        </ScrollReveal>
+                <div className="relative z-10 p-7 sm:p-10">
+                    {/* Stack */}
+                    {coreStack?.length > 0 && (
+                        <div>
+                            <div className="flex items-center justify-between gap-4">
+                                <p className="font-code text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                                    {stackLabel}
+                                </p>
+                                <span className="font-code text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50">
+                                    {String(coreStack.length).padStart(2, "0")} technologies
+                                </span>
+                            </div>
+
+                            <motion.div
+                                className="mt-5 flex flex-wrap gap-2"
+                                variants={stagger}
+                                initial="hidden"
+                                whileInView="show"
+                                viewport={{ once: true, amount: 0.2 }}
+                            >
+                                {coreStack.map((item) => (
+                                    <motion.span
+                                        key={item}
+                                        variants={fadeUp}
+                                        className="group/tag inline-flex items-center gap-1.5 border border-border/60 bg-background/50 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/5 hover:text-primary/90"
+                                    >
+                                        <span
+                                            aria-hidden="true"
+                                            className="h-1 w-1 rounded-full bg-primary/40 transition-colors duration-300 group-hover/tag:bg-primary"
+                                        />
+                                        {item}
+                                    </motion.span>
+                                ))}
+                            </motion.div>
+                        </div>
+                    )}
+
+                    {/* CTA */}
+                    {ctaText && ctaUrl && (
+                        <motion.div
+                            className="mt-8 flex flex-col items-start gap-4 border-t border-border/60 pt-8 sm:flex-row sm:items-center sm:justify-between"
+                            initial={{ opacity: 0, y: 12 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.5 }}
+                            transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+                        >
+                            <div>
+                                <p className="font-code text-[10px] uppercase tracking-[0.24em] text-primary">
+                                    Ready to build?
+                                </p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Let&apos;s turn your idea into something real.
+                                </p>
+                            </div>
+
+                            <Button
+                                to={ctaUrl}
+                                className="group/cta inline-flex items-center gap-2 clip-polygon bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_30px_-6px_theme(colors.primary/60)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                            >
+                                {ctaText}
+                                <FiArrowUpRight
+                                    size={17}
+                                    aria-hidden="true"
+                                    className="transition-transform duration-300 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1"
+                                />
+                            </Button>
+                        </motion.div>
+                    )}
+                </div>
+            </ScrollReveal>
+        </div>
     );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Skeleton                                                           */
+/*  Skeleton + Error                                                   */
 /* ------------------------------------------------------------------ */
 function AboutSkeleton() {
     return (
-        <div className="mt-16 grid gap-6 lg:mt-20 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8 animate-pulse">
-            <div className={`${cardChrome} min-h-[600px] lg:min-h-[640px]`} />
-            <div className={`${cardChrome} min-h-[600px] lg:min-h-[640px] p-12`}>
-                <div className="h-3 w-40 bg-muted/40 rounded" />
-                <div className="mt-8 space-y-3">
-                    <div className="h-3 w-full bg-muted/30 rounded" />
-                    <div className="h-3 w-5/6 bg-muted/30 rounded" />
-                    <div className="h-3 w-4/6 bg-muted/30 rounded" />
+        <div className="mt-16 grid items-start gap-8 lg:mt-20 lg:grid-cols-[360px_1fr]">
+            <div className={`${cardChrome} h-[600px] animate-pulse`} />
+            <div className="space-y-6">
+                <div className={`${cardChrome} h-72 animate-pulse`} />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    {[1, 2, 3].map((i) => (
+                        <div
+                            key={i}
+                            className="h-28 animate-pulse rounded-lg border border-border/50 bg-card/30"
+                        />
+                    ))}
                 </div>
-                <div className="mt-10 pt-8 border-t border-border/40 flex gap-2">
-                    <div className="h-6 w-16 bg-muted/30 rounded" />
-                    <div className="h-6 w-20 bg-muted/30 rounded" />
-                    <div className="h-6 w-14 bg-muted/30 rounded" />
-                </div>
+                <div className={`${cardChrome} h-40 animate-pulse`} />
             </div>
+        </div>
+    );
+}
+
+function ErrorState() {
+    return (
+        <div className="mt-16 rounded-md border border-dashed border-rose-500/30 bg-rose-500/5 p-16 text-center lg:mt-20">
+            <p className="font-code text-[10px] uppercase tracking-[0.24em] text-rose-500">
+                Couldn&apos;t load about data
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+                Please try refreshing the page.
+            </p>
         </div>
     );
 }
@@ -416,26 +489,7 @@ function AboutSkeleton() {
 export default function About() {
     const { data, isLoading, isError } = useGetPublicAboutDataQuery();
 
-    const about = data?.data ?? data ?? {};
-
-    const profile = {
-        name: about.name || about.fullName || "",
-        role: about.role || about.title || "",
-        location: about.location || about.address || "",
-        avatar: about.avatar || about.profileImage || "",
-        bio: about.bio || about.tagline || "",
-        story:
-            about.story ||
-            about.paragraphs ||
-            about.bio_parts ||
-            about.description ||
-            "",
-        stack: about.stack || about.skills || about.technologies || [],
-        stats: about.stats || about.metrics || [],
-        ctaText: about.ctaText || "",
-        ctaUrl: about.ctaUrl || "",
-        isAvailable: about.isAvailable,
-    };
+    const about = { ...FALLBACK_ABOUT, ...(data?.data ?? data ?? {}) };
 
     return (
         <section
@@ -456,7 +510,7 @@ export default function About() {
                 {/* HEADER */}
                 <ScrollReveal className="grid gap-8 lg:grid-cols-12 lg:items-end">
                     <div className="lg:col-span-7">
-                        <SectionHeader label="About Me" />
+                        <SectionHeader label="About me" />
                         <h2 className="text-balance font-display text-5xl font-semibold leading-[0.95] tracking-[-0.05em] text-foreground sm:text-6xl lg:text-7xl">
                             I turn ideas into{" "}
                             <span className="text-gradient">web experiences.</span>
@@ -464,31 +518,28 @@ export default function About() {
                     </div>
 
                     <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg lg:col-span-5 lg:justify-self-end">
-                        {profile.role ||
-                            "A full-stack developer building fast, accessible products — from first sketch to production launch."}
+                        {about.role}
                     </p>
                 </ScrollReveal>
 
-                {/* MAIN GRID */}
+                {/* MAIN GRID — sticky sidebar + editorial column */}
                 {isLoading ? (
                     <AboutSkeleton />
                 ) : isError ? (
-                    <div className="mt-16 text-center text-muted-foreground">
-                        Failed to load about data.
-                    </div>
+                    <ErrorState />
                 ) : (
-                    <div className="mt-16 grid gap-6 lg:mt-20 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8">
-                        <ProfilePanel profile={profile} />
-                        <ContentPanel profile={profile} />
+                    <div className="mt-16 grid items-start gap-8 lg:mt-20 lg:grid-cols-[360px_1fr]">
+                        <ProfileCard about={about} />
+                        <ContentPanel about={about} />
                     </div>
                 )}
-
-                {/* Bottom divider */}
-                <div
-                    aria-hidden="true"
-                    className="absolute -bottom-28 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:-bottom-36"
-                />
             </div>
+
+            {/* Bottom divider */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+            />
         </section>
     );
 }

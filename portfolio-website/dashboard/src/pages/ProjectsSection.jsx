@@ -1,36 +1,62 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   Plus,
-  Edit2,
+  Pencil,
   Trash2,
   ExternalLink,
   Github,
   Star,
   X,
-  FolderGit2
-} from 'lucide-react';
-import toast from 'react-hot-toast';
+  FolderGit2,
+  Sparkles,
+  Search,
+  Hash,
+} from "lucide-react";
+import toast from "react-hot-toast";
 import {
   useGetAllProjectsQuery,
   useCreateProjectMutation,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
-} from '@/redux/features/projectApi.js';
+} from "@/redux/features/projectApi.js";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80";
 
 const DEFAULT_VALUES = {
-  title: '',
-  description: '',
-  image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80',
-  githubLink: '',
-  liveLink: '',
+  title: "",
+  description: "",
+  image: FALLBACK_IMAGE,
+  githubLink: "",
+  liveLink: "",
   order: 1,
   isFeatured: false,
   isActive: true,
 };
 
-export function ProjectsSection({ searchQuery = '' }) {
-  const { data: projectsResponse, isLoading: isLoadingProjects, isError: isErrorProjects } = useGetAllProjectsQuery();
+/* ---------- Shared styles ---------- */
+const inputBase =
+  "w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
+
+const labelBase =
+  "mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400";
+
+const errorBase = "mt-1.5 text-xs font-medium text-rose-500";
+
+const btnPrimary =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
+
+const btnGhost =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
+
+export function ProjectsSection({ searchQuery = "" }) {
+  const {
+    data: projectsResponse,
+    isLoading: isLoadingProjects,
+    isError: isErrorProjects,
+  } = useGetAllProjectsQuery();
+
   const [createProject, { isLoading: isCreating }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
   const [deleteProject] = useDeleteProjectMutation();
@@ -38,7 +64,7 @@ export function ProjectsSection({ searchQuery = '' }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [stacks, setStacks] = useState([]);
-  const [stackInput, setStackInput] = useState('');
+  const [stackInput, setStackInput] = useState("");
   const [filterFeatured, setFilterFeatured] = useState(false);
 
   const {
@@ -46,37 +72,35 @@ export function ProjectsSection({ searchQuery = '' }) {
     handleSubmit,
     reset,
     watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm({ defaultValues: DEFAULT_VALUES });
 
-  const previewImage = watch('image');
+  const previewImage = watch("image");
   const isSaving = isCreating || isUpdating || isSubmitting;
 
-  // Backend nests the paginated result inside ApiResponse: { data: { projects, pagination } }
   const projects = projectsResponse?.data?.projects || [];
 
   const openCreateModal = () => {
     setEditingProject(null);
     setStacks([]);
-    reset({
-      ...DEFAULT_VALUES,
-      order: projects.length + 1,
-    });
+    setStackInput("");
+    reset({ ...DEFAULT_VALUES, order: projects.length + 1 });
     setIsModalOpen(true);
   };
 
   const openEditModal = (proj) => {
     setEditingProject(proj);
     setStacks(proj.stacks || []);
+    setStackInput("");
     reset({
       title: proj.title,
       description: proj.description,
       image: proj.image,
-      githubLink: proj.githubLink,
-      liveLink: proj.liveLink,
+      githubLink: proj.githubLink || "",
+      liveLink: proj.liveLink || "",
       order: proj.order,
       isFeatured: proj.isFeatured,
-      isActive: proj.isActive
+      isActive: proj.isActive,
     });
     setIsModalOpen(true);
   };
@@ -85,12 +109,14 @@ export function ProjectsSection({ searchQuery = '' }) {
     if (e) e.preventDefault();
     const val = stackInput.trim();
     if (!val) return;
-    if (stacks.includes(val)) {
-      toast.error('Technology stack already added');
+
+    if (stacks.some((s) => s.toLowerCase() === val.toLowerCase())) {
+      toast.error("Technology stack already added");
       return;
     }
+
     setStacks([...stacks, val]);
-    setStackInput('');
+    setStackInput("");
   };
 
   const handleRemoveStack = (item) => {
@@ -99,36 +125,43 @@ export function ProjectsSection({ searchQuery = '' }) {
 
   const onSubmit = async (data) => {
     const payload = {
-      title: data.title,
-      description: data.description,
-      image: data.image,
+      title: data.title.trim(),
+      description: data.description.trim(),
+      image: data.image.trim(),
       stacks,
-      githubLink: data.githubLink,
-      liveLink: data.liveLink,
+      githubLink: data.githubLink?.trim() || "",
+      liveLink: data.liveLink?.trim() || "",
       order: Number(data.order),
       isFeatured: data.isFeatured,
-      isActive: data.isActive
+      isActive: data.isActive,
     };
 
     try {
       if (editingProject) {
         await updateProject({ id: editingProject._id, ...payload }).unwrap();
-        toast.success('Project updated successfully!');
+        toast.success("Project updated successfully!");
       } else {
         await createProject(payload).unwrap();
-        toast.success('Project created successfully!');
+        toast.success("Project created successfully!");
       }
       setIsModalOpen(false);
-    } catch (error) {
-      toast.error(error?.data?.message || error?.message || 'Failed to save project.');
+    } catch (err) {
+      toast.error(
+        err?.data?.message || err?.message || "Failed to save project."
+      );
     }
   };
 
   const handleToggleFeatured = async (proj) => {
     try {
-      await updateProject({ id: proj._id, isFeatured: !proj.isFeatured }).unwrap();
-    } catch (error) {
-      toast.error(error?.data?.message || 'Failed to update featured status.');
+      await updateProject({
+        id: proj._id,
+        isFeatured: !proj.isFeatured,
+      }).unwrap();
+    } catch (err) {
+      toast.error(
+        err?.data?.message || "Failed to update featured status."
+      );
     }
   };
 
@@ -136,24 +169,39 @@ export function ProjectsSection({ searchQuery = '' }) {
     if (!window.confirm(`Delete "${proj.title}"?`)) return;
     try {
       await deleteProject(proj._id).unwrap();
-      toast.success('Project deleted successfully!');
-    } catch (error) {
-      toast.error(error?.data?.message || 'Failed to delete project.');
+      toast.success("Project deleted successfully!");
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to delete project.");
     }
   };
 
   if (isLoadingProjects) {
     return (
-      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-zinc-500">
-        Loading projects...
+      <div className="mx-auto max-w-6xl space-y-6">
+        <div className="h-16 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-72 animate-pulse overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100/60 dark:border-zinc-800 dark:bg-zinc-900/60"
+            />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (isErrorProjects) {
     return (
-      <div className="max-w-6xl mx-auto py-12 text-center text-sm text-rose-500">
-        Failed to load projects. Please refresh the page.
+      <div className="mx-auto max-w-6xl">
+        <div className="rounded-2xl border border-dashed border-rose-300/60 bg-rose-50/40 p-12 text-center dark:border-rose-900/50 dark:bg-rose-950/10">
+          <p className="text-sm font-semibold text-rose-600 dark:text-rose-400">
+            Failed to load projects
+          </p>
+          <p className="mt-1.5 text-xs text-zinc-500">
+            Refresh the page to try again.
+          </p>
+        </div>
       </div>
     );
   }
@@ -173,383 +221,565 @@ export function ProjectsSection({ searchQuery = '' }) {
       return matchesSearch && matchesFeatured;
     });
 
+  const featuredCount = projects.filter((p) => p.isFeatured).length;
+  const activeCount = projects.filter((p) => p.isActive).length;
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Projects Management
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* ============================================================
+          Header
+          ============================================================ */}
+      <div className="flex flex-col gap-4 border-b border-zinc-200 pb-5 sm:flex-row sm:items-end sm:justify-between dark:border-zinc-800">
+        <div className="max-w-2xl">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+            <Sparkles className="h-3 w-3" />
+            Projects
+          </div>
+
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Portfolio showcase
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Image, title, description, stacks, GitHub link, live demo, display order, featured status, and active visibility.
+
+          <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+            Image, description, stacks, GitHub and live links, order, featured
+            status, and public visibility — everything shown on your portfolio.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button
-            id="filter-featured-projects-btn"
             type="button"
-            onClick={() => setFilterFeatured(!filterFeatured)}
-            className={`px-3 py-2 text-xs font-medium rounded-xl border transition-colors ${filterFeatured
-              ? 'bg-amber-500 text-white border-transparent'
-              : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+            onClick={() => setFilterFeatured((v) => !v)}
+            className={`inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-xs font-semibold transition-all active:scale-[0.98] ${filterFeatured
+                ? "border-amber-500/40 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+                : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
               }`}
           >
-            {filterFeatured ? '★ Featured Only' : 'All Projects'}
+            <Star
+              className={`h-3.5 w-3.5 ${filterFeatured ? "fill-current" : ""
+                }`}
+            />
+            {filterFeatured ? "Featured only" : "All projects"}
           </button>
 
-          <button
-            id="add-new-project-btn"
-            type="button"
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 transition-opacity shadow-xs"
-          >
-            <Plus className="w-4 h-4" />
-            Add New Project
+          <button type="button" onClick={openCreateModal} className={btnPrimary}>
+            <Plus className="h-4 w-4" />
+            Add project
           </button>
         </div>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* ============================================================
+          Stats strip
+          ============================================================ */}
+      {projects.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Total
+            </p>
+            <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
+              {projects.length}
+            </p>
+          </div>
+          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Active
+            </p>
+            <p className="mt-1 text-xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+              {activeCount}
+            </p>
+          </div>
+          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Featured
+            </p>
+            <p className="mt-1 text-xl font-semibold tabular-nums text-amber-600 dark:text-amber-400">
+              {featuredCount}
+            </p>
+          </div>
+          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Shown
+            </p>
+            <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
+              {filteredProjects.length}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          Projects grid
+          ============================================================ */}
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         {filteredProjects.length === 0 ? (
-          <div className="col-span-full p-12 text-center  border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
-            <FolderGit2 className="w-8 h-8 text-zinc-400 mx-auto mb-3" />
+          <div className="col-span-full rounded-2xl border border-dashed border-zinc-300 bg-white/60 p-12 text-center dark:border-zinc-800 dark:bg-zinc-900/40">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+              {searchQuery || filterFeatured ? (
+                <Search className="h-5 w-5" />
+              ) : (
+                <FolderGit2 className="h-5 w-5" />
+              )}
+            </div>
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              No projects found
+              {searchQuery || filterFeatured
+                ? "No matching projects"
+                : "No projects yet"}
             </p>
-            <p className="text-xs text-zinc-500 mt-1">
-              Add your portfolio projects using the button above.
+            <p className="mt-1 text-xs text-zinc-500">
+              {searchQuery || filterFeatured
+                ? "Try a different search or clear filters."
+                : "Add your first portfolio project to display it here."}
             </p>
+            {!searchQuery && !filterFeatured && (
+              <button
+                type="button"
+                onClick={openCreateModal}
+                className={`${btnPrimary} mt-5`}
+              >
+                <Plus className="h-4 w-4" />
+                Add project
+              </button>
+            )}
           </div>
         ) : (
           filteredProjects.map((proj) => (
-            <div
+            <article
               key={proj._id}
               id={`project-card-${proj._id}`}
-              className=" bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
             >
-              <div>
-                <div className="relative aspect-video w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                  <img
-                    src={proj.image}
-                    alt={proj.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.target.src =
-                        'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80';
-                    }}
-                  />
-                  <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
-                    {proj.isFeatured && (
-                      <span className="px-2 py-0.5 text-[10px] font-bold  bg-amber-500 text-white shadow-xs flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-current" />
-                        Featured
-                      </span>
-                    )}
-                    <span
-                      className={`px-2 py-0.5 text-[10px] font-medium  ${proj.isActive
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-zinc-800/80 text-white backdrop-blur-xs'
-                        }`}
-                    >
-                      {proj.isActive ? 'Active' : 'Draft'}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-2 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/80 backdrop-blur-xs text-[10px] font-mono text-zinc-200">
-                    Order: #{proj.order}
-                  </div>
+              {/* Image */}
+              <div className="relative aspect-video w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                <img
+                  src={proj.image}
+                  alt={proj.title}
+                  onError={(e) => {
+                    e.currentTarget.src = FALLBACK_IMAGE;
+                  }}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+
+                {/* Overlay gradient for badge legibility */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10"
+                />
+
+                {/* Order badge — bottom-left */}
+                <div className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-md border border-white/10 bg-black/50 px-2 py-0.5 backdrop-blur-md">
+                  <Hash className="h-2.5 w-2.5 text-white/70" />
+                  <span className="font-mono text-[10px] font-medium text-white/90">
+                    {String(proj.order).padStart(2, "0")}
+                  </span>
                 </div>
 
-                <div className="p-5">
-                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                    {proj.title}
-                  </h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1.5 line-clamp-2 leading-relaxed">
-                    {proj.description}
-                  </p>
-
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {proj.stacks &&
-                      proj.stacks.map((tech, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                  </div>
+                {/* Status badges — top-right */}
+                <div className="absolute right-2.5 top-2.5 flex items-center gap-1.5">
+                  {proj.isFeatured && (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/95 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-sm">
+                      <Star className="h-2.5 w-2.5 fill-current" />
+                      Featured
+                    </span>
+                  )}
+                  <span
+                    className={`rounded-md px-2 py-0.5 text-[10px] font-medium shadow-sm backdrop-blur-sm ${proj.isActive
+                        ? "bg-emerald-500/95 text-white"
+                        : "bg-zinc-900/80 text-white/90"
+                      }`}
+                  >
+                    {proj.isActive ? "Active" : "Draft"}
+                  </span>
                 </div>
               </div>
 
-              <div className="p-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {proj.githubLink && (
+              {/* Body */}
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+                  {proj.title}
+                </h3>
+
+                <p className="mt-1.5 line-clamp-2 flex-1 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                  {proj.description}
+                </p>
+
+                {/* Stacks */}
+                {proj.stacks && proj.stacks.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {proj.stacks.slice(0, 4).map((tech, idx) => (
+                      <span
+                        key={idx}
+                        className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 font-mono text-[10px] font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-300"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {proj.stacks.length > 4 && (
+                      <span className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 font-mono text-[10px] font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-800/50">
+                        +{proj.stacks.length - 4}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer actions */}
+              <div className="flex items-center justify-between border-t border-zinc-100 px-5 py-3.5 dark:border-zinc-800">
+                {/* External links */}
+                <div className="flex items-center gap-1">
+                  {proj.githubLink ? (
                     <a
                       href={proj.githubLink}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                      title="GitHub Repository"
+                      title="GitHub repository"
+                      className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                     >
-                      <Github className="w-4 h-4" />
+                      <Github className="h-3.5 w-3.5" />
                     </a>
+                  ) : (
+                    <span className="rounded-lg p-2 text-zinc-300 dark:text-zinc-700">
+                      <Github className="h-3.5 w-3.5" />
+                    </span>
                   )}
-                  {proj.liveLink && (
+
+                  {proj.liveLink ? (
                     <a
                       href={proj.liveLink}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                      title="Live Demo"
+                      title="Live demo"
+                      className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </a>
+                  ) : (
+                    <span className="rounded-lg p-2 text-zinc-300 dark:text-zinc-700">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </span>
                   )}
                 </div>
 
+                {/* Actions */}
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => handleToggleFeatured(proj)}
-                    className={`p-1.5 rounded-lg transition-colors ${proj.isFeatured
-                      ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30'
-                      : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
+                    title={
+                      proj.isFeatured
+                        ? "Remove from featured"
+                        : "Mark as featured"
+                    }
+                    className={`rounded-lg p-2 transition-colors ${proj.isFeatured
+                        ? "text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                        : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                       }`}
-                    title={proj.isFeatured ? 'Remove from featured' : 'Mark as featured'}
                   >
-                    <Star className={`w-4 h-4 ${proj.isFeatured ? 'fill-current' : ''}`} />
+                    <Star
+                      className={`h-3.5 w-3.5 ${proj.isFeatured ? "fill-current" : ""
+                        }`}
+                    />
                   </button>
+
                   <button
                     type="button"
                     onClick={() => openEditModal(proj)}
-                    className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     title="Edit project"
+                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Pencil className="h-3.5 w-3.5" />
                   </button>
+
                   <button
                     type="button"
                     onClick={() => handleDelete(proj)}
-                    className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                     title="Delete project"
+                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
-            </div>
+            </article>
           ))
         )}
       </div>
 
-      {/* Modal for Project Form */}
+      {/* ============================================================
+          Modal
+          ============================================================ */}
       {isModalOpen && (
         <div
           id="project-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-zinc-950/50 p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
+          }}
         >
-          <div className="bg-white dark:bg-zinc-900  max-w-2xl w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                {editingProject ? 'Edit Project' : 'Add New Project'}
-              </h2>
+          <div className="relative my-8 w-full max-w-2xl overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                  <FolderGit2 className="h-4 w-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                    {editingProject ? "Edit project" : "New project"}
+                  </h2>
+                  <p className="text-[11px] text-zinc-500">
+                    {editingProject
+                      ? "Update the project details"
+                      : "Add a new project to your portfolio"}
+                  </p>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                aria-label="Close"
+                className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               >
-                <X className="w-5 h-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-5 space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                    Project Title *
+            {/* Body */}
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <div className="max-h-[65vh] space-y-5 overflow-y-auto px-6 py-5">
+                {/* Title + Order */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="sm:col-span-2">
+                    <label htmlFor="title" className={labelBase}>
+                      Project title <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="title"
+                      type="text"
+                      placeholder="e.g. Nova SaaS Analytics Platform"
+                      {...register("title", {
+                        required: "Project title is required",
+                      })}
+                      className={inputBase}
+                    />
+                    {errors.title && (
+                      <p className={errorBase}>{errors.title.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="order" className={labelBase}>
+                      Display order <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="order"
+                      type="number"
+                      min="1"
+                      {...register("order", {
+                        required: "Order is required",
+                        valueAsNumber: true,
+                      })}
+                      className={inputBase}
+                    />
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label htmlFor="description" className={labelBase}>
+                    Description <span className="text-rose-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    {...register('title', { required: 'Project title is required' })}
-                    placeholder="e.g. Nova SaaS Analytics Platform"
-                    className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-100"
+                  <textarea
+                    id="description"
+                    rows={3}
+                    placeholder="Summarize key features, architecture, problems solved, and impact…"
+                    {...register("description", {
+                      required: "Description is required",
+                    })}
+                    className={`${inputBase} resize-none leading-relaxed`}
                   />
-                  {errors.title && (
-                    <p className="text-xs text-rose-500 mt-1">{errors.title.message}</p>
+                  {errors.description && (
+                    <p className={errorBase}>{errors.description.message}</p>
                   )}
                 </div>
 
+                {/* Image URL + preview */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                    Display Order *
+                  <label htmlFor="image" className={labelBase}>
+                    Cover image URL <span className="text-rose-500">*</span>
                   </label>
                   <input
-                    type="number"
-                    min="1"
-                    {...register('order', {
-                      required: 'Order is required',
-                      valueAsNumber: true
-                    })}
-                    className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-100"
+                    id="image"
+                    type="url"
+                    placeholder="https://images.unsplash.com/…"
+                    {...register("image", { required: "Image URL is required" })}
+                    className={inputBase}
                   />
+                  {errors.image && (
+                    <p className={errorBase}>{errors.image.message}</p>
+                  )}
+
+                  {previewImage && (
+                    <div className="mt-3 aspect-video w-full max-w-sm overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+                      <img
+                        src={previewImage}
+                        alt="Project preview"
+                        onError={(e) => {
+                          e.currentTarget.src = FALLBACK_IMAGE;
+                        }}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                  Project Description *
-                </label>
-                <textarea
-                  rows={3}
-                  {...register('description', { required: 'Description is required' })}
-                  placeholder="Summarize key features, architecture, problems solved, and metrics..."
-                  className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-100"
-                />
-                {errors.description && (
-                  <p className="text-xs text-rose-500 mt-1">{errors.description.message}</p>
-                )}
-              </div>
+                {/* Stacks */}
+                <div>
+                  <label className={labelBase}>Technologies & stacks</label>
+                  <div className="mb-2 flex gap-2">
+                    <input
+                      type="text"
+                      value={stackInput}
+                      onChange={(e) => setStackInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddStack();
+                        }
+                      }}
+                      placeholder="e.g. React, Tailwind CSS, PostgreSQL"
+                      className={`${inputBase} flex-1`}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddStack}
+                      className="inline-flex h-[42px] shrink-0 items-center gap-1.5 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Add
+                    </button>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                  Project Cover Image URL *
-                </label>
-                <input
-                  type="url"
-                  {...register('image', { required: 'Image URL is required' })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-100"
-                />
-                {errors.image && (
-                  <p className="text-xs text-rose-500 mt-1">{errors.image.message}</p>
-                )}
+                  <div className="flex flex-wrap gap-1.5">
+                    {stacks.length === 0 ? (
+                      <p className="text-xs italic text-zinc-400">
+                        No technologies added yet.
+                      </p>
+                    ) : (
+                      stacks.map((st) => (
+                        <span
+                          key={st}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-zinc-50 px-2.5 py-1 font-mono text-xs font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-300"
+                        >
+                          {st}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveStack(st)}
+                            className="text-zinc-400 transition-colors hover:text-rose-500"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </div>
 
-                {previewImage && (
-                  <div className="mt-2.5 aspect-video w-full max-w-sm rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700">
-                    <img
-                      src={previewImage}
-                      alt="Project Preview"
-                      className="w-full h-full object-cover"
+                {/* Links */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="githubLink" className={labelBase}>
+                      GitHub link
+                    </label>
+                    <input
+                      id="githubLink"
+                      type="url"
+                      placeholder="https://github.com/…"
+                      {...register("githubLink")}
+                      className={inputBase}
                     />
                   </div>
-                )}
+
+                  <div>
+                    <label htmlFor="liveLink" className={labelBase}>
+                      Live demo link
+                    </label>
+                    <input
+                      id="liveLink"
+                      type="url"
+                      placeholder="https://myproject.com"
+                      {...register("liveLink")}
+                      className={inputBase}
+                    />
+                  </div>
+                </div>
+
+                {/* Toggles */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3.5 transition-colors hover:border-amber-500/40 hover:bg-amber-50/30 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-amber-500/30 dark:hover:bg-amber-950/10">
+                    <input
+                      type="checkbox"
+                      {...register("isFeatured")}
+                      className="mt-0.5 h-4 w-4 cursor-pointer rounded border-zinc-300 text-amber-500 focus:ring-amber-500/30 dark:border-zinc-700 dark:bg-zinc-800"
+                    />
+                    <div>
+                      <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                        Featured project
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-zinc-500">
+                        Pinned to portfolio top section
+                      </p>
+                    </div>
+                  </label>
+
+                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3.5 transition-colors hover:border-emerald-500/40 hover:bg-emerald-50/30 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-500/30 dark:hover:bg-emerald-950/10">
+                    <input
+                      type="checkbox"
+                      {...register("isActive")}
+                      className="mt-0.5 h-4 w-4 cursor-pointer rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/30 dark:border-zinc-700 dark:bg-zinc-800"
+                    />
+                    <div>
+                      <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                        Project is active
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-zinc-500">
+                        Visible on public portfolio
+                      </p>
+                    </div>
+                  </label>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                  Technologies / Stacks
-                </label>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={stackInput}
-                    onChange={(e) => setStackInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddStack();
-                      }
-                    }}
-                    placeholder="e.g. React, JavaScript, Tailwind CSS, PostgreSQL"
-                    className="flex-1 px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
-                  />
+              {/* Footer */}
+              <div className="flex items-center justify-between gap-3 border-t border-zinc-100 bg-zinc-50/50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+                <p className="hidden text-[11px] text-zinc-500 sm:block">
+                  {editingProject
+                    ? "Changes are saved to your portfolio instantly."
+                    : "Your project will appear on the portfolio immediately."}
+                </p>
+
+                <div className="ml-auto flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => handleAddStack()}
-                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                    onClick={() => setIsModalOpen(false)}
+                    className={btnGhost}
                   >
-                    Add Stack
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className={btnPrimary}
+                  >
+                    {isSaving
+                      ? "Saving…"
+                      : editingProject
+                        ? "Update project"
+                        : "Create project"}
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {stacks.map((st) => (
-                    <span
-                      key={st}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
-                    >
-                      {st}
-                      <button type="button" onClick={() => handleRemoveStack(st)}>
-                        <X className="w-3 h-3 text-zinc-400 hover:text-rose-500" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                    GitHub Link
-                  </label>
-                  <input
-                    type="url"
-                    {...register('githubLink')}
-                    placeholder="https://github.com/..."
-                    className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 mb-2">
-                    Live Demo Link
-                  </label>
-                  <input
-                    type="url"
-                    {...register('liveLink')}
-                    placeholder="https://myproject.com"
-                    className="w-full px-4 py-2.5 text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
-                  <input
-                    type="checkbox"
-                    {...register('isFeatured')}
-                    className="w-4 h-4 rounded-sm border-zinc-300 dark:border-zinc-700 text-amber-500 focus:ring-amber-400"
-                  />
-                  <div className="text-xs">
-                    <span className="font-semibold block text-zinc-900 dark:text-zinc-100">
-                      Featured Project
-                    </span>
-                    <span className="text-zinc-500">Pinned to portfolio top section</span>
-                  </div>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
-                  <input
-                    type="checkbox"
-                    {...register('isActive')}
-                    className="w-4 h-4 rounded-sm border-zinc-300 dark:border-zinc-700 text-emerald-600 focus:ring-emerald-500"
-                  />
-                  <div className="text-xs">
-                    <span className="font-semibold block text-zinc-900 dark:text-zinc-100">
-                      Project is Active
-                    </span>
-                    <span className="text-zinc-500">Visible on public portfolio</span>
-                  </div>
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-5 py-2 text-xs font-semibold rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSaving ? 'Saving...' : editingProject ? 'Update Project' : 'Create Project'}
-                </button>
               </div>
             </form>
           </div>

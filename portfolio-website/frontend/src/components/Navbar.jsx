@@ -32,7 +32,7 @@ const Navbar = () => {
     const location = useLocation();
 
     /* ------------------------------------------------------------------ */
-    /*  Theme                                                             */
+    /*  Theme                                                              */
     /* ------------------------------------------------------------------ */
     useEffect(() => {
         document.documentElement.classList.toggle("light", isLight);
@@ -40,7 +40,7 @@ const Navbar = () => {
     }, [isLight]);
 
     /* ------------------------------------------------------------------ */
-    /*  Scroll / Active Section / Progress                                */
+    /*  Scroll / Active Section / Progress                                 */
     /* ------------------------------------------------------------------ */
     useEffect(() => {
         const sectionIds = NAV_LINKS.map((link) => link.id);
@@ -74,14 +74,27 @@ const Navbar = () => {
     }, []);
 
     /* ------------------------------------------------------------------ */
-    /*  Close mobile nav on route change                                  */
+    /*  Close mobile nav on route change                                   */
     /* ------------------------------------------------------------------ */
     useEffect(() => {
         setIsOpen(false);
     }, [location.pathname]);
 
     /* ------------------------------------------------------------------ */
-    /*  Smooth scroll                                                     */
+    /*  Lock body scroll when mobile menu is open                          */
+    /* ------------------------------------------------------------------ */
+    useEffect(() => {
+        if (isOpen) {
+            const prev = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => {
+                document.body.style.overflow = prev;
+            };
+        }
+    }, [isOpen]);
+
+    /* ------------------------------------------------------------------ */
+    /*  Smooth scroll                                                      */
     /* ------------------------------------------------------------------ */
     const scrollToSection = useCallback((id, event) => {
         if (event) event.preventDefault();
@@ -97,7 +110,7 @@ const Navbar = () => {
     }, []);
 
     /* ------------------------------------------------------------------ */
-    /*  Theme toggle                                                      */
+    /*  Theme toggle                                                       */
     /* ------------------------------------------------------------------ */
     const toggleTheme = useCallback(() => {
         setIsLight((current) => {
@@ -108,14 +121,12 @@ const Navbar = () => {
     }, []);
 
     /* ------------------------------------------------------------------ */
-    /*  Active nav item                                                   */
+    /*  Active nav item                                                    */
     /* ------------------------------------------------------------------ */
     const isLinkActive = useMemo(
         () => (link) => {
             if (location.pathname === link.path) return true;
-            return (
-                location.pathname === "/" && activeSection === link.id
-            );
+            return location.pathname === "/" && activeSection === link.id;
         },
         [location.pathname, activeSection]
     );
@@ -128,7 +139,7 @@ const Navbar = () => {
         ${scrolled ? "bg-background/70 backdrop-blur-2xl" : "bg-transparent"}
       `}
         >
-            {/* Top hairline accent — matches section dividers */}
+            {/* Top hairline accent */}
             <div
                 aria-hidden="true"
                 className={`
@@ -142,7 +153,7 @@ const Navbar = () => {
             {/* Main navbar */}
             <div
                 className={`
-          mx-auto max-w-7xl px-5 sm:px-8
+          mx-auto max-w-7xl px-4 sm:px-6 md:px-8
           transition-all duration-500
           ${scrolled ? "py-2" : "py-3 md:py-4"}
         `}
@@ -159,16 +170,16 @@ const Navbar = () => {
                         }
           `}
                 >
-                    {/* ---------------------------------------------------------- */}
-                    {/*  Logo                                                      */}
-                    {/* ---------------------------------------------------------- */}
+                    {/* ------------------------------------------------------------ */}
+                    {/*  Logo                                                         */}
+                    {/* ------------------------------------------------------------ */}
                     <Link
                         to="/"
                         onClick={(event) => {
                             if (location.pathname === "/") scrollToSection("home", event);
                         }}
                         aria-label="Go to homepage"
-                        className="group flex shrink-0 items-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                        className="group relative z-10 flex shrink-0 items-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
                     >
                         <div className="flex items-center font-code text-base font-semibold tracking-tight md:text-lg">
                             <span className="text-primary transition-transform duration-300 group-hover:-translate-x-0.5">
@@ -182,17 +193,16 @@ const Navbar = () => {
                             </span>
                         </div>
 
-                        {/* Status indicator */}
                         <span
                             aria-hidden="true"
                             className="ml-3 hidden h-1.5 w-1.5 bg-primary shadow-[0_0_10px_theme(colors.primary/60)] sm:block"
                         />
                     </Link>
 
-                    {/* ---------------------------------------------------------- */}
-                    {/*  Desktop Navigation                                        */}
-                    {/* ---------------------------------------------------------- */}
-                    <div className="absolute left-1/2 hidden -translate-x-1/2 md:flex">
+                    {/* ------------------------------------------------------------ */}
+                    {/*  Desktop Navigation — shown on lg+ only                       */}
+                    {/* ------------------------------------------------------------ */}
+                    <div className="absolute left-1/2 hidden -translate-x-1/2 lg:flex">
                         <div className="flex items-center clip-polygon border border-border/60 bg-muted/30 p-1 backdrop-blur-xl">
                             {NAV_LINKS.map((link) => {
                                 const active = isLinkActive(link);
@@ -205,14 +215,16 @@ const Navbar = () => {
                                                 scrollToSection(link.id, event);
                                         }}
                                         className={`
-                      group relative px-3.5 py-2 md:px-4
+                      group relative px-3.5 py-2 lg:px-4
                       font-code text-[10px] font-medium uppercase tracking-[0.08em]
                       transition-colors duration-300
                       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
-                      ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}
+                      ${active
+                                                ? "text-foreground"
+                                                : "text-muted-foreground hover:text-foreground"
+                                            }
                     `}
                                     >
-                                        {/* Active pill */}
                                         {active && (
                                             <span
                                                 aria-hidden="true"
@@ -222,7 +234,6 @@ const Navbar = () => {
 
                                         <span className="relative">{link.label}</span>
 
-                                        {/* Active underline */}
                                         <span
                                             aria-hidden="true"
                                             className={`
@@ -237,18 +248,16 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    {/* ---------------------------------------------------------- */}
-                    {/*  Right Controls                                            */}
-                    {/* ---------------------------------------------------------- */}
-                    <div className="flex items-center gap-1">
+                    {/* ------------------------------------------------------------ */}
+                    {/*  Right Controls                                                */}
+                    {/* ------------------------------------------------------------ */}
+                    <div className="relative z-10 flex items-center gap-1">
                         {/* Theme toggle */}
                         <button
                             type="button"
                             onClick={toggleTheme}
                             aria-label={
-                                isLight
-                                    ? "Switch to dark theme"
-                                    : "Switch to light theme"
+                                isLight ? "Switch to dark theme" : "Switch to light theme"
                             }
                             className="group relative flex h-10 w-10 items-center justify-center clip-polygon text-muted-foreground transition-all duration-300 hover:bg-card/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                         >
@@ -277,26 +286,17 @@ const Navbar = () => {
                         {/* Divider */}
                         <span
                             aria-hidden="true"
-                            className="mx-1 hidden h-5 w-px bg-border/60 md:block"
+                            className="mx-1 hidden h-5 w-px bg-border/60 lg:block"
                         />
 
-                        {/* Desktop CTA */}
+                        {/* Desktop CTA — lg only */}
                         <Button
                             to="#contact"
                             onClick={(event) => {
                                 if (location.pathname === "/")
                                     scrollToSection("contact", event);
                             }}
-                            className="
-                group/cta hidden h-10 items-center gap-2 clip-polygon
-                bg-primary px-4 text-xs font-semibold text-primary-foreground
-                transition-all duration-300
-                hover:-translate-y-0.5
-                hover:opacity-90
-                hover:shadow-[0_0_24px_-6px_theme(colors.primary/60)]
-                focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
-                md:inline-flex
-              "
+                            className="hidden lg:inline-flex"
                         >
                             <span>Start a project</span>
                             <FiArrowUpRight
@@ -305,7 +305,7 @@ const Navbar = () => {
                             />
                         </Button>
 
-                        {/* Mobile menu toggle */}
+                        {/* Mobile/Tablet menu toggle — visible below lg */}
                         <button
                             type="button"
                             onClick={() => setIsOpen((current) => !current)}
@@ -313,7 +313,7 @@ const Navbar = () => {
                                 isOpen ? "Close navigation menu" : "Open navigation menu"
                             }
                             aria-expanded={isOpen}
-                            className="flex h-10 w-10 items-center justify-center clip-polygon text-foreground transition-all duration-300 hover:bg-card/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:hidden"
+                            className="flex h-10 w-10 items-center justify-center clip-polygon text-foreground transition-all duration-300 hover:bg-card/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
                         >
                             {isOpen ? (
                                 <FiX className="h-5 w-5" aria-hidden="true" />
@@ -324,13 +324,13 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* ------------------------------------------------------------ */}
-                {/*  Mobile Navigation                                          */}
-                {/* ------------------------------------------------------------ */}
+                {/* -------------------------------------------------------------- */}
+                {/*  Mobile + Tablet Menu — visible below lg                        */}
+                {/* -------------------------------------------------------------- */}
                 <div
                     className={`
-            overflow-hidden transition-all duration-500 md:hidden
-            ${isOpen ? "max-h-[30rem] pt-2 opacity-100" : "max-h-0 opacity-0"}
+            overflow-hidden transition-all duration-500 lg:hidden
+            ${isOpen ? "max-h-[32rem] pt-2 opacity-100" : "max-h-0 opacity-0"}
           `}
                 >
                     <div className="overflow-hidden clip-polygon border border-border/60 bg-background/85 backdrop-blur-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-16px_rgba(0,0,0,0.45)]">
@@ -421,7 +421,7 @@ const Navbar = () => {
             </div>
 
             {/* ---------------------------------------------------------------- */}
-            {/*  Scroll progress bar (bottom of navbar)                          */}
+            {/*  Scroll progress bar                                              */}
             {/* ---------------------------------------------------------------- */}
             <div
                 aria-hidden="true"

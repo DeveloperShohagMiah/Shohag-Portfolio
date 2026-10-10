@@ -30,11 +30,7 @@ const Login = () => {
                 password: data.password,
             }).unwrap();
 
-            toast.success(
-                response?.data?.message ||
-                response?.message ||
-                "Login successful"
-            );
+
 
         } catch (error) {
             console.error("Login failed:", error);
