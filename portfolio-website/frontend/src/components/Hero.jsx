@@ -607,11 +607,11 @@ const Hero = () => {
             {/* CTAs */}
             <Reveal>
               <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-5 lg:justify-start">
-                <Button to={`#contact`}>
+                <Button to={`#contact`} className="w-full sm:w-fit">
                   Start a project
                   <FiArrowUpRight size={16} />
                 </Button>
-                <Button to={`#projects`} variant={"secondary"}>
+                <Button to={`#projects`} variant={"secondary"} className="w-full sm:w-fit">
                   View works
                   <FiArrowUpRight size={16} />
                 </Button>
@@ -659,7 +659,7 @@ const Hero = () => {
             <HeroVisual />
           </div>
         </motion.div>
-      </motion.div>
+      </motion.div >
 
       <div className="mt-16 md:mt-20">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
@@ -676,7 +676,7 @@ const Hero = () => {
         aria-hidden="true"
         className="absolute bottom-0 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent"
       />
-    </section>
+    </section >
   );
 };
 
