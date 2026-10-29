@@ -743,7 +743,7 @@ const FloatingField = forwardRef(function FloatingField(
         ? "border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/10"
         : "border-border/70 focus:border-primary focus:ring-primary/10";
 
-    const control = `peer w-full rounded-xl border bg-background/40 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-transparent hover:border-border hover:bg-background/50 focus:bg-background/70 focus:ring-4 disabled:opacity-60 ${tone}`;
+    const control = `peer w-full rounded-xl border bg-background/40 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-transparent hover:border-border hover:bg-muted/40 focus:bg-background/70 focus:ring-4 disabled:opacity-60 ${tone}`;
 
     const shared = {
         id,
@@ -1051,11 +1051,11 @@ function ContactForm({ content, fields, onSubmit }) {
                             <span className="hidden sm:inline">
                                 {" "}
                                 Press{" "}
-                                <kbd className="rounded border border-border/70 bg-background/50 px-1 font-code text-[10px]">
+                                <kbd className="rounded border border-border/70 bg-muted/40 px-1 font-code text-[10px]">
                                     Ctrl
                                 </kbd>{" "}
                                 +{" "}
-                                <kbd className="rounded border border-border/70 bg-background/50 px-1 font-code text-[10px]">
+                                <kbd className="rounded border border-border/70 bg-muted/40 px-1 font-code text-[10px]">
                                     Enter
                                 </kbd>{" "}
                                 to send.

@@ -503,7 +503,7 @@ function StackMarquee() {
           <span
             key={`${tech}-${i}`}
             aria-hidden={i >= STACK.length ? "true" : undefined}
-            className="mr-2.5 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/50 px-3.5 py-1.5 font-code text-[10px] font-medium text-muted-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary/40 hover:text-primary sm:mr-3 sm:px-4 sm:py-2 sm:text-[11px]"
+            className="mr-2.5 inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-3.5 py-1.5 font-code text-[10px] font-medium text-muted-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary/40 hover:text-primary sm:mr-3 sm:px-4 sm:py-2 sm:text-[11px]"
           >
             <span className="h-1 w-1 rounded-full bg-primary/70" />
             {tech}

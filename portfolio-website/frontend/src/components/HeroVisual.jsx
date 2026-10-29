@@ -231,7 +231,7 @@ function ChartCard({ reduced }) {
                     </p>
                 </div>
 
-                <div role="group" aria-label="Chart range" className="flex shrink-0 rounded-xl border border-border/60 bg-background/50 p-0.5">
+                <div role="group" aria-label="Chart range" className="flex shrink-0 rounded-xl border border-border/60 bg-muted/40 p-0.5">
                     {Object.keys(SERIES).map((k) => (
                         <button
                             key={k}

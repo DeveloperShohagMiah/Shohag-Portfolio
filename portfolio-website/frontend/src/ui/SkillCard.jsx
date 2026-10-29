@@ -63,7 +63,7 @@ const SkillCard = ({ skill, index = 0 }) => {
                     {skill.icon ? (
                         <DynamicIcon name={skill.icon} size={18} className="relative z-10" />
                     ) : (
-                        <div className="relative z-10 h-6 w-6 rounded-full bg-muted/30" />
+                        <div className="relative z-10 h-6 w-6 rounded-full bg-muted/40" />
                     )}
                 </motion.div>
 

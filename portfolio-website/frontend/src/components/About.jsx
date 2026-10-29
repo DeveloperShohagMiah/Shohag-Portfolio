@@ -380,7 +380,7 @@ function ContentPanel({ about, content }) {
                                             key={item}
                                             variants={fadeUp}
                                             whileHover={{ y: -2 }}
-                                            className="group/tag inline-flex rounded-full items-center gap-1.5 border border-border/60 bg-background/50 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-colors duration-300 hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+                                            className="group/tag inline-flex rounded-full items-center gap-1.5 border border-border/60 bg-muted/40 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-colors duration-300 hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
                                         >
 
                                             {item}

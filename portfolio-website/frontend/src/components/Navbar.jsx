@@ -6,7 +6,7 @@
     useCallback,
 } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FiMenu, FiX, FiMoon, FiSun, FiArrowUpRight, FiGithub } from "react-icons/fi";
+import { FiMenu, FiX, FiMoon, FiSun, FiArrowUpRight, FiGithub, FiSend } from "react-icons/fi";
 import Button from "./Button";
 
 const NAV_LINKS = [
@@ -375,7 +375,7 @@ const Navbar = () => {
                             />
 
                             {/* CTA — visible on every device */}
-                            <Button className="hidden lg:inline-flex font-display font-semibold"><FiGithub /> Github </Button>
+                            <Button to="https://github.com/DeveloperShohagMiah" target="_blank" className=" font-display font-semibold py-2.5! px-3! md:py-3! md:px-6!"><FiGithub /> <span >Github</span> </Button>
 
                             {/* Menu toggle — below lg */}
                             <button
@@ -384,7 +384,7 @@ const Navbar = () => {
                                 aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
                                 aria-expanded={isOpen}
                                 aria-controls="mobile-menu"
-                                className={`relative flex h-10 w-10 items-center justify-center rounded-xl text-foreground transition-all duration-300 hover:bg-foreground/[0.06] lg:hidden ${FOCUS}`}
+                                className={`relative flex h-10 w-10 items-center justify-center rounded-sm text-foreground transition-all duration-300 hover:bg-foreground/[0.06] lg:hidden ${FOCUS}`}
                             >
                                 <FiMenu
                                     aria-hidden="true"
@@ -427,7 +427,7 @@ const Navbar = () => {
             `}
                     >
                         <div className="min-h-0 overflow-hidden">
-                            <div className="max-h-[calc(100dvh-6.5rem)] overflow-y-auto rounded-xl border border-border/60 bg-background/90 backdrop-blur-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]">
+                            <div className="max-h-[calc(100dvh-6.5rem)] font-display overflow-y-auto rounded-xl border border-border/60 bg-background/90 backdrop-blur-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)]">
                                 <ul className="p-2">
                                     {NAV_LINKS.map((link, i) => {
                                         const active = isLinkActive(link);
@@ -440,9 +440,7 @@ const Navbar = () => {
                                                     style={{
                                                         transitionDelay: isOpen ? `${80 + i * 40}ms` : "0ms",
                                                     }}
-                                                    className={`
-                            group flex items-center justify-between
-                            px-4 py-3.5 transition-all duration-500 ${FOCUS}
+                                                    className={`group flex items-center justify-between px-4 py-3.5 transition-all duration-500 rounded-md ${FOCUS}
                             ${isOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}
                             ${active
                                                             ? "bg-foreground/[0.06] text-foreground"
@@ -456,7 +454,7 @@ const Navbar = () => {
                                                             className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${active ? "scale-125 bg-primary" : "bg-border"
                                                                 }`}
                                                         />
-                                                        <span className="font-body text-base font-medium">
+                                                        <span className="text-base font-medium">
                                                             {link.label}
                                                         </span>
                                                     </span>
@@ -471,7 +469,7 @@ const Navbar = () => {
                                 </ul>
 
                                 <div className="border-t border-border/60 p-2">
-                                    <CtaButton full onClick={handleNav("contact")} />
+                                    <Button to="#contact" className="w-full">Start A project <FiSend /></Button>
                                 </div>
                             </div>
                         </div>

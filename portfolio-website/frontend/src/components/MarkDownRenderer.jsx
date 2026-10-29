@@ -118,7 +118,7 @@ const Code = ({ inline, className, children, ...props }) => {
 };
 
 const Blockquote = ({ children }) => (
-    <blockquote className="my-8 border-l-[3px] border-primary/40 bg-muted/30 py-2 pl-6 pr-4 text-lg italic leading-relaxed text-foreground/90">
+    <blockquote className="my-8 border-l-[3px] border-primary/40 bg-muted/40 py-2 pl-6 pr-4 text-lg italic leading-relaxed text-foreground/90">
         {children}
     </blockquote>
 );

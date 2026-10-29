@@ -202,13 +202,13 @@ function TagList({ tags, max }) {
             {tags.slice(0, max).map((tag) => (
                 <li
                     key={tag}
-                    className="border border-border/60 bg-muted/30 rounded-full px-2.5 py-1 font-code text-[10px] text-muted-foreground transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90"
+                    className="border border-border/60 bg-muted/40 rounded-full px-2.5 py-1 font-code text-[10px] text-muted-foreground transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90"
                 >
                     {tag}
                 </li>
             ))}
             {tags.length > max && (
-                <li className="border border-border/60 bg-muted/30 rounded-full px-2.5 py-1 font-code text-[10px] text-muted-foreground">
+                <li className="border border-border/60 bg-muted/40 rounded-full px-2.5 py-1 font-code text-[10px] text-muted-foreground">
                     +{tags.length - max}
                 </li>
             )}

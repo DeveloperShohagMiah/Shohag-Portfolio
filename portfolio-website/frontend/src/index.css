@@ -166,7 +166,7 @@
     --secondary: #e8e8ec;
     --secondary-foreground: #1a1a1a;
 
-    /* --muted is a SURFACE colour (bg-muted/30 etc.). It was #777180, a mid-grey
+    /* --muted is a SURFACE colour (bg-muted/40 etc.). It was #777180, a mid-grey
        that turned those fills muddy. Text greys live in --muted-foreground. */
     --muted: #EFECF4;
     --muted-foreground: #5c5c66;

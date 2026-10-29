@@ -8,11 +8,11 @@ const ServicesSkeleton = () => {
                     key={i}
                     className="rounded-xl border border-border/60 bg-card/40 p-7 h-64"
                 >
-                    <div className="h-12 w-12 bg-muted/30 rounded-xl mb-7" />
+                    <div className="h-12 w-12 bg-muted/40 rounded-xl mb-7" />
                     <div className="h-5 w-2/3 bg-muted/40 rounded mb-4" />
-                    <div className="h-3 w-full bg-muted/30 rounded mb-2" />
-                    <div className="h-3 w-5/6 bg-muted/30 rounded mb-2" />
-                    <div className="h-3 w-4/6 bg-muted/30 rounded" />
+                    <div className="h-3 w-full bg-muted/40 rounded mb-2" />
+                    <div className="h-3 w-5/6 bg-muted/40 rounded mb-2" />
+                    <div className="h-3 w-4/6 bg-muted/40 rounded" />
                 </div>
             ))}
         </div>

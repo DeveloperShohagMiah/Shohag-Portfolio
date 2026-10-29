@@ -11,7 +11,7 @@ export default function EditorContent({
     return (
         <div className="min-w-0">
             {/* View controls */}
-            <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-2">
+            <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2">
                 <span className="text-xs font-medium text-muted-foreground">
                     {mode === "preview" ? "Content preview" : "Editor canvas"}
                 </span>
@@ -21,8 +21,8 @@ export default function EditorContent({
                         type="button"
                         onClick={() => onModeChange("edit")}
                         className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium ${mode === "edit"
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:bg-muted"
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:bg-muted"
                             }`}
                     >
                         <Pencil size={14} />
@@ -33,8 +33,8 @@ export default function EditorContent({
                         type="button"
                         onClick={() => onModeChange("preview")}
                         className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium ${mode === "preview"
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:bg-muted"
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:bg-muted"
                             }`}
                     >
                         <Eye size={14} />

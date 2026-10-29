@@ -223,7 +223,7 @@ function TechList({ items, max, className = "" }) {
             {items.slice(0, max).map((tech) => (
                 <li
                     key={tech}
-                    className="border border-border/60 rounded-full bg-muted/30 px-2.5 py-1 font-code text-[10px] text-muted-foreground transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90"
+                    className="border border-border/60 rounded-full bg-muted/40 px-2.5 py-1 font-code text-[10px] text-muted-foreground transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90"
                 >
                     {tech}
                 </li>
@@ -499,12 +499,12 @@ function ProjectsSkeleton() {
         <div className="mt-16 lg:mt-24" aria-busy="true">
             <div className={`${block} p-10`}>
                 <div className="grid gap-8 lg:grid-cols-12">
-                    <div className="aspect-[16/10] rounded-xl bg-muted/30 lg:col-span-7" />
+                    <div className="aspect-[16/10] rounded-xl bg-muted/40 lg:col-span-7" />
                     <div className="space-y-4 lg:col-span-5">
                         <div className="h-3 w-24 rounded bg-muted/40" />
                         <div className="h-7 w-3/4 rounded bg-muted/40" />
-                        <div className="h-3 w-full rounded bg-muted/30" />
-                        <div className="h-3 w-5/6 rounded bg-muted/30" />
+                        <div className="h-3 w-full rounded bg-muted/40" />
+                        <div className="h-3 w-5/6 rounded bg-muted/40" />
                     </div>
                 </div>
             </div>

@@ -6,7 +6,7 @@ const SkillsSkeleton = () => {
             {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="bg-background p-6">
                     <div className="flex items-start justify-between">
-                        <div className="h-11 w-11 rounded-xl bg-muted/30" />
+                        <div className="h-11 w-11 rounded-xl bg-muted/40" />
                         <div className="h-3 w-6 bg-muted/20 rounded" />
                     </div>
                     <div className="mt-6 h-4 w-3/4 bg-muted/40 rounded" />
