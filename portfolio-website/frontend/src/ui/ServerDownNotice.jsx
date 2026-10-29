@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { FiMail, FiRefreshCw } from "react-icons/fi";
-import { describeServerError } from "./serverStatus";
+import { describeServerError } from "./ServerStatus.js";
 
 const RETRY_DELAYS = [5, 10, 20, 30, 30]; // seconds between automatic retries
 
