@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Blog from "../models/Blog.js";
-import ApiError from "../utils/apiError.js";
+import ApiError from "../utils/apierror.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 

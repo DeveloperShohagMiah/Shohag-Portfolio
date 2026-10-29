@@ -1,5 +1,5 @@
 import Service from "../models/Service.js";
-import ApiError from "../utils/apiError.js";
+import ApiError from "../utils/apierror.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 

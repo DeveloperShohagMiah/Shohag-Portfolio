@@ -1,5 +1,5 @@
 
-import ApiError from "../utils/apiError.js";
+import ApiError from "../utils/apierror.js";
 
 const errorHandler = (err, req, res, next) => {
     // Default to 500 if nothing set

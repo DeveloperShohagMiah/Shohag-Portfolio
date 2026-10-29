@@ -10,8 +10,8 @@ import {
     deleteSkill,
     toggleSkillStatus,
 } from "../controllers/skills.controllers.js";
-import { authMiddleware, authorize } from "../middleawares/authMiddleware.js";
-import validateObjectId from "../middleawares/validateObjectId.js";
+import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
 

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import Faq from "../models/Faq.js";
-import ApiError from "../utils/apiError.js";
+import ApiError from "../utils/apierror.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import ApiResponse from "../utils/apiresponse.js";
+import ApiResponse from "../utils/apiResponse.js";
 
 const validateObjectId = (id) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {

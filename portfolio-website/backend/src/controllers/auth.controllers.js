@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "../utils/asyncHandler.js";
 import User from "../models/User.js";
-import ApiError from "../utils/apiError.js";
-import ApiResponse from "../utils/apiresponse.js";
+import ApiError from "../utils/apierror.js";
+import ApiResponse from "../utils/apiResponse.js";
 
 const COOKIE_NAME = "token";
 

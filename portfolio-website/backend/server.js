@@ -13,8 +13,8 @@ import projectRouter from "./src/routes/project.routes.js";
 import skillsRouter from "./src/routes/skill.routes.js";
 import faqRouter from "./src/routes/faq.routes.js";
 import testimonialRouter from "./src/routes/testimonial.routes.js";
-import notFound from "./src/middleawares/notFound.js";
-import errorHandler from "./src/middleawares/errorHandler.js";
+import notFound from "./src/middlewares/notFound.js";
+import errorHandler from "./src/middlewares/errorHandler.js";
 import router from "./src/routes/blog.routes.js";
 import profileRouter from "./src/routes/profile.routes.js";
 import contactMessageRouter from "./src/routes/contactMessage.routes.js";
@@ -85,7 +85,7 @@ app.use(errorHandler);
 const start = async () => {
   try {
     await connectDB();
-    // app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);

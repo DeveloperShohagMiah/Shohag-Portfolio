@@ -1,4 +1,4 @@
-import ApiError from "../utils/apiError.js";
+import ApiError from "../utils/apierror.js";
 
 
 const notFound = (req, res, next) => {
