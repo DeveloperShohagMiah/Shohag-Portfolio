@@ -154,39 +154,21 @@ function Reveal({ children, className = "" }) {
   );
 }
 
-/* ========================================================================== */
-/*  Magnetic wrapper — element leans toward the cursor                        */
-/* ========================================================================== */
-function Magnetic({ children, strength = 0.3, className = "" }) {
-  const ref = useRef(null);
-  const reduced = useReducedMotion();
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 220, damping: 16, mass: 0.4 });
-  const sy = useSpring(y, { stiffness: 220, damping: 16, mass: 0.4 });
-
-  const onMove = (e) => {
-    if (reduced || e.pointerType !== "mouse") return;
-    const r = ref.current.getBoundingClientRect();
-    x.set((e.clientX - (r.left + r.width / 2)) * strength);
-    y.set((e.clientY - (r.top + r.height / 2)) * strength);
-  };
-  const onLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
-      style={{ x: sx, y: sy }}
-      className={`inline-block ${className}`}
-    >
-      {children}
-    </motion.div>
+/* Tracks a CSS media query (used to switch scroll effects off on small screens) */
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(query).matches
   );
+
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const onChange = () => setMatches(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [query]);
+
+  return matches;
 }
 
 /* ========================================================================== */
@@ -236,7 +218,7 @@ function RoleRotator() {
 
   return (
     <div
-      className="relative mx-auto mt-6 flex h-8 items-center justify-center gap-3 lg:mx-0 lg:justify-start overflow-hidden font-code text-sm text-foreground sm:text-base"
+      className="relative mx-auto mt-5 flex h-8 items-center justify-center gap-2.5 overflow-hidden font-code text-[13px] text-foreground sm:mt-6 sm:gap-3 sm:text-base lg:mx-0 lg:justify-start"
       aria-hidden="true"
     >
       <span aria-hidden="true" className="text-primary">
@@ -292,23 +274,24 @@ function DomeGlow({ y }) {
             "radial-gradient(ellipse at 50% 100%, rgba(124,58,237,0.35) 0%, rgba(124,58,237,0.15) 55%, transparent 74%)",
         }}
       />
+      {/* big blurs are expensive on phones, so the soft bloom + breathing light are md+ only */}
       <div
-        className="absolute left-1/2 top-0 h-[140vh] w-[180vw] -translate-x-1/2 -translate-y-[62vh] blur-3xl"
+        className="absolute left-1/2 top-0 hidden h-[140vh] w-[180vw] -translate-x-1/2 -translate-y-[62vh] blur-3xl md:block"
         style={{
           borderRadius: "50%",
           background:
             "radial-gradient(ellipse at 50% 100%, transparent 70%, rgba(139,92,246,0.35) 73%, transparent 78%)",
         }}
       />
-      <div className="absolute left-1/2 top-[18vh] h-56 w-[42rem] max-w-[90vw] -translate-x-1/2 rounded-full bg-primary/40 blur-[80px]" />
-      <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-background via-background/80 to-transparent" />
+      <div className="absolute left-1/2 top-[14vh] h-40 w-[26rem] max-w-[90vw] -translate-x-1/2 rounded-full bg-primary/35 blur-[60px] sm:top-[18vh] sm:h-56 sm:w-[42rem] sm:blur-[80px]" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background via-background/80 to-transparent sm:h-64" />
 
       {!reduced && (
         <motion.div
           initial={{ opacity: 0.4 }}
           animate={{ opacity: [0.4, 0.75, 0.4], scale: [1, 1.06, 1] }}
           transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-1/2 top-[8vh] h-[40vh] w-[80vw] max-w-[1200px] -translate-x-1/2 rounded-full bg-primary/20 blur-[100px]"
+          className="absolute left-1/2 top-[8vh] hidden h-[40vh] w-[80vw] max-w-[1200px] -translate-x-1/2 rounded-full bg-primary/20 blur-[100px] md:block"
         />
       )}
     </motion.div>
@@ -338,7 +321,7 @@ function TechGrid({ mx, my }) {
       >
         <div className="absolute inset-0" style={gridStyle(0.1)} />
 
-        {/* cursor-lit grid + soft glow */}
+        {/* cursor-lit grid + soft glow (mouse only, so it never runs on touch screens) */}
         {!reduced && (
           <>
             <motion.div
@@ -401,7 +384,7 @@ function AvailabilityPill() {
   return (
     <a
       href="#contact"
-      className={`group relative isolate inline-flex items-center gap-2.5 overflow-hidden rounded-full border border-border/70 bg-card/40 py-2 pl-4 pr-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_8px_30px_-12px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-colors duration-300 hover:border-primary/50 ${FOCUS}`}
+      className={`group relative isolate inline-flex max-w-full items-center gap-2 overflow-hidden rounded-full border border-border/70 bg-card/40 py-1.5 pl-3 pr-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_8px_30px_-12px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-colors duration-300 hover:border-primary/50 sm:gap-2.5 sm:py-2 sm:pl-4 sm:pr-3 ${FOCUS}`}
     >
       {/* travelling highlight */}
       <motion.span
@@ -423,15 +406,17 @@ function AvailabilityPill() {
         <span className="relative h-2 w-2 rounded-full bg-emerald-400" />
       </span>
 
-      <span className="font-code text-[11px] uppercase tracking-[0.14em] text-foreground/90">
+      <span className="truncate font-code text-[10px] uppercase tracking-[0.1em] text-foreground/90 sm:text-[11px] sm:tracking-[0.14em]">
         Available for new projects
       </span>
-      <span aria-hidden="true" className="mx-0.5 h-3 w-px bg-border" />
-      <span className="font-code text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+
+      {/* the date only appears once there is room for it */}
+      <span aria-hidden="true" className="mx-0.5 hidden h-3 w-px bg-border sm:block" />
+      <span className="hidden font-code text-[11px] uppercase tracking-[0.14em] text-muted-foreground sm:inline">
         {CURRENT_MONTH}
       </span>
 
-      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
         <FiArrowUpRight
           size={12}
           aria-hidden="true"
@@ -449,7 +434,7 @@ function Headline() {
     <motion.h1
       variants={stagger}
       aria-label={label}
-      className="mt-8 flex flex-wrap justify-center gap-x-[0.26em] lg:justify-start text-balance font-heading text-4xl font-semibold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-5xl xl:text-6xl"
+      className="mt-6 flex flex-wrap justify-center gap-x-[0.26em] text-balance font-heading text-[clamp(1.75rem,8vw,2.25rem)] font-semibold leading-[1.1] tracking-tight text-foreground sm:mt-8 sm:text-4xl md:text-5xl lg:justify-start xl:text-6xl 2xl:text-7xl"
     >
       {HEADLINE.map((w) => (
         <span
@@ -472,21 +457,21 @@ function Headline() {
 
 function StatsBar() {
   return (
-    <div className="relative mx-auto mt-12 grid max-w-2xl grid-cols-3 lg:mx-0 lg:max-w-xl overflow-hidden rounded-lg border border-border/60 bg-card/30 backdrop-blur-xl">
+    <div className="relative mx-auto mt-10 grid max-w-md grid-cols-3 overflow-hidden rounded-lg border border-border/60 bg-card/30 backdrop-blur-xl sm:mt-12 sm:max-w-2xl lg:mx-0 lg:max-w-xl">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+        className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent sm:inset-x-8"
       />
       {STATS.map((s, i) => (
         <div
           key={s.label}
-          className={`px-3 py-5 text-center transition-colors duration-300 hover:bg-foreground/[0.03] sm:px-6 ${i > 0 ? "border-l border-border/60" : ""
+          className={`min-w-0 px-2 py-4 text-center transition-colors duration-300 hover:bg-foreground/[0.03] sm:px-6 sm:py-5 ${i > 0 ? "border-l border-border/60" : ""
             }`}
         >
-          <p className="font-heading text-2xl font-semibold tabular-nums text-foreground sm:text-3xl">
+          <p className="font-heading text-xl font-semibold tabular-nums text-foreground sm:text-2xl lg:text-3xl">
             <Counter value={s.value} />
           </p>
-          <p className="mt-1 font-code text-[9px] uppercase tracking-[0.14em] text-muted-foreground sm:text-[10px]">
+          <p className="mt-1 font-code text-[9px] uppercase leading-tight tracking-[0.1em] text-muted-foreground sm:text-[10px] sm:tracking-[0.14em]">
             {s.label}
           </p>
         </div>
@@ -494,7 +479,6 @@ function StatsBar() {
     </div>
   );
 }
-
 
 function StackMarquee() {
   const reduced = useReducedMotion();
@@ -507,7 +491,7 @@ function StackMarquee() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.4, duration: 1 }}
-      className="relative mt-6 overflow-hidden"
+      className="relative mt-5 overflow-hidden sm:mt-6"
       style={{ maskImage: mask, WebkitMaskImage: mask }}
     >
       <motion.div
@@ -519,7 +503,7 @@ function StackMarquee() {
           <span
             key={`${tech}-${i}`}
             aria-hidden={i >= STACK.length ? "true" : undefined}
-            className="mr-3 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/50 px-4 py-2 font-code text-[11px] font-medium text-muted-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary/40 hover:text-primary"
+            className="mr-2.5 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/50 px-3.5 py-1.5 font-code text-[10px] font-medium text-muted-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary/40 hover:text-primary sm:mr-3 sm:px-4 sm:py-2 sm:text-[11px]"
           >
             <span className="h-1 w-1 rounded-full bg-primary/70" />
             {tech}
@@ -536,6 +520,7 @@ function StackMarquee() {
 const Hero = () => {
   const reduced = useReducedMotion();
   const sectionRef = useRef(null);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   // Cursor position (relative to the section) drives the lit grid.
   const mxRaw = useMotionValue(-600);
@@ -554,7 +539,9 @@ const Hero = () => {
     myRaw.set(-600);
   };
 
-  // Scroll parallax: dome drifts slower, content eases up and fades.
+  // Scroll parallax: the dome drifts slower everywhere; the content only eases up and
+  // fades on desktop. On phones the hero is taller than the screen, so fading it while
+  // you read it would make the text look washed out.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -569,24 +556,24 @@ const Hero = () => {
       ref={sectionRef}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
-      className="relative isolate min-h-screen overflow-hidden pt-32 pb-12 md:pt-40 md:pb-16"
+      className="relative isolate min-h-svh overflow-hidden pb-10 pt-28 sm:pt-32 md:pb-16 md:pt-36 lg:pt-40"
     >
       <style>{HERO_CSS}</style>
       <DomeGlow y={reduced ? 0 : domeY} />
       <TechGrid mx={mx} my={my} />
 
       <motion.div
-        style={reduced ? undefined : { y: contentY, opacity: contentOpacity }}
-        className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+        style={reduced || !isDesktop ? undefined : { y: contentY, opacity: contentOpacity }}
+        className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-[88rem]"
       >
         <motion.div
           initial={reduced ? false : "hidden"}
           animate="show"
           variants={stagger}
-          className="grid items-center gap-14 lg:grid-cols-12 lg:gap-8 xl:gap-12"
+          className="grid items-center gap-10 sm:gap-14 lg:grid-cols-12 lg:gap-8 xl:gap-12"
         >
           {/* Text column */}
-          <div className="text-center lg:col-span-7 lg:text-left">
+          <div className="min-w-0 text-center lg:col-span-7 lg:text-left">
             <Reveal>
               <AvailabilityPill />
             </Reveal>
@@ -599,19 +586,19 @@ const Hero = () => {
             </Reveal>
 
             <Reveal>
-              <p className="mx-auto mt-5 max-w-2xl text-base lg:mx-0 lg:max-w-xl leading-8 text-muted-foreground sm:text-lg">
+              <p className="mx-auto mt-4 max-w-xl text-[15px] leading-7 text-muted-foreground sm:mt-5 sm:max-w-2xl sm:text-base sm:leading-8 lg:mx-0 lg:max-w-xl lg:text-lg">
                 {DESCRIPTION}
               </p>
             </Reveal>
 
-            {/* CTAs */}
+            {/* CTAs: full-width stack on phones, a row from sm up */}
             <Reveal>
-              <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-5 lg:justify-start">
-                <Button to={`#contact`} className="w-full sm:w-fit">
+              <div className="mx-auto mt-8 flex w-full max-w-sm flex-col items-stretch gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-5 lg:mx-0 lg:justify-start">
+                <Button to="#contact" className="w-full sm:w-fit">
                   Start a project
                   <FiArrowUpRight size={16} />
                 </Button>
-                <Button to={`#projects`} variant={"secondary"} className="w-full sm:w-fit">
+                <Button to="#portfolio" variant="secondary" className="w-full sm:w-fit">
                   View works
                   <FiArrowUpRight size={16} />
                 </Button>
@@ -620,8 +607,8 @@ const Hero = () => {
 
             {/* Socials + location */}
             <Reveal>
-              <div className="mt-9 flex flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-6 lg:justify-start">
-                <div className="flex items-center gap-2">
+              <div className="mt-8 flex flex-col items-center gap-4 sm:mt-9 sm:flex-row sm:justify-center sm:gap-6 lg:justify-start">
+                <div className="flex items-center gap-2.5 sm:gap-2">
                   {SOCIALS.map(({ icon: Icon, label, href }) => (
                     <motion.a
                       key={label}
@@ -630,9 +617,9 @@ const Hero = () => {
                       whileHover={reduced ? undefined : { y: -3 }}
                       whileTap={reduced ? undefined : { scale: 0.94 }}
                       transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                      className={`group/social flex h-10 w-10 rounded-full items-center justify-center border border-border/80 bg-card/30 text-muted-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary ${FOCUS}`}
+                      className={`group/social flex h-11 w-11 items-center justify-center rounded-full border border-border/80 bg-card/30 text-muted-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary sm:h-10 sm:w-10 ${FOCUS}`}
                     >
-                      <Icon size={15} aria-hidden="true" />
+                      <Icon size={16} aria-hidden="true" />
                     </motion.a>
                   ))}
                 </div>
@@ -642,8 +629,8 @@ const Hero = () => {
                   className="hidden h-5 w-px bg-border/70 sm:block"
                 />
 
-                <div className="flex items-center gap-1.5 font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                  <FiMapPin size={12} aria-hidden="true" />
+                <div className="flex items-center gap-1.5 font-code text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:tracking-[0.15em]">
+                  <FiMapPin size={12} aria-hidden="true" className="shrink-0" />
                   <span>Working remotely, worldwide</span>
                 </div>
               </div>
@@ -654,17 +641,17 @@ const Hero = () => {
             </Reveal>
           </div>
 
-          {/* Visual column */}
-          <div className="lg:col-span-5">
+          {/* Visual column — pulled up a little on phones because the visual has its own padding */}
+          <div className="-mt-4 min-w-0 sm:-mt-2 lg:mt-0 lg:col-span-5">
             <HeroVisual />
           </div>
         </motion.div>
-      </motion.div >
+      </motion.div>
 
-      <div className="mt-16 md:mt-20">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mt-12 sm:mt-16 md:mt-20">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
           <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-transparent to-border" />
-          <p className="font-code text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-center font-code text-[10px] uppercase tracking-[0.14em] text-muted-foreground sm:tracking-[0.2em]">
             Technologies I build with
           </p>
           <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-l from-transparent to-border" />
@@ -676,7 +663,7 @@ const Hero = () => {
         aria-hidden="true"
         className="absolute bottom-0 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent"
       />
-    </section >
+    </section>
   );
 };
 

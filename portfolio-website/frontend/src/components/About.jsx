@@ -518,7 +518,7 @@ export function AboutSection({
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <ScrollReveal className="grid gap-8 lg:grid-cols-12 lg:items-end">
                     <div className="lg:col-span-7">
-                        <SectionHeader label={"Skills"} title={content.title} highlight={content.highlight}>
+                        <SectionHeader label={"About me"} title={content.title} highlight={content.highlight}>
 
                         </SectionHeader>
                     </div>
