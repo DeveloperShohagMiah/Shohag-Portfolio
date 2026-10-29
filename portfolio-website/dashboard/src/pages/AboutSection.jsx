@@ -17,7 +17,7 @@ import {
 import toast from "react-hot-toast";
 
 import { RichContentEditor } from "../components/RichContentEditor.jsx";
-import { MarkdownRenderer } from "../components/MarkdownRenderer.jsx";
+import { MarkdownRenderer } from "../components/MarkDownRenderer.jsx";
 import { DeleteConfirmation } from "../ui/DeleteConfirmation.jsx";
 
 import {

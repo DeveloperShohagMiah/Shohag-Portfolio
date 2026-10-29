@@ -27,7 +27,7 @@ import {
     X,
     Check
 } from 'lucide-react';
-import { MarkdownRenderer } from './MarkdownRenderer.jsx';
+import { MarkdownRenderer } from '../components/MarkDownRenderer';
 
 export function RichContentEditor({
     value = '',
