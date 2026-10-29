@@ -87,7 +87,7 @@ const DEFAULT_VALUES = {
 
 /* ---------- Shared styles ---------- */
 const inputBase =
-    "w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
+    "w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
 
 const labelBase =
     "mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400";
@@ -95,10 +95,10 @@ const labelBase =
 const errorBase = "mt-1.5 text-xs font-medium text-rose-500";
 
 const btnPrimary =
-    "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
+    "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
 
 const btnGhost =
-    "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
+    "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
 
 const cardBase =
     "rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900";
@@ -108,7 +108,7 @@ function SectionHeader({ icon: Icon, title, subtitle, right }) {
     return (
         <div className="flex items-start justify-between gap-4 border-b border-zinc-100 pb-4 dark:border-zinc-800">
             <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                     <Icon className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -393,8 +393,8 @@ export function ProfileSection() {
                                     </div>
                                     <span
                                         className={`absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full ring-2 ring-white dark:ring-zinc-900 ${watchedIsAvailable
-                                                ? "bg-emerald-500 text-white"
-                                                : "bg-zinc-400 text-zinc-900"
+                                            ? "bg-emerald-500 text-white"
+                                            : "bg-zinc-400 text-zinc-900"
                                             }`}
                                     >
                                         {watchedIsAvailable ? (
@@ -418,7 +418,7 @@ export function ProfileSection() {
                                         <button
                                             type="button"
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="inline-flex h-9 items-center gap-2 rounded-lg bg-zinc-900 px-3.5 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                                            className="inline-flex h-9 items-center gap-2 rounded-xl bg-zinc-900 px-3.5 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                                         >
                                             <Upload className="h-3.5 w-3.5" />
                                             Upload image
@@ -427,7 +427,7 @@ export function ProfileSection() {
                                         <button
                                             type="button"
                                             onClick={() => onSelectPreset(avatarPresets[0].url)}
-                                            className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3.5 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+                                            className="inline-flex h-9 items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
                                         >
                                             Reset to default
                                         </button>
@@ -474,9 +474,9 @@ export function ProfileSection() {
                                                 type="button"
                                                 onClick={() => onSelectPreset(preset.url)}
                                                 title={preset.label}
-                                                className={`group relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${isSelected
-                                                        ? "border-zinc-900 ring-2 ring-zinc-900/20 dark:border-zinc-100 dark:ring-zinc-100/20"
-                                                        : "border-transparent opacity-80 hover:border-zinc-300 hover:opacity-100 dark:hover:border-zinc-700"
+                                                className={`group relative aspect-square overflow-hidden rounded-xl border-2 transition-all ${isSelected
+                                                    ? "border-zinc-900 ring-2 ring-zinc-900/20 dark:border-zinc-100 dark:ring-zinc-100/20"
+                                                    : "border-transparent opacity-80 hover:border-zinc-300 hover:opacity-100 dark:hover:border-zinc-700"
                                                     }`}
                                             >
                                                 <img
@@ -505,14 +505,14 @@ export function ProfileSection() {
                                 right={
                                     <span
                                         className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${watchedIsAvailable
-                                                ? "border-emerald-500/20 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                                                : "border-zinc-300/40 bg-zinc-100 text-zinc-600 dark:border-zinc-700/60 dark:bg-zinc-800/60 dark:text-zinc-400"
+                                            ? "border-emerald-500/20 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                                            : "border-zinc-300/40 bg-zinc-100 text-zinc-600 dark:border-zinc-700/60 dark:bg-zinc-800/60 dark:text-zinc-400"
                                             }`}
                                     >
                                         <span
                                             className={`h-1.5 w-1.5 rounded-full ${watchedIsAvailable
-                                                    ? "bg-emerald-500"
-                                                    : "bg-zinc-400"
+                                                ? "bg-emerald-500"
+                                                : "bg-zinc-400"
                                                 }`}
                                         />
                                         {watchedIsAvailable ? "Available" : "Booked"}
@@ -834,14 +834,14 @@ export function ProfileSection() {
                                     <div className="absolute right-3 top-3">
                                         <span
                                             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] backdrop-blur-md ${watchedIsAvailable
-                                                    ? "border-emerald-500/30 bg-emerald-500/20 text-emerald-200"
-                                                    : "border-white/10 bg-black/40 text-white/80"
+                                                ? "border-emerald-500/30 bg-emerald-500/20 text-emerald-200"
+                                                : "border-white/10 bg-black/40 text-white/80"
                                                 }`}
                                         >
                                             <span
                                                 className={`h-1.5 w-1.5 rounded-full ${watchedIsAvailable
-                                                        ? "bg-emerald-400"
-                                                        : "bg-white/60"
+                                                    ? "bg-emerald-400"
+                                                    : "bg-white/60"
                                                     }`}
                                             />
                                             {watchedIsAvailable ? "Available" : "Booked"}
@@ -875,7 +875,7 @@ export function ProfileSection() {
                                     </p>
 
                                     {watchedAvailabilityNotice && (
-                                        <div className="mt-3 flex items-start gap-2 rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 text-[11px] leading-relaxed text-zinc-600 dark:border-zinc-800 dark:bg-zinc-800/30 dark:text-zinc-300">
+                                        <div className="mt-3 flex items-start gap-2 rounded-xl border border-zinc-100 bg-zinc-50/60 p-2.5 text-[11px] leading-relaxed text-zinc-600 dark:border-zinc-800 dark:bg-zinc-800/30 dark:text-zinc-300">
                                             <Briefcase className="mt-0.5 h-3 w-3 shrink-0 text-zinc-400" />
                                             <span>{watchedAvailabilityNotice}</span>
                                         </div>
@@ -914,7 +914,7 @@ export function ProfileSection() {
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         title="GitHub"
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-800 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-800 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
                                                     >
                                                         <Github className="h-3.5 w-3.5" />
                                                     </a>
@@ -925,7 +925,7 @@ export function ProfileSection() {
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         title="LinkedIn"
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-400"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-400"
                                                     >
                                                         <Linkedin className="h-3.5 w-3.5" />
                                                     </a>
@@ -936,7 +936,7 @@ export function ProfileSection() {
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         title="Twitter / X"
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-500 transition-colors hover:bg-sky-100 dark:bg-sky-950/40"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-sky-500 transition-colors hover:bg-sky-100 dark:bg-sky-950/40"
                                                     >
                                                         <Twitter className="h-3.5 w-3.5" />
                                                     </a>
@@ -947,7 +947,7 @@ export function ProfileSection() {
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         title="Website"
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400"
                                                     >
                                                         <Globe className="h-3.5 w-3.5" />
                                                     </a>
@@ -958,7 +958,7 @@ export function ProfileSection() {
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         title="Instagram"
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-50 text-pink-600 transition-colors hover:bg-pink-100 dark:bg-pink-950/40 dark:text-pink-400"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-pink-50 text-pink-600 transition-colors hover:bg-pink-100 dark:bg-pink-950/40 dark:text-pink-400"
                                                     >
                                                         <Instagram className="h-3.5 w-3.5" />
                                                     </a>
@@ -969,7 +969,7 @@ export function ProfileSection() {
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         title="Dribbble"
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-500 transition-colors hover:bg-rose-100 dark:bg-rose-950/40"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-50 text-rose-500 transition-colors hover:bg-rose-100 dark:bg-rose-950/40"
                                                     >
                                                         <Dribbble className="h-3.5 w-3.5" />
                                                     </a>
@@ -980,7 +980,7 @@ export function ProfileSection() {
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         title="YouTube"
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400"
                                                     >
                                                         <Youtube className="h-3.5 w-3.5" />
                                                     </a>

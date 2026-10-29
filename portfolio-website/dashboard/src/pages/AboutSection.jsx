@@ -61,7 +61,7 @@ const DEFAULT_ABOUT = {
 
 /* Shared input chrome */
 const inputBase =
-  "w-full rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
+  "w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
 
 const labelBase =
   "mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400";
@@ -199,7 +199,7 @@ export function AboutSection() {
     return (
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="h-16 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
-        <div className="h-10 w-64 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-900" />
+        <div className="h-10 w-64 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
@@ -226,7 +226,7 @@ export function AboutSection() {
           </p>
           <button
             onClick={() => refetch()}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Retry
@@ -261,7 +261,7 @@ export function AboutSection() {
         <button
           type="button"
           onClick={() => setShowLivePreview((prev) => !prev)}
-          className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+          className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
         >
           {showLivePreview ? (
             <EyeOff className="h-3.5 w-3.5" />
@@ -286,7 +286,7 @@ export function AboutSection() {
           {/* --- Section 1: Identity --- */}
           <div className={`${cardBase} p-5 sm:p-6`}>
             <div className="mb-5 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 <Sparkles className="h-3.5 w-3.5" />
               </div>
               <div>
@@ -347,7 +347,7 @@ export function AboutSection() {
           {/* --- Section 2: Metrics --- */}
           <div className={`${cardBase} p-5 sm:p-6`}>
             <div className="mb-5 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 <Briefcase className="h-3.5 w-3.5" />
               </div>
               <div>
@@ -423,7 +423,7 @@ export function AboutSection() {
           {/* --- Section 3: Visual & location --- */}
           <div className={`${cardBase} p-5 sm:p-6`}>
             <div className="mb-5 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 <MapPin className="h-3.5 w-3.5" />
               </div>
               <div>
@@ -465,7 +465,7 @@ export function AboutSection() {
                     onError={(e) => {
                       e.currentTarget.src = FALLBACK_IMAGE;
                     }}
-                    className="h-11 w-11 shrink-0 rounded-lg border border-zinc-200 object-cover dark:border-zinc-800"
+                    className="h-11 w-11 shrink-0 rounded-xl border border-zinc-200 object-cover dark:border-zinc-800"
                   />
                 </div>
                 {errors.image && (
@@ -491,7 +491,7 @@ export function AboutSection() {
                 </div>
 
                 <div className="flex items-center">
-                  <label className="group flex w-full cursor-pointer select-none items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/50">
+                  <label className="group flex w-full cursor-pointer select-none items-start gap-3 rounded-xl border border-zinc-200 bg-white p-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/50">
                     <input
                       type="checkbox"
                       {...register("availableForHire")}
@@ -514,7 +514,7 @@ export function AboutSection() {
           {/* --- Section 4: Core stack --- */}
           <div className={`${cardBase} p-5 sm:p-6`}>
             <div className="mb-5 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 <Layers className="h-3.5 w-3.5" />
               </div>
               <div>
@@ -544,7 +544,7 @@ export function AboutSection() {
               <button
                 type="button"
                 onClick={handleAddStack}
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add
@@ -556,7 +556,7 @@ export function AboutSection() {
                 coreStack.map((tech) => (
                   <span
                     key={tech}
-                    className="group inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:border-zinc-700"
+                    className="group inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:border-zinc-700"
                   >
                     {tech}
                     <button
@@ -585,7 +585,7 @@ export function AboutSection() {
             <button
               type="submit"
               disabled={isSubmitting || isSaving}
-              className="ml-auto inline-flex h-10 min-w-[150px] items-center justify-center gap-2 rounded-lg bg-zinc-900 px-5 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+              className="ml-auto inline-flex h-10 min-w-[150px] items-center justify-center gap-2 rounded-xl bg-zinc-900 px-5 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
             >
               <Save className="h-3.5 w-3.5" />
               {isSubmitting || isSaving ? "Saving…" : "Save changes"}
@@ -659,7 +659,7 @@ export function AboutSection() {
                 </div>
 
                 <div className="mt-5 grid grid-cols-2 gap-2 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-                  <div className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-3 text-center dark:border-zinc-800 dark:bg-zinc-800/30">
+                  <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 p-3 text-center dark:border-zinc-800 dark:bg-zinc-800/30">
                     <p className="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
                       {Number(previewExperience) || 0}
                       <span className="text-zinc-400">+</span>
@@ -668,7 +668,7 @@ export function AboutSection() {
                       Years
                     </p>
                   </div>
-                  <div className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-3 text-center dark:border-zinc-800 dark:bg-zinc-800/30">
+                  <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 p-3 text-center dark:border-zinc-800 dark:bg-zinc-800/30">
                     <p className="text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
                       {Number(previewProjects) || 0}
                       <span className="text-zinc-400">+</span>

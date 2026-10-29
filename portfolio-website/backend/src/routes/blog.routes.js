@@ -21,7 +21,7 @@ router.get("/slug/:slug", getBlogBySlug);
 // Admin routes — full listing (includes drafts), must come before "/:id" pattern-wise
 // but since paths differ ("/", "/published", "/slug/:slug", "/:id") there's no collision.
 router.get("/", getAllBlogs);
-router.get("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), getBlogById);
+router.get("/:slug", getBlogById);
 
 router.post("/", authMiddleware, authorize("admin", "moderator"), createBlog);
 router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateBlog);

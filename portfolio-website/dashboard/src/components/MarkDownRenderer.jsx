@@ -111,7 +111,7 @@ export function MarkdownRenderer({ content, emptyText = 'Nothing to preview yet.
                         />
                     ),
                     table: ({ node, ...props }) => (
-                        <div className="overflow-x-auto my-3 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                        <div className="overflow-x-auto my-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
                             <table className="w-full text-xs text-left border-collapse" {...props} />
                         </div>
                     ),

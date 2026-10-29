@@ -177,7 +177,7 @@ const ServerDownNotice = ({
                     type="button"
                     onClick={retryNow}
                     disabled={isRetrying}
-                    className="inline-flex h-9 shrink-0 items-center justify-center gap-2 clip-polygon border border-border/70 px-4 text-xs font-medium text-foreground transition-colors duration-300 hover:border-primary/40 hover:bg-primary/5 hover:text-primary disabled:opacity-60"
+                    className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl border border-border/70 px-4 text-xs font-medium text-foreground transition-colors duration-300 hover:border-primary/40 hover:bg-primary/5 hover:text-primary disabled:opacity-60"
                 >
                     <FiRefreshCw size={13} aria-hidden="true" className={isRetrying ? "animate-spin" : ""} />
                     Retry
@@ -265,7 +265,7 @@ const ServerDownNotice = ({
                         type="button"
                         onClick={retryNow}
                         disabled={isRetrying}
-                        className="inline-flex h-11 items-center justify-center gap-2 clip-polygon bg-primary px-6 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
                     >
                         <FiRefreshCw size={15} aria-hidden="true" className={isRetrying ? "animate-spin" : ""} />
                         {isRetrying ? "Retrying…" : "Retry now"}
@@ -274,7 +274,7 @@ const ServerDownNotice = ({
                     {fallbackEmail && (
                         <a
                             href={`mailto:${fallbackEmail}`}
-                            className="inline-flex h-11 items-center justify-center gap-2 clip-polygon border border-border/70 px-6 text-sm font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border/70 px-6 text-sm font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
                         >
                             <FiMail size={15} aria-hidden="true" />
                             Email me instead

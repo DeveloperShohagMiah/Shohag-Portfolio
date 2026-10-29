@@ -77,7 +77,7 @@ const DeleteModal = ({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors duration-150 disabled:opacity-50"
+              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors duration-150 disabled:opacity-50"
               aria-label="Close modal"
             >
               <X size={18} />
@@ -99,7 +99,7 @@ const DeleteModal = ({
 
                 {itemName && (
                   <div className="space-y-3 pt-1">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 text-xs font-mono text-zinc-800 dark:text-zinc-300 max-w-full truncate">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 text-xs font-mono text-zinc-800 dark:text-zinc-300 max-w-full truncate">
                       <Trash2 size={13} className="text-zinc-500 flex-shrink-0" />
                       <span className="truncate select-all">{itemName}</span>
                     </div>
@@ -313,14 +313,14 @@ export function FaqSection() {
               <div
                 key={faqId}
                 id={`faq-item-${faqId}`}
-                className=" bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs transition-all"
+                className=" bg-white rounded-xl dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs transition-all"
               >
                 <div className="p-4 sm:p-5 flex items-center justify-between gap-4">
                   <div
                     onClick={() => toggleExpand(faqId)}
                     className="flex-1 flex items-center gap-3 cursor-pointer min-w-0"
                   >
-                    <span className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold flex items-center justify-center shrink-0">
+                    <span className="w-7 h-7 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold flex items-center justify-center shrink-0">
                       #{faq.order}
                     </span>
                     <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
@@ -330,7 +330,7 @@ export function FaqSection() {
 
                   <div className="flex items-center gap-3 shrink-0">
                     <span
-                      className={`px-2.5 py-0.5 text-xs font-medium  ${faq.isActive
+                      className={`px-2.5 py-0.5 text-xs font-medium rounded-full  ${faq.isActive
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400'
                         : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
                         }`}
@@ -341,7 +341,7 @@ export function FaqSection() {
                     <button
                       type="button"
                       onClick={() => openEditModal(faq)}
-                      className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                      className="p-1.5 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       title="Edit FAQ"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -350,7 +350,7 @@ export function FaqSection() {
                     <button
                       type="button"
                       onClick={() => setDeletingFaq(faq)}
-                      className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                      className="p-1.5 rounded-xl text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                       title="Delete FAQ"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -359,7 +359,7 @@ export function FaqSection() {
                     <button
                       type="button"
                       onClick={() => toggleExpand(faqId)}
-                      className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                      className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
                     >
                       {isExpanded ? (
                         <ChevronUp className="w-4 h-4" />
@@ -385,9 +385,9 @@ export function FaqSection() {
       {isModalOpen && (
         <div
           id="faq-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs "
         >
-          <div className="bg-white dark:bg-zinc-900  max-w-xl w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-zinc-900 rounded-xl  max-w-xl w-full p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                 {editingFaq ? 'Edit FAQ Item' : 'Add FAQ Item'}
@@ -395,7 +395,7 @@ export function FaqSection() {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                className="p-1 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
               >
                 <X className="w-5 h-5" />
               </button>

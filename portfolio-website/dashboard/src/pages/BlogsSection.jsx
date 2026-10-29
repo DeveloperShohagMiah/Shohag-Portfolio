@@ -55,7 +55,7 @@ const DEFAULT_VALUES = {
 
 /* ---------- Shared styles ---------- */
 const inputBase =
-  "w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
+  "w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
 
 const labelBase =
   "mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400";
@@ -63,10 +63,10 @@ const labelBase =
 const errorBase = "mt-1.5 text-xs font-medium text-rose-500";
 
 const btnPrimary =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
 
 const btnGhost =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
 
 export function BlogsSection() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -245,7 +245,7 @@ export function BlogsSection() {
     return (
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="h-16 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
-        <div className="h-10 w-64 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-900" />
+        <div className="h-10 w-64 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
@@ -528,7 +528,7 @@ export function BlogsSection() {
                         ? "Remove from featured"
                         : "Mark as featured"
                     }
-                    className={`rounded-lg p-2 transition-colors disabled:opacity-50 ${blog.isFeatured
+                    className={`rounded-xl p-2 transition-colors disabled:opacity-50 ${blog.isFeatured
                       ? "text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30"
                       : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                       }`}
@@ -544,7 +544,7 @@ export function BlogsSection() {
                     onClick={() => openEditModal(blog)}
                     disabled={isMutating}
                     title="Edit article"
-                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                    className="rounded-xl p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -554,7 +554,7 @@ export function BlogsSection() {
                     onClick={() => requestDelete(blog)}
                     disabled={isMutating}
                     title="Delete article"
-                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+                    className="rounded-xl p-2 text-zinc-500 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -580,7 +580,7 @@ export function BlogsSection() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                   <FileText className="h-4 w-4" />
                 </div>
                 <div>
@@ -599,7 +599,7 @@ export function BlogsSection() {
                 type="button"
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Close"
-                className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                className="rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -683,7 +683,7 @@ export function BlogsSection() {
                   )}
 
                   {previewImage && (
-                    <div className="mt-3 aspect-video w-full max-w-sm overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+                    <div className="mt-3 aspect-video w-full max-w-sm overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
                       <img
                         src={previewImage}
                         alt="Cover preview"
@@ -741,7 +741,7 @@ export function BlogsSection() {
                     <button
                       type="button"
                       onClick={handleAddTag}
-                      className="inline-flex h-[42px] shrink-0 items-center gap-1.5 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                      className="inline-flex h-[42px] shrink-0 items-center gap-1.5 rounded-xl bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       Add
@@ -775,7 +775,7 @@ export function BlogsSection() {
 
                 {/* Toggles */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3.5 transition-colors hover:border-amber-500/40 hover:bg-amber-50/30 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-amber-500/30 dark:hover:bg-amber-950/10">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-200 bg-white p-3.5 transition-colors hover:border-amber-500/40 hover:bg-amber-50/30 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-amber-500/30 dark:hover:bg-amber-950/10">
                     <input
                       type="checkbox"
                       {...register("isFeatured")}
@@ -791,7 +791,7 @@ export function BlogsSection() {
                     </div>
                   </label>
 
-                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3.5 transition-colors hover:border-emerald-500/40 hover:bg-emerald-50/30 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-500/30 dark:hover:bg-emerald-950/10">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-200 bg-white p-3.5 transition-colors hover:border-emerald-500/40 hover:bg-emerald-50/30 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-500/30 dark:hover:bg-emerald-950/10">
                     <input
                       type="checkbox"
                       {...register("isPublished")}
@@ -874,7 +874,7 @@ export function BlogsSection() {
                 type="button"
                 onClick={() => setReadingModal(null)}
                 aria-label="Close reader"
-                className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                className="rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               >
                 <X className="h-4 w-4" />
               </button>

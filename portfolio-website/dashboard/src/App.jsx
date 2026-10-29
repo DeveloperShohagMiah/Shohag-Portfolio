@@ -9,7 +9,7 @@ import { DashboardOverview } from './pages/DashboardOverview.jsx';
 import { AboutSection } from './pages/AboutSection.jsx';
 import { ServicesSection } from './pages/ServicesSection.jsx';
 import { SkillsSection } from './pages/SkillsSection.jsx';
-import { ProjectsSection } from './pages/ProjectsSection.jsx';
+import ProjectSection from './pages/ProjectsSection.jsx';
 import { BlogsSection } from './pages/BlogsSection.jsx';
 import { FaqSection } from './pages/FaqSection.jsx';
 import { TestimonialsSection } from './pages/TestimonialsSection.jsx';
@@ -44,7 +44,7 @@ export default function App() {
               <Route path="about" element={<AboutSection />} />
               <Route path="services" element={<ServicesSection />} />
               <Route path="skills" element={<SkillsSection />} />
-              <Route path="projects" element={<ProjectsSection />} />
+              <Route path="projects" element={<ProjectSection />} />
               <Route path="blogs" element={<BlogsSection />} />
               <Route path="faq" element={<FaqSection />} />
               <Route path="testimonials" element={<TestimonialsSection />} />

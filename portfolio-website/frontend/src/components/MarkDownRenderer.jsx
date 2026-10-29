@@ -1,136 +1,228 @@
-import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Copy, Check } from 'lucide-react';
+// components/MarkDownRenderer.jsx
+import React, { memo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeRaw from "rehype-raw";
+import { Link2, ExternalLink } from "lucide-react";
 
-function CodeBlock({ children }) {
-    const [copied, setCopied] = useState(false);
-    const text = String(children).replace(/\n$/, '');
+const cx = (...classes) => classes.filter(Boolean).join(" ");
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
+/* ========================================================================== */
+/*  Custom renderers — map Markdown nodes to the premium prose styles        */
+/* ========================================================================== */
 
+const H2 = ({ id, children, ...props }) => (
+    <h2
+        id={id}
+        className="group mt-12 mb-5 scroll-mt-32 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+        {...props}
+    >
+        <a
+            href={`#${id}`}
+            className="inline-flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100"
+            aria-hidden="true"
+        >
+            <Link2 size={18} className="text-muted-foreground/50" />
+        </a>
+        {children}
+    </h2>
+);
+
+const H3 = ({ id, children, ...props }) => (
+    <h3
+        id={id}
+        className="group mt-10 mb-4 scroll-mt-32 text-xl font-semibold text-foreground"
+        {...props}
+    >
+        <a
+            href={`#${id}`}
+            className="inline-flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100"
+            aria-hidden="true"
+        >
+            <Link2 size={16} className="text-muted-foreground/50" />
+        </a>
+        {children}
+    </h3>
+);
+
+const A = ({ href, children, ...props }) => {
+    const isExternal = href?.startsWith("http");
     return (
-        <div className="relative group my-3 rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950">
-            <div className="flex items-center justify-between px-3.5 py-1.5 bg-zinc-900/90 border-b border-zinc-800 text-[11px] font-mono text-zinc-400">
-                <span>code snippet</span>
-                <button
-                    type="button"
-                    onClick={handleCopy}
-                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors"
-                    title="Copy code"
-                >
-                    {copied ? (
-                        <>
-                            <Check className="w-3 h-3 text-emerald-400" />
-                            <span className="text-emerald-400">Copied</span>
-                        </>
-                    ) : (
-                        <>
-                            <Copy className="w-3 h-3" />
-                            <span>Copy</span>
-                        </>
-                    )}
-                </button>
-            </div>
-            <pre className="p-3.5 font-mono text-xs overflow-x-auto text-zinc-100 leading-relaxed">
-                <code>{text}</code>
-            </pre>
-        </div>
+        <a
+            href={href}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noopener noreferrer" : undefined}
+            className="inline-flex items-baseline gap-0.5 font-medium text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
+            {...props}
+        >
+            {children}
+            {isExternal && <ExternalLink size={12} className="ml-0.5 shrink-0 translate-y-[-1px] opacity-60" />}
+        </a>
     );
-}
+};
 
-export function MarkdownRenderer({ content, emptyText = 'Nothing to preview yet. Start typing to see formatted content...' }) {
-    if (!content || !content.trim()) {
+const Img = ({ src, alt, title }) => (
+    <figure className="my-10">
+        <img
+            src={src}
+            alt={alt || ""}
+            loading="lazy"
+            className="w-full rounded-2xl border border-border/40 shadow-xl"
+        />
+        {(alt || title) && (
+            <figcaption className="mt-3 text-center text-xs text-muted-foreground">
+                {title || alt}
+            </figcaption>
+        )}
+    </figure>
+);
+
+const Code = ({ inline, className, children, ...props }) => {
+    const match = /language-(\w+)/.exec(className || "");
+    const lang = match?.[1];
+
+    if (inline) {
         return (
-            <div className="p-6 text-center text-xs text-zinc-400 italic">
-                {emptyText}
-            </div>
+            <code
+                className="rounded-md border border-border/40 bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground"
+                {...props}
+            >
+                {children}
+            </code>
         );
     }
 
     return (
-        <div className="markdown-container text-zinc-800 dark:text-zinc-200">
+        <div className="group relative my-8 overflow-hidden rounded-2xl border border-border/60 bg-[#0d0d12] shadow-lg">
+            <div className="flex items-center justify-between border-b border-white/5 px-4 py-2">
+                <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
+                </div>
+                {lang && (
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-white/30">
+                        {lang}
+                    </span>
+                )}
+            </div>
+            <pre className="overflow-x-auto p-6 text-sm leading-7 text-gray-300">
+                <code className={className} {...props}>
+                    {children}
+                </code>
+            </pre>
+        </div>
+    );
+};
+
+const Blockquote = ({ children }) => (
+    <blockquote className="my-8 border-l-[3px] border-primary/40 bg-muted/30 py-2 pl-6 pr-4 text-lg italic leading-relaxed text-foreground/90">
+        {children}
+    </blockquote>
+);
+
+const Table = ({ children }) => (
+    <div className="my-8 overflow-x-auto rounded-xl border border-border/60">
+        <table className="w-full border-collapse text-sm">{children}</table>
+    </div>
+);
+
+const Th = ({ children }) => (
+    <th className="border-b border-border/60 bg-muted/40 px-4 py-3 text-left font-semibold text-foreground">
+        {children}
+    </th>
+);
+
+const Td = ({ children }) => (
+    <td className="border-b border-border/30 px-4 py-3 text-muted-foreground">
+        {children}
+    </td>
+);
+
+const Hr = () => <hr className="my-12 border-border/60" />;
+
+const Ul = ({ children, ...props }) => (
+    <ul className="mb-6 list-disc space-y-2 pl-5 marker:text-primary/60" {...props}>
+        {children}
+    </ul>
+);
+
+const Ol = ({ children, ...props }) => (
+    <ol className="mb-6 list-decimal space-y-2 pl-5 marker:text-primary/60" {...props}>
+        {children}
+    </ol>
+);
+
+const Li = ({ children, ...props }) => (
+    <li className="leading-relaxed" {...props}>
+        {children}
+    </li>
+);
+
+const P = ({ children, ...props }) => (
+    <p className="mb-6 leading-[1.8] text-foreground/80" {...props}>
+        {children}
+    </p>
+);
+
+const Strong = ({ children }) => (
+    <strong className="font-semibold text-foreground">{children}</strong>
+);
+
+const Em = ({ children }) => (
+    <em className="italic text-foreground/90">{children}</em>
+);
+
+/* ========================================================================== */
+/*  Component map                                                            */
+/* ========================================================================== */
+const components = {
+    h1: H2, // demote h1 to h2 for consistency
+    h2: H2,
+    h3: H3,
+    a: A,
+    img: Img,
+    code: Code,
+    blockquote: Blockquote,
+    table: Table,
+    th: Th,
+    td: Td,
+    hr: Hr,
+    ul: Ul,
+    ol: Ol,
+    li: Li,
+    p: P,
+    strong: Strong,
+    em: Em,
+};
+
+/* ========================================================================== */
+/*  MarkdownRenderer                                                         */
+/* ========================================================================== */
+export const MarkdownRenderer = memo(function MarkdownRenderer({
+    content,
+    className = "",
+    allowHtml = true,
+}) {
+    if (!content || typeof content !== "string") return null;
+
+    return (
+        <div className={cx("markdown-body", className)}>
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                components={{
-                    h1: ({ node, ...props }) => (
-                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mt-4 mb-2 pb-1.5 border-b border-zinc-200 dark:border-zinc-800" {...props} />
-                    ),
-                    h2: ({ node, ...props }) => (
-                        <h2 className="text-lg sm:text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mt-3.5 mb-2" {...props} />
-                    ),
-                    h3: ({ node, ...props }) => (
-                        <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mt-3 mb-1.5" {...props} />
-                    ),
-                    h4: ({ node, ...props }) => (
-                        <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-2 mb-1" {...props} />
-                    ),
-                    p: ({ node, ...props }) => (
-                        <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed mb-3 last:mb-0" {...props} />
-                    ),
-                    ul: ({ node, ...props }) => (
-                        <ul className="list-disc list-outside ml-4 space-y-1 my-2 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300" {...props} />
-                    ),
-                    ol: ({ node, ...props }) => (
-                        <ol className="list-decimal list-outside ml-4 space-y-1 my-2 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300" {...props} />
-                    ),
-                    li: ({ node, ...props }) => (
-                        <li className="leading-relaxed pl-1" {...props} />
-                    ),
-                    blockquote: ({ node, ...props }) => (
-                        <blockquote className="border-l-3 border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 px-3.5 py-2 my-3 rounded-r-lg italic text-xs sm:text-sm text-zinc-700 dark:text-zinc-300" {...props} />
-                    ),
-                    code: ({ node, inline, children, ...props }) => {
-                        if (inline) {
-                            return (
-                                <code className="px-1.5 py-0.5 text-[11px] sm:text-xs font-mono rounded bg-zinc-100 dark:bg-zinc-800 text-pink-600 dark:text-pink-400" {...props}>
-                                    {children}
-                                </code>
-                            );
-                        }
-                        return <CodeBlock>{children}</CodeBlock>;
-                    },
-                    pre: ({ children }) => <>{children}</>,
-                    a: ({ node, ...props }) => (
-                        <a
-                            className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium break-words"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            {...props}
-                        />
-                    ),
-                    img: ({ node, alt, ...props }) => (
-                        <img
-                            alt={alt || 'Image'}
-                            className="rounded-xl my-3 max-h-80 w-full object-cover border border-zinc-200 dark:border-zinc-800"
-                            {...props}
-                        />
-                    ),
-                    table: ({ node, ...props }) => (
-                        <div className="overflow-x-auto my-3 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                            <table className="w-full text-xs text-left border-collapse" {...props} />
-                        </div>
-                    ),
-                    thead: ({ node, ...props }) => (
-                        <thead className="bg-zinc-100 dark:bg-zinc-800/80 border-b border-zinc-200 dark:border-zinc-800 font-semibold text-zinc-900 dark:text-zinc-100" {...props} />
-                    ),
-                    th: ({ node, ...props }) => (
-                        <th className="px-3 py-2 text-xs font-semibold" {...props} />
-                    ),
-                    td: ({ node, ...props }) => (
-                        <td className="px-3 py-2 border-t border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300" {...props} />
-                    ),
-                    hr: ({ node, ...props }) => (
-                        <hr className="my-4 border-zinc-200 dark:border-zinc-800" {...props} />
-                    )
-                }}
+                rehypePlugins={[
+                    ...(allowHtml ? [rehypeRaw] : []),
+                    rehypeSlug,
+                    [rehypeAutolinkHeadings, { behavior: "wrap" }],
+                ]}
+                components={components}
             >
                 {content}
             </ReactMarkdown>
         </div>
     );
-}
+});
+
+export default MarkdownRenderer;

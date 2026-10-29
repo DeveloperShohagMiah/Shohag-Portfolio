@@ -1,51 +1,115 @@
-import React, { useState, useRef } from "react";
+import { useCallback, useId, useState } from "react";
+import { useForm } from "react-hook-form";
+import { motion, useReducedMotion } from "framer-motion";
 import {
     FiArrowUpRight,
+    FiAlertCircle,
     FiCheck,
     FiGithub,
     FiLinkedin,
     FiMail,
     FiMapPin,
-    FiSend,
-    FiAlertCircle,
-    FiUser,
     FiMessageSquare,
+    FiSend,
+    FiUser,
 } from "react-icons/fi";
-import { motion, useReducedMotion, useInView } from "framer-motion";
 import SectionHeader from "./SectionHeader";
 import { useSendMessageMutation } from "../redux/features/publicApi";
 
-/* ------------------------------------------------------------------ */
-/*  Motion variants                                                    */
-/* ------------------------------------------------------------------ */
-const EASE = [0.22, 1, 0.36, 1];
+const FOCUS =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
-const fadeUp = {
-    hidden: { opacity: 0, y: 24 },
-    show: (custom = 0) => ({
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.9, ease: EASE, delay: custom },
-    }),
+const DEFAULT_CONTENT = {
+    id: "contact",
+    sectionLabel: "Contact me",
+    title: "Let's work",
+    highlight: "together.",
+    description:
+        "Have a project in mind? Tell me what you're building and let's turn your idea into something meaningful.",
+    panelTitle: "Good things start with a conversation.",
+    panelText:
+        "From a new website to a complete web application, I'm always interested in discussing thoughtful ideas and useful products.",
+    availability: "Available for select projects",
+    brand: "Shohag",
+    submitLabel: "Send message",
+    successTitle: "Message received.",
+    successText:
+        "Thanks for reaching out. Your message has been submitted successfully. I'll get back to you as soon as I can.",
+    privacyNote: "Your details are only used to respond to your message.",
+    backToTopHref: "#home",
 };
 
-function ScrollReveal({
-    children,
-    delay = 0,
-    className = "",
-    amount = 0.15,
-}) {
-    const ref = useRef(null);
-    const reduced = useReducedMotion();
-    const inView = useInView(ref, { once: true, amount });
+const DEFAULT_DETAILS = [
+    {
+        icon: FiMail,
+        label: "Email",
+        value: "shohagmiah7474@gmail.com",
+        href: "mailto:shohagmiah7474@gmail.com",
+    },
+    { icon: FiMapPin, label: "Location", value: "Nicosia, Cyprus" },
+];
+
+const DEFAULT_SOCIALS = [
+    { icon: FiGithub, label: "GitHub", href: "https://github.com/" },
+    { icon: FiLinkedin, label: "LinkedIn", href: "https://linkedin.com/" },
+    { icon: FiMail, label: "Email", href: "mailto:shohagmiah7474@gmail.com" },
+];
+
+const DEFAULT_FIELDS = [
+    {
+        name: "name",
+        label: "Full name",
+        type: "text",
+        icon: FiUser,
+        placeholder: "Your name",
+        autoComplete: "name",
+        half: true,
+        required: true,
+    },
+    {
+        name: "email",
+        label: "Email address",
+        type: "email",
+        icon: FiMail,
+        placeholder: "you@example.com",
+        autoComplete: "email",
+        half: true,
+        required: true,
+    },
+    {
+        name: "subject",
+        label: "Subject",
+        type: "text",
+        icon: FiMessageSquare,
+        placeholder: "What would you like to discuss?",
+        required: true,
+        half: false,
+    },
+    {
+        name: "message",
+        label: "Your message",
+        type: "textarea",
+        rows: 5,
+        placeholder: "Share a little context about your idea, project, or question…",
+        required: true,
+        minLength: 10,
+        half: false,
+    },
+];
+
+function Reveal({ children, delay = 0, className = "" }) {
+    const reducedMotion = useReducedMotion();
 
     return (
         <motion.div
-            ref={ref}
-            initial={reduced ? "show" : "hidden"}
-            animate={inView ? "show" : "hidden"}
-            variants={fadeUp}
-            custom={delay}
+            initial={reducedMotion ? false : { opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.12 }}
+            transition={{
+                duration: reducedMotion ? 0 : 0.65,
+                delay: reducedMotion ? 0 : delay,
+                ease: [0.22, 1, 0.36, 1],
+            }}
             className={className}
         >
             {children}
@@ -53,516 +117,453 @@ function ScrollReveal({
     );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Ambient glow + corner accents                                      */
-/* ------------------------------------------------------------------ */
-function CardAmbientGlow() {
+function ContactInfo({ content, details, socials }) {
     return (
-        <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -inset-px z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-        >
-            <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,theme(colors.primary/25),transparent_70%)] blur-2xl animate-[pulseGlow_4s_ease-in-out_infinite] motion-reduce:animate-none" />
-            <div className="absolute -inset-1/2 animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg,theme(colors.primary/20)_60deg,transparent_120deg,theme(colors.primary/10)_240deg,transparent_360deg)] opacity-40 motion-reduce:animate-none" />
-        </div>
-    );
-}
-
-function CardAccents({ inset = "inset-x-6" }) {
-    return (
-        <>
+        <aside className="relative flex flex-col justify-between gap-10 overflow-hidden border-b border-border/70 bg-muted/20 p-6 sm:p-9 lg:border-b-0 lg:border-r lg:p-10 xl:p-12">
             <div
                 aria-hidden="true"
-                className={`pointer-events-none absolute ${inset} top-0 z-20 h-[1.5px] bg-gradient-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
+                className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
             />
-            <div className="pointer-events-none absolute left-0 top-0 z-20 h-8 w-8 border-l border-t border-primary/0 transition-all duration-500 group-hover:h-12 group-hover:w-12 group-hover:border-primary/50" />
-            <div className="pointer-events-none absolute bottom-0 right-0 z-20 h-8 w-8 border-b border-r border-primary/0 transition-all duration-500 group-hover:h-12 group-hover:w-12 group-hover:border-primary/50" />
-        </>
+
+            <div className="relative">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Let's connect
+                </div>
+
+                <h3 className="mt-6 max-w-md text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                    {content.panelTitle}
+                </h3>
+                <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground sm:text-base">
+                    {content.panelText}
+                </p>
+            </div>
+
+            <div className="relative space-y-5">
+                {details.map(({ icon: Icon, label, value, href }) => (
+                    <div key={label} className="flex items-center gap-3.5">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border/80 bg-background text-primary shadow-sm">
+                            <Icon size={17} aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                                {label}
+                            </p>
+                            {href ? (
+                                <a
+                                    href={href}
+                                    className={`mt-1 inline-flex max-w-full items-center gap-1.5 truncate text-sm font-medium text-foreground transition-colors hover:text-primary ${FOCUS}`}
+                                >
+                                    <span className="truncate">{value}</span>
+                                    <FiArrowUpRight size={14} aria-hidden="true" />
+                                </a>
+                            ) : (
+                                <p className="mt-1 text-sm font-medium text-foreground">
+                                    {value}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="relative space-y-4">
+                {content.availability && (
+                    <div className="inline-flex items-center gap-2.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3.5 py-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-50 motion-safe:animate-ping motion-reduce:animate-none" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                        </span>
+                        {content.availability}
+                    </div>
+                )}
+
+                {socials.length > 0 && (
+                    <div className="flex items-center gap-2">
+                        {socials.map(({ icon: Icon, href, label }) => {
+                            const external = /^https?:\/\//i.test(href);
+                            return (
+                                <a
+                                    key={label}
+                                    href={href}
+                                    target={external ? "_blank" : undefined}
+                                    rel={external ? "noopener noreferrer" : undefined}
+                                    aria-label={label}
+                                    className={`flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-background/70 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary ${FOCUS}`}
+                                >
+                                    <Icon size={16} aria-hidden="true" />
+                                </a>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        </aside>
     );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Contact details sidebar                                            */
-/* ------------------------------------------------------------------ */
-function ContactInfo() {
-    const details = [
-        {
-            icon: FiMail,
-            label: "Email",
-            value: "hello@example.com",
-            href: "mailto:hello@example.com",
-        },
-        {
-            icon: FiMapPin,
-            label: "Location",
-            value: "Remote · Worldwide",
-        },
-    ];
+function FormField({ field, register, error, disabled, id }) {
+    const Icon = field.icon;
+    const isTextarea = field.type === "textarea";
+    const errorId = `${id}-error`;
+    const inputClass = `block w-full rounded-xl border bg-background px-4 text-sm text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/55 hover:border-border focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 ${error ? "border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/10" : "border-border/80"
+        }`;
+
+    const rules = {
+        required: field.required ? `${field.label} is required.` : false,
+        ...(field.type === "email"
+            ? {
+                pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+                    message: "Enter a valid email address.",
+                },
+            }
+            : {}),
+        ...(field.minLength
+            ? {
+                minLength: {
+                    value: field.minLength,
+                    message: `Please write at least ${field.minLength} characters.`,
+                },
+            }
+            : {}),
+        validate: (value) =>
+            !value || value.trim().length > 0 || `${field.label} cannot be blank.`,
+    };
 
     return (
-        <div className="relative flex flex-col justify-between border-b border-border/60 p-8 sm:p-10 lg:border-b-0 lg:border-r lg:p-12">
-            {/* Watermark */}
-            <span
-                aria-hidden="true"
-                className="pointer-events-none absolute right-6 top-6 text-8xl font-bold text-foreground/[0.03]"
+        <div className={field.half ? "" : "sm:col-span-2"}>
+            <label
+                htmlFor={id}
+                className="mb-2.5 block text-sm font-medium text-foreground"
             >
-                <FiMail />
-            </span>
+                {field.label}
+                {field.required && <span className="ml-1 text-primary">*</span>}
+            </label>
 
-            <div className="relative z-10">
-                <span className="font-code text-[10px] uppercase tracking-[0.2em] text-primary">
-                    Get in touch
-                </span>
+            <div className="relative">
+                {Icon && !isTextarea && (
+                    <Icon
+                        size={16}
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/70"
+                    />
+                )}
 
-                <h3 className="mt-5 max-w-sm font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                    Tell me what you&apos;re building.
-                </h3>
-
-                <p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">
-                    Whether it&apos;s a new website, web application, SaaS product, or
-                    something completely different, I&apos;d love to hear about it.
-                </p>
+                {isTextarea ? (
+                    <textarea
+                        id={id}
+                        rows={field.rows || 5}
+                        placeholder={field.placeholder}
+                        disabled={disabled}
+                        autoComplete={field.autoComplete}
+                        aria-invalid={Boolean(error)}
+                        aria-describedby={error ? errorId : undefined}
+                        className={`${inputClass} min-h-36 resize-y px-4 py-3.5 leading-6`}
+                        {...register(field.name, rules)}
+                    />
+                ) : (
+                    <input
+                        id={id}
+                        type={field.type || "text"}
+                        placeholder={field.placeholder}
+                        disabled={disabled}
+                        autoComplete={field.autoComplete}
+                        aria-invalid={Boolean(error)}
+                        aria-describedby={error ? errorId : undefined}
+                        className={`${inputClass} h-12 ${Icon ? "pl-10" : ""}`}
+                        {...register(field.name, rules)}
+                    />
+                )}
             </div>
 
-            {/* Contact details */}
-            <div className="relative z-10 mt-12 space-y-6">
-                {details.map(({ icon: Icon, label, value, href }) => (
-                    <div key={label}>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Icon size={14} aria-hidden="true" />
-                            <span className="font-code text-[10px] uppercase tracking-[0.15em]">
-                                {label}
-                            </span>
-                        </div>
-
-                        {href ? (
-                            <a
-                                href={href}
-                                className="group/link mt-2 inline-flex items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                            >
-                                {value}
-                                <FiArrowUpRight
-                                    size={14}
-                                    aria-hidden="true"
-                                    className="transition-transform duration-300 group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5"
-                                />
-                            </a>
-                        ) : (
-                            <p className="mt-2 text-sm text-foreground">{value}</p>
-                        )}
-                    </div>
-                ))}
-
-                {/* Availability */}
-                <div className="flex items-center gap-3">
-                    <span className="relative flex h-2.5 w-2.5">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-50 motion-reduce:animate-none" />
-                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
-                    </span>
-
-                    <span className="font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                        Available for work
-                    </span>
-                </div>
-            </div>
-
-            {/* Socials */}
-            <div className="relative z-10 mt-12">
-                <p className="mb-4 font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                    Social
-                </p>
-
-                <div className="flex gap-2">
-                    {[
-                        { icon: FiGithub, href: "https://github.com/", label: "GitHub" },
-                        {
-                            icon: FiLinkedin,
-                            href: "https://linkedin.com/",
-                            label: "LinkedIn",
-                        },
-                        { icon: FiMail, href: "mailto:hello@example.com", label: "Email" },
-                    ].map(({ icon: Icon, href, label }) => (
-                        <a
-                            key={label}
-                            href={href}
-                            target={href.startsWith("http") ? "_blank" : undefined}
-                            rel={href.startsWith("http") ? "noreferrer" : undefined}
-                            aria-label={label}
-                            className="flex h-10 w-10 items-center justify-center clip-polygon border border-border/70 text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/10 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                        >
-                            <Icon size={16} aria-hidden="true" />
-                        </a>
-                    ))}
-                </div>
+            <div className="min-h-5 pt-1">
+                {error && (
+                    <p
+                        id={errorId}
+                        role="alert"
+                        className="flex items-center gap-1.5 text-xs text-rose-500"
+                    >
+                        <FiAlertCircle size={12} aria-hidden="true" />
+                        {error.message}
+                    </p>
+                )}
             </div>
         </div>
     );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Contact form                                                       */
-/* ------------------------------------------------------------------ */
-function ContactForm() {
-    const [sendMessage, { isLoading }] = useSendMessageMutation();
-    const [status, setStatus] = useState("idle"); // idle | success | error
+function ContactForm({ content, fields, onSubmit }) {
+    const [status, setStatus] = useState("idle");
+    const [serverError, setServerError] = useState("");
+    const formId = useId();
 
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setFocus,
+        formState: { errors, isSubmitting },
+    } = useForm({
+        mode: "onBlur",
+        reValidateMode: "onChange",
+        defaultValues: Object.fromEntries(fields.map((field) => [field.name, ""])),
     });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+    const submit = async (values) => {
+        if (isSubmitting) return;
+        setServerError("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+        // Honeypot: bots may fill this hidden field. Do not send the payload.
+        if (values.website) {
+            setStatus("success");
+            return;
+        }
+
+        const payload = Object.fromEntries(
+            fields.map((field) => {
+                const value = String(values[field.name] ?? "").trim();
+                return [field.name, field.type === "email" ? value.toLowerCase() : value];
+            }),
+        );
 
         try {
-            await sendMessage({
-                name: formData.name.trim(),
-                email: formData.email.trim().toLowerCase(),
-                subject: formData.subject.trim(),
-                message: formData.message.trim(),
-            }).unwrap();
-
+            await onSubmit(payload);
+            reset();
             setStatus("success");
-            setFormData({ name: "", email: "", subject: "", message: "" });
-            setTimeout(() => setStatus("idle"), 5000);
-        } catch (err) {
-            console.error("Send failed:", err);
+        } catch (error) {
+            console.error("Contact form submission failed:", error);
+            setServerError(
+                error?.data?.message ||
+                error?.message ||
+                "Your message could not be sent. Please try again.",
+            );
             setStatus("error");
-            setTimeout(() => setStatus("idle"), 5000);
         }
     };
 
-    const inputClasses =
-        "h-12 w-full border border-border/70 bg-background/40 px-4 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground/40 hover:border-border focus:border-primary focus:bg-background/70 focus:ring-4 focus:ring-primary/10 disabled:opacity-60";
-
-    const labelClasses =
-        "mb-2 block font-code text-[10px] uppercase tracking-[0.16em] text-muted-foreground";
-
-    /* ---------- Success state ---------- */
     if (status === "success") {
         return (
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, ease: EASE }}
-                className="relative flex min-h-[480px] flex-col items-center justify-center text-center"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex min-h-[420px] flex-col items-center justify-center px-4 py-12 text-center"
+                role="status"
+                aria-live="polite"
             >
-                <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 20,
-                        delay: 0.1,
-                    }}
-                    className="flex h-20 w-20 items-center justify-center clip-polygon border border-primary/30 bg-primary/10 text-primary shadow-[0_0_40px_-8px_theme(colors.primary/60)]"
-                >
-                    <FiCheck size={30} aria-hidden="true" />
-                </motion.div>
-
-                <h3 className="mt-7 font-display text-3xl font-semibold text-foreground">
-                    Message sent!
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <FiCheck size={28} aria-hidden="true" />
+                </div>
+                <h3 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
+                    {content.successTitle}
                 </h3>
-
                 <p className="mt-3 max-w-sm text-sm leading-7 text-muted-foreground">
-                    Thanks for reaching out. I&apos;ll get back to you as soon as
-                    possible.
+                    {content.successText}
                 </p>
+                <button
+                    type="button"
+                    onClick={() => {
+                        setStatus("idle");
+                        setServerError("");
+                        reset();
+                        setFocus(fields[0]?.name);
+                    }}
+                    className={`mt-7 inline-flex h-11 items-center justify-center rounded-xl border border-border px-5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary ${FOCUS}`}
+                >
+                    Send another message
+                </button>
             </motion.div>
         );
     }
 
-    /* ---------- Form state ---------- */
     return (
-        <motion.form
-            onSubmit={handleSubmit}
-            className="relative z-10"
-            initial={false}
-            animate={{ opacity: 1 }}
+        <form
+            onSubmit={handleSubmit(submit)}
             noValidate
+            className="w-full"
+            aria-busy={isSubmitting}
         >
-            {/* Row: Name + Email */}
-            <div className="grid gap-5 md:grid-cols-2">
-                <div>
-                    <label htmlFor="contact-name" className={labelClasses}>
-                        Your name
-                    </label>
-                    <div className="relative">
-                        <FiUser
-                            size={14}
-                            aria-hidden="true"
-                            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60"
-                        />
-                        <input
-                            id="contact-name"
-                            name="name"
-                            type="text"
-                            required
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="John Doe"
-                            className={`${inputClasses} pl-10`}
-                            disabled={isLoading}
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label htmlFor="contact-email" className={labelClasses}>
-                        Email address
-                    </label>
-                    <div className="relative">
-                        <FiMail
-                            size={14}
-                            aria-hidden="true"
-                            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60"
-                        />
-                        <input
-                            id="contact-email"
-                            name="email"
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="john@example.com"
-                            className={`${inputClasses} pl-10`}
-                            disabled={isLoading}
-                        />
-                    </div>
-                </div>
+            <div className="mb-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                    Contact form
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+                    Send me a message
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    Fill in the details below and I’ll be in touch.
+                </p>
             </div>
 
-            {/* Subject */}
-            <div className="mt-5">
-                <label htmlFor="contact-subject" className={labelClasses}>
-                    Subject
-                </label>
-                <div className="relative">
-                    <FiMessageSquare
-                        size={14}
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+            <div className="grid gap-x-4 gap-y-1 sm:grid-cols-2">
+                {fields.map((field, index) => (
+                    <FormField
+                        key={field.name}
+                        field={field}
+                        register={register}
+                        error={errors[field.name]}
+                        disabled={isSubmitting}
+                        id={`${formId}-${field.name || index}`}
                     />
-                    <input
-                        id="contact-subject"
-                        name="subject"
-                        type="text"
-                        required
-                        value={formData.subject}
-                        onChange={handleChange}
-                        placeholder="What can I help you with?"
-                        className={`${inputClasses} pl-10`}
-                        disabled={isLoading}
-                    />
-                </div>
+                ))}
             </div>
 
-            {/* Message */}
-            <div className="mt-5">
-                <label htmlFor="contact-message" className={labelClasses}>
-                    Message
-                </label>
-                <textarea
-                    id="contact-message"
-                    name="message"
-                    required
-                    rows={6}
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Tell me about your project…"
-                    className="w-full resize-none border border-border/70 bg-background/40 px-4 py-3.5 text-sm leading-7 text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground/40 hover:border-border focus:border-primary focus:bg-background/70 focus:ring-4 focus:ring-primary/10 disabled:opacity-60"
-                    disabled={isLoading}
+            {/* Honeypot field for basic bot filtering. Keep it out of the visual layout. */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
+            >
+                <label htmlFor={`${formId}-website`}>Leave this field empty</label>
+                <input
+                    id={`${formId}-website`}
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    {...register("website")}
                 />
             </div>
 
-            {/* Submit row */}
-            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {serverError && (
                 <p
-                    className="max-w-sm text-xs leading-5 text-muted-foreground"
-                    role={status === "error" ? "alert" : undefined}
+                    className="mt-3 flex items-start gap-2 rounded-xl border border-rose-500/20 bg-rose-500/5 px-3.5 py-3 text-sm text-rose-500"
+                    role="alert"
                 >
-                    {status === "error" ? (
-                        <span className="inline-flex items-center gap-1.5 text-rose-500">
-                            <FiAlertCircle size={12} aria-hidden="true" />
-                            Something went wrong. Try again.
-                        </span>
-                    ) : (
-                        "Your information is only used to respond to your message."
-                    )}
+                    <FiAlertCircle className="mt-0.5 shrink-0" size={16} />
+                    <span>{serverError}</span>
                 </p>
+            )}
 
+            <div className="mt-5 flex flex-col gap-4 border-t border-border/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="max-w-xs text-xs leading-5 text-muted-foreground">
+                    {content.privacyNote}
+                </p>
                 <button
                     type="submit"
-                    disabled={isLoading}
-                    className="group/send inline-flex h-12 items-center justify-center gap-3 bg-primary px-7 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_30px_-6px_theme(colors.primary/60)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                    disabled={isSubmitting}
+                    className={`group inline-flex h-12 w-full shrink-0 items-center justify-center gap-2.5 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_-12px_var(--primary)] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 sm:w-auto ${FOCUS}`}
                 >
-                    {isLoading ? (
+                    {isSubmitting ? (
                         <>
-                            <span
-                                aria-hidden="true"
-                                className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground"
-                            />
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none" />
                             Sending…
                         </>
                     ) : (
                         <>
-                            Send message
+                            {content.submitLabel}
                             <FiSend
-                                size={16}
+                                size={15}
                                 aria-hidden="true"
-                                className="transition-transform duration-300 group-hover/send:translate-x-1"
+                                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                             />
                         </>
                     )}
                 </button>
             </div>
-        </motion.form>
+        </form>
     );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Animated backdrop                                                  */
-/* ------------------------------------------------------------------ */
-function AnimatedBackdrop() {
-    const reduced = useReducedMotion();
+export function ContactSection({
+    onSubmit,
+    content: contentOverride,
+    details = DEFAULT_DETAILS,
+    socials = DEFAULT_SOCIALS,
+    fields = DEFAULT_FIELDS,
+    background = true,
+    className = "",
+}) {
+    const content = { ...DEFAULT_CONTENT, ...contentOverride };
 
-    return (
-        <>
-            {/* Purple ambient */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 blur-[125px] md:blur-[180px]"
-                style={{
-                    background:
-                        "radial-gradient(ellipse 120% 70% at 50% 110%, rgba(172, 40, 238, 0.35) 0%, rgba(120, 20, 180, 0.2) 40%, rgba(0, 0, 0, 0) 75%)",
-                    mixBlendMode: "screen",
-                }}
-            />
-
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 blur-[50px] md:blur-[72px]"
-                style={{
-                    background:
-                        "linear-gradient(to top, rgba(172, 40, 238, 0.15) 0%, rgba(0, 0, 0, 0) 35%)",
-                    mixBlendMode: "screen",
-                }}
-            />
-
-            {/* Drifting glows */}
-            <motion.div
-                aria-hidden="true"
-                className="pointer-events-none absolute -left-32 top-40 h-80 w-80 bg-primary/10 blur-[120px]"
-                animate={
-                    reduced
-                        ? undefined
-                        : { x: [0, 30, 0], y: [0, -20, 0], opacity: [0.6, 1, 0.6] }
-                }
-                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-32 bottom-20 h-80 w-80 bg-primary/5 blur-[120px]"
-                animate={
-                    reduced
-                        ? undefined
-                        : { x: [0, -20, 0], y: [0, 20, 0], opacity: [0.4, 0.8, 0.4] }
-                }
-                transition={{
-                    duration: 14,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1,
-                }}
-            />
-        </>
-    );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Section                                                            */
-/* ------------------------------------------------------------------ */
-export default function Contact() {
     return (
         <section
-            id="contact"
-            className="relative overflow-hidden bg-background py-28 sm:py-36"
+            id={content.id}
+            className={`relative isolate overflow-hidden bg-background py-24 sm:py-32 ${className}`}
         >
-            {/* Top divider */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
-            />
-
-            <AnimatedBackdrop />
-
-            <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-                {/* HEADER */}
-                <ScrollReveal className="grid gap-8 lg:grid-cols-12 lg:items-end">
-                    <div className="lg:col-span-7">
-                        <SectionHeader label="Contact" />
-                        <h2 className="text-balance font-display text-5xl font-semibold leading-[0.95] tracking-[-0.05em] text-foreground sm:text-6xl lg:text-7xl">
-                            Let&apos;s work{" "}
-                            <span className="text-gradient">together.</span>
-                        </h2>
-                    </div>
-
-                    <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg lg:col-span-5 lg:justify-self-end">
-                        Have a project in mind? Send me a message and let&apos;s discuss how
-                        we can turn your idea into something great.
-                    </p>
-                </ScrollReveal>
-
-                {/* MAIN CONTACT CARD */}
-                <ScrollReveal
-                    delay={0.1}
-                    className="group relative mt-16 grid clip-polygon overflow-hidden border border-border/60 bg-card/40 backdrop-blur-xl transition-all duration-500 ease-out lg:mt-20 lg:grid-cols-[0.7fr_1.3fr] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.25)] hover:border-primary/40 hover:bg-card/70 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_24px_48px_-16px_rgba(0,0,0,0.45),0_0_60px_-12px_theme(colors.primary/50),inset_0_1px_0_0_rgba(255,255,255,0.06)]"
-                >
-                    <CardAmbientGlow />
-                    <CardAccents inset="inset-x-6 sm:inset-x-10 lg:inset-x-12" />
-
-                    <ContactInfo />
-                    <div className="relative p-8 sm:p-10 lg:p-12">
-                        <ContactForm />
-                    </div>
-                </ScrollReveal>
-
-                {/* FOOTER */}
-                <ScrollReveal
-                    delay={0.2}
-                    className="mt-10 flex flex-col justify-between gap-4 border-t border-border/60 pt-6 sm:flex-row sm:items-center"
-                >
-                    <p className="font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60">
-                        © {new Date().getFullYear()} Shohag. All rights reserved.
-                    </p>
-
-                    <a
-                        href="#home"
-                        className="group/top inline-flex items-center gap-2 font-code text-[10px] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            {background && (
+                <>
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
                     >
-                        Back to top
-                        <FiArrowUpRight
-                            size={13}
-                            aria-hidden="true"
-                            className="transition-transform duration-300 group-hover/top:-translate-y-0.5 group-hover/top:translate-x-0.5"
+                        <div className="absolute -left-40 top-16 h-80 w-80 rounded-full bg-primary/10 blur-[110px]" />
+                        <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-primary/10 blur-[130px]" />
+                    </div>
+                    <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.035] [background-image:radial-gradient(currentColor_1px,transparent_1px)] [background-size:24px_24px]"
+                    />
+                </>
+            )}
+
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <Reveal>
+                    <div className="max-w-3xl">
+                        <SectionHeader
+                            label={content.sectionLabel}
+                            title={content.title}
+                            highlight={content.highlight}
                         />
-                    </a>
-                </ScrollReveal>
+                        {content.description && (
+                            <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+                                {content.description}
+                            </p>
+                        )}
+                    </div>
+                </Reveal>
+
+                <Reveal delay={0.08} className="mt-10 sm:mt-14">
+                    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 shadow-[0_24px_80px_-36px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+                        <div
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+                        />
+                        <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
+                            <ContactInfo
+                                content={content}
+                                details={details}
+                                socials={socials}
+                            />
+                            <div className="min-w-0 p-6 sm:p-9 lg:p-10 xl:p-12">
+                                <ContactForm
+                                    content={content}
+                                    fields={fields}
+                                    onSubmit={onSubmit}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Reveal>
+
+                <Reveal delay={0.12}>
+                    <div className="mt-8 flex flex-col justify-between gap-3 border-t border-border/70 pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center">
+                        <p>
+                            © {new Date().getFullYear()} {content.brand}. Built with care by{" "}
+                            <span className="font-medium text-foreground">Shohag Miah</span>.
+                        </p>
+                        <a
+                            href={content.backToTopHref}
+                            className={`inline-flex w-fit items-center gap-1.5 transition-colors hover:text-primary ${FOCUS}`}
+                        >
+                            Back to top <FiArrowUpRight size={14} aria-hidden="true" />
+                        </a>
+                    </div>
+                </Reveal>
             </div>
 
-            {/* Bottom divider — anchored to the section */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
-            />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         </section>
     );
+}
+
+export default function Contact(props) {
+    const [sendMessage] = useSendMessageMutation();
+    const handleSubmit = useCallback(
+        (data) => sendMessage(data).unwrap(),
+        [sendMessage],
+    );
+
+    return <ContactSection onSubmit={handleSubmit} {...props} />;
 }

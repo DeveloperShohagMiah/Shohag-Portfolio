@@ -26,7 +26,7 @@ const SkillCard = ({ skill, index = 0 }) => {
             whileHover={reduced ? undefined : { y: -4 }}
             transition={{ duration: 0.4, ease: EASE }}
             className="
-        group/skill relative overflow-hidden bg-background p-6
+        group/skill relative overflow-hidden bg-card/40 p-6
         transition-[background-color] duration-500 ease-out
         hover:bg-card/40
       "
@@ -83,7 +83,7 @@ const SkillCard = ({ skill, index = 0 }) => {
 
             {/* Description */}
             {skill.shortDescription && (
-                <p className="relative z-10 mt-1.5 line-clamp-2 text-xs leading-6 text-muted-foreground">
+                <p className="relative z-10 mt-1.5 line-clamp-2 text-sm leading-6 text-muted-foreground">
                     {skill.shortDescription}
                 </p>
             )}
@@ -99,14 +99,9 @@ const SkillCard = ({ skill, index = 0 }) => {
             {/* Top accent line on hover */}
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-7 top-0 z-20 h-[1.5px] bg-gradient-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-300 group-hover/skill:opacity-100"
+                className="pointer-events-none absolute inset-x-7 top-0 z-20 h-[1.5px] bg-linear-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-300 group-hover/skill:opacity-100"
             />
 
-            {/* Corner brackets — bottom-right (existing) */}
-            <div className="pointer-events-none absolute bottom-0 right-0 z-20 h-6 w-6 border-b border-r border-primary/0 transition-all duration-500 group-hover/skill:h-10 group-hover/skill:w-10 group-hover/skill:border-primary/40" />
-
-            {/* Corner bracket — top-left (new, subtle symmetry) */}
-            <div className="pointer-events-none absolute left-0 top-0 z-20 h-5 w-5 border-l border-t border-primary/0 transition-all duration-500 group-hover/skill:h-8 group-hover/skill:w-8 group-hover/skill:border-primary/30" />
         </motion.div>
     );
 };

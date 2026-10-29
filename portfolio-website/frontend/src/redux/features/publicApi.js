@@ -90,7 +90,7 @@ export const publicApi = createApi({
         }),
 
         getBlogById: builder.query({
-            query: (id) => `/blogs/${id}`,
+            query: (slug) => `/blogs/${slug}`,
             providesTags: (result, error, id) => [{ type: "Blog", id }],
         }),
 

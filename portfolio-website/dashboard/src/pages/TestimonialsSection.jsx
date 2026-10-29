@@ -35,7 +35,7 @@ const DEFAULT_VALUES = {
 
 /* ---------- Shared styles ---------- */
 const inputBase =
-  "w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
+  "w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
 
 const labelBase =
   "mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400";
@@ -43,10 +43,10 @@ const labelBase =
 const errorBase = "mt-1.5 text-xs font-medium text-rose-500";
 
 const btnPrimary =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
 
 const btnGhost =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
 
 /* Initials fallback for avatar */
 function getInitials(name) {
@@ -382,8 +382,8 @@ export function TestimonialsSection({ searchQuery = "" }) {
                       : "Show on portfolio"
                   }
                   className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${item.isActive
-                      ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
-                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
                     }`}
                 >
                   <span
@@ -400,8 +400,8 @@ export function TestimonialsSection({ searchQuery = "" }) {
                   <Star
                     key={i}
                     className={`h-3.5 w-3.5 ${i < item.rating
-                        ? "fill-amber-400 text-amber-400"
-                        : "text-zinc-200 dark:text-zinc-700"
+                      ? "fill-amber-400 text-amber-400"
+                      : "text-zinc-200 dark:text-zinc-700"
                       }`}
                   />
                 ))}
@@ -432,7 +432,7 @@ export function TestimonialsSection({ searchQuery = "" }) {
                     type="button"
                     onClick={() => openEditModal(item)}
                     title="Edit testimonial"
-                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                    className="rounded-xl p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -440,7 +440,7 @@ export function TestimonialsSection({ searchQuery = "" }) {
                     type="button"
                     onClick={() => handleDelete(item)}
                     title="Delete testimonial"
-                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+                    className="rounded-xl p-2 text-zinc-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -466,7 +466,7 @@ export function TestimonialsSection({ searchQuery = "" }) {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                   <MessageSquareQuote className="h-4 w-4" />
                 </div>
                 <div>
@@ -487,7 +487,7 @@ export function TestimonialsSection({ searchQuery = "" }) {
                 type="button"
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Close"
-                className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                className="rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -606,7 +606,7 @@ export function TestimonialsSection({ searchQuery = "" }) {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/30">
+                  <div className="flex items-center gap-1 rounded-xl border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/30">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -617,8 +617,8 @@ export function TestimonialsSection({ searchQuery = "" }) {
                       >
                         <Star
                           className={`h-5 w-5 transition-colors ${star <= selectedRating
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-zinc-300 dark:text-zinc-600"
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-zinc-300 dark:text-zinc-600"
                             }`}
                         />
                       </button>
@@ -627,7 +627,7 @@ export function TestimonialsSection({ searchQuery = "" }) {
                 </div>
 
                 {/* Active toggle */}
-                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3.5 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/50">
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-200 bg-white p-3.5 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/50">
                   <input
                     type="checkbox"
                     {...register("isActive")}

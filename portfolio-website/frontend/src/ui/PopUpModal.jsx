@@ -66,7 +66,7 @@ const PopUpModal = ({
                 >
                     {/* Icon badge with live status dot */}
                     <span className="relative shrink-0">
-                        <span className="flex h-8 w-8 items-center justify-center clip-polygon bg-white/15 backdrop-blur-sm sm:h-9 sm:w-9">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm sm:h-9 sm:w-9">
                             <FiMessageCircle size={15} aria-hidden="true" />
                         </span>
 

@@ -7,7 +7,7 @@ const EmptyServices = () => {
         <div className="mt-16 flex justify-center">
             <div
                 className="
-          group relative clip-polygon w-full max-w-2xl overflow-hidden
+          group relative rounded-xl w-full max-w-2xl overflow-hidden
           border border-dashed border-border/70 bg-card/30 p-12
           backdrop-blur-sm text-center
           transition-all duration-500
@@ -25,7 +25,7 @@ const EmptyServices = () => {
                 <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-10 border-b border-r border-primary/30" />
 
                 {/* Icon */}
-                <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center clip-polygon border border-primary/30 bg-primary/5 text-primary">
+                <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-xl border border-primary/30 bg-primary/5 text-primary">
                     <FiCode size={26} />
                     <span
                         aria-hidden="true"

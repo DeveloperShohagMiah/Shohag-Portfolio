@@ -122,16 +122,24 @@ export const getPublishedBlogs = asyncHandler(async (req, res) => {
 });
 
 export const getBlogById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    validateObjectId(id);
+    const { slug } = req.params;
 
-    const blog = await Blog.findById(id).populate("author", "name email");
+    const blog = await Blog.findOne({ slug })
+        .populate("author", "name email");
+
     if (!blog) {
         throw new ApiError(404, "Blog not found.");
     }
 
-    res.status(200).json(new ApiResponse(200, blog, "Blog fetched successfully."));
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            blog,
+            "Blog fetched successfully."
+        )
+    );
 });
+
 
 // Public — fetch by slug, and increment view count
 export const getBlogBySlug = asyncHandler(async (req, res) => {

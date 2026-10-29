@@ -47,7 +47,7 @@ export function RichText({
                 "prose-code:font-code prose-code:text-[0.9em]",
                 "prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800",
                 "prose-blockquote:border-l-primary prose-blockquote:bg-primary/5 prose-blockquote:py-1 prose-blockquote:not-italic",
-                "prose-img:rounded-lg prose-img:shadow-lg",
+                "prose-img:rounded-xl prose-img:shadow-lg",
                 className,
             ]
                 .filter(Boolean)

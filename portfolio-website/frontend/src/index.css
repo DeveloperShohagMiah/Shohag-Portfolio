@@ -1,22 +1,25 @@
-﻿/* ==========================================================================
-   index.css — Tailwind CSS v4
-   ========================================================================== */
-
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+﻿@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.cdnfonts.com/css/decaydence');
-@import url('https://fonts.cdnfonts.com/css/fonarto');
 
+/* Not referenced anywhere in this file — re-enable only if a component uses them:
+@import url('https://fonts.cdnfonts.com/css/fonarto');
+@import url('https://fonts.cdnfonts.com/css/recoleta');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+*/
 
 @import "tailwindcss";
+
+/* dark = "not inside .light", light = "inside .light" */
+@custom-variant dark (&:where(:not(.light, .light *)));
+@custom-variant light (&:where(.light, .light *));
 
 /* ==========================================================================
    Theme Tokens
    ========================================================================== */
 
+/* Tokens that point at runtime variables (so they change with the theme) */
 @theme inline {
-    /* Colors */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
 
@@ -60,24 +63,28 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    /* Fonts */
-    --font-display: "Poppins", sans-serif;
-    --font-heading: "Decaydence", sans-serif;
-    --font-body: "Inter", sans-serif;
-    --font-code: "Geist Mono", monospace;
+    /* Shadows now follow the theme (heavy black shadows looked muddy in light mode) */
+    --shadow-sm: var(--elev-sm);
+    --shadow-md: var(--elev-md);
+    --shadow-lg: var(--elev-lg);
+}
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-    --shadow-md: 0 12px 30px -10px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.55);
+/* Static values */
+@theme {
+    --font-display: "Philosopher", ui-sans-serif, system-ui, sans-serif;
+    --font-heading: "Decaydence", "Philosopher", ui-sans-serif, sans-serif;
+    --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-    /* Radius */
     --radius-sm: 0.375rem;
     --radius-md: 0.75rem;
     --radius-lg: 1rem;
     --radius-full: 9999px;
+}
 
-    /* Easing */
+/* `static` = always emitted, so var(--ease-premium) in plain CSS below can never
+   be "undefined" (an undefined var() silently disables the whole transition). */
+@theme static {
     --ease-premium: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -88,25 +95,28 @@
 :root {
     color-scheme: dark;
 
-    --background: #0a0a0a;
+    --background: #100D16;
     --foreground: #f5f5f5;
 
-    --card: #171717;
+    --card: #191421;
     --card-foreground: #f5f5f5;
 
-    --popover: #1f1f1f;
+    --popover: #1c1626;
     --popover-foreground: #f5f5f5;
 
-    --primary: #b84df0;
+    /* Lightened from #9303c5: that value is only ~2.8:1 against the dark
+       background, too low for text-primary labels and links (needs 4.5:1).
+       White text on this value is still readable on buttons. */
+    --primary: #b04fe8;
     --primary-foreground: #ffffff;
 
-    --secondary: #3d3d3d;
+    --secondary: #2a2335;
     --secondary-foreground: #f5f5f5;
 
-    --muted: #262626;
-    --muted-foreground: #a3a3a3;
+    --muted: #221c2b;
+    --muted-foreground: #a8a3b3;
 
-    --accent: #3d3d3d;
+    --accent: #2a2335;
     --accent-foreground: #f5f5f5;
 
     --destructive: #e5484d;
@@ -114,7 +124,7 @@
 
     --border: rgba(255, 255, 255, 0.12);
     --input: rgba(255, 255, 255, 0.18);
-    --ring: #a3a3a3;
+    --ring: #c27bf0;
 
     --chart-1: #b84df0;
     --chart-2: #60a5fa;
@@ -122,35 +132,43 @@
     --chart-4: #fbbf24;
     --chart-5: #f87171;
 
-    --sidebar: #141414;
+    --sidebar: #130f1a;
     --sidebar-foreground: #f5f5f5;
     --sidebar-primary: #b84df0;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #262626;
+    --sidebar-accent: #221c2b;
     --sidebar-accent-foreground: #f5f5f5;
     --sidebar-border: rgba(255, 255, 255, 0.12);
-    --sidebar-ring: #a3a3a3;
+    --sidebar-ring: #c27bf0;
+
+    /* Elevation (dark) */
+    --elev-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --elev-md: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+    --elev-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.6);
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 24px 48px -30px rgba(0, 0, 0, 0.6);
 }
 
 .light {
     color-scheme: light;
 
-    --background: #f5f5f7;
+    --background: #FAF9FC;
     --foreground: #0a0a0a;
 
-    --card: #ffffff;
+    --card: #FFFFFF;
     --card-foreground: #0a0a0a;
 
     --popover: #ffffff;
     --popover-foreground: #0a0a0a;
 
-    --primary: #8b1fc4;
+    --primary: #A100FF;
     --primary-foreground: #ffffff;
 
     --secondary: #e8e8ec;
     --secondary-foreground: #1a1a1a;
 
-    --muted: #ececef;
+    /* --muted is a SURFACE colour (bg-muted/30 etc.). It was #777180, a mid-grey
+       that turned those fills muddy. Text greys live in --muted-foreground. */
+    --muted: #EFECF4;
     --muted-foreground: #5c5c66;
 
     --accent: #e8e8ec;
@@ -159,7 +177,8 @@
     --destructive: #dc2626;
     --destructive-foreground: #ffffff;
 
-    --border: rgba(0, 0, 0, 0.12);
+    /* Slightly stronger so card borders read on the near-white background */
+    --border: #DDD6E8;
     --input: rgba(0, 0, 0, 0.2);
     --ring: #8b1fc4;
 
@@ -177,6 +196,12 @@
     --sidebar-accent-foreground: #1a1a1a;
     --sidebar-border: rgba(0, 0, 0, 0.12);
     --sidebar-ring: #8b1fc4;
+
+    /* Elevation (light) — violet-tinted instead of the old warm brown */
+    --elev-sm: 0 1px 2px rgba(60, 20, 110, 0.08);
+    --elev-md: 0 12px 30px -12px rgba(60, 20, 110, 0.22);
+    --elev-lg: 0 24px 60px -20px rgba(60, 20, 110, 0.28);
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 24px 48px -30px rgba(60, 20, 110, 0.28);
 }
 
 /* ==========================================================================
@@ -185,14 +210,19 @@
 
 @layer base {
 
+    /* Tailwind v4 defaults borders to currentColor; use the theme border instead. */
     *,
-    *::before,
-    *::after {
-        box-sizing: border-box;
+    ::before,
+    ::after,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--border);
     }
 
     html {
         scroll-behavior: smooth;
+        /* the navbar is fixed: keep #hash targets from hiding underneath it */
+        scroll-padding-top: 6rem;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
@@ -200,9 +230,13 @@
     body {
         margin: 0;
         min-height: 100vh;
+        min-height: 100dvh;
         background-color: var(--background);
         color: var(--foreground);
+        /* Body copy uses the body font. Philosopher is a display face and was
+           being applied to every paragraph. */
         font-family: var(--font-display);
+        font-size: 16px;
         transition:
             background-color 500ms var(--ease-premium),
             color 500ms var(--ease-premium);
@@ -237,15 +271,34 @@
         font-size: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
     }
 
+    /* Inside the base layer on purpose: an unlayered h1/h2 rule would override
+       text-* utilities (e.g. text-4xl) on headings. */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem);
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+        }
+    }
+
     code,
     pre {
         font-family: var(--font-code);
     }
 
+    /* Tailwind v4 resets buttons to cursor: default */
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    /* No forced border-radius here: it used to reshape every focused pill, avatar
+       and chamfered element. */
     :focus-visible {
         outline: 2px solid var(--ring);
         outline-offset: 2px;
-        border-radius: var(--radius-sm);
     }
 
     ::selection {
@@ -273,6 +326,14 @@
         background: var(--primary);
     }
 
+    /* Firefox (Chromium would ignore the ::-webkit rules above if this applied there) */
+    @supports not selector(::-webkit-scrollbar) {
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--ring) var(--card);
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
 
         *,
@@ -288,6 +349,9 @@
 
 /* ==========================================================================
    Component Styles
+   Everything here — including the responsive tweaks — stays inside
+   @layer components. Unlayered CSS beats every Tailwind utility, so the old
+   unlayered `.card { padding: 1rem }` media rule silently overrode `p-6`.
    ========================================================================== */
 
 @layer components {
@@ -304,12 +368,11 @@
         color: var(--card-foreground);
         border: 1px solid var(--border);
         border-radius: var(--radius-lg);
-        transition: all 300ms var(--ease-premium);
-    }
-
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-md);
+        transition:
+            transform 300ms var(--ease-premium),
+            box-shadow 300ms var(--ease-premium),
+            border-color 300ms var(--ease-premium);
+        box-shadow: var(--shadow);
     }
 
     .btn {
@@ -323,7 +386,11 @@
         font-weight: 600;
         text-decoration: none;
         cursor: pointer;
-        transition: all 300ms var(--ease-premium);
+        transition:
+            transform 300ms var(--ease-premium),
+            box-shadow 300ms var(--ease-premium),
+            background-color 300ms var(--ease-premium),
+            color 300ms var(--ease-premium);
     }
 
     .btn-primary {
@@ -331,19 +398,9 @@
         color: var(--primary-foreground);
     }
 
-    .btn-primary:hover {
-        transform: scale(1.05);
-        box-shadow: var(--shadow-md);
-    }
-
     .btn-secondary {
         background-color: var(--secondary);
         color: var(--secondary-foreground);
-    }
-
-    .btn-secondary:hover {
-        transform: scale(1.05);
-        box-shadow: var(--shadow-md);
     }
 
     .btn-outline {
@@ -352,20 +409,35 @@
         border: 2px solid var(--primary);
     }
 
-    .btn-outline:hover {
-        background-color: var(--primary);
-        color: var(--primary-foreground);
-        transform: scale(1.05);
-    }
-
     .btn-destructive {
         background-color: var(--destructive);
         color: var(--destructive-foreground);
     }
 
-    .btn-destructive:hover {
-        transform: scale(1.05);
-        box-shadow: var(--shadow-md);
+    /* Hover motion only on devices that really hover (no sticky hover on touch) */
+    @media (hover: hover) {
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--elev-md);
+        }
+
+        .btn-primary:hover,
+        .btn-secondary:hover,
+        .btn-destructive:hover {
+            transform: scale(1.05);
+            box-shadow: var(--elev-md);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            transform: scale(1.05);
+        }
+    }
+
+    .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
     }
 
     .input {
@@ -376,7 +448,9 @@
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
         outline: none;
-        transition: all 300ms var(--ease-premium);
+        transition:
+            border-color 300ms var(--ease-premium),
+            box-shadow 300ms var(--ease-premium);
     }
 
     .input:focus {
@@ -415,36 +489,81 @@
         background-color: var(--destructive);
         color: var(--destructive-foreground);
     }
+
+    /* Glowing gradient button (spinning conic border) */
+    .glow-btn {
+        isolation: isolate;
+        overflow: visible;
+    }
+
+    .glow-btn-border,
+    .glow-btn-shadow {
+        background: conic-gradient(from 0deg,
+                #8b5cf6,
+                #ec4899,
+                #06b6d4,
+                #8b5cf6);
+        animation: glow-spin 3s linear infinite;
+    }
+
+    .glow-btn-shadow {
+        z-index: -1;
+    }
+
+    /* Responsive adjustments */
+    @media (min-width: 640px) {
+        .container {
+            padding-inline: 1.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .container {
+            padding-inline: 2rem;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .container {
+            padding-inline: 0.75rem;
+        }
+
+        .card {
+            padding: 1rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+        }
+    }
 }
 
 /* ==========================================================================
    Custom Utilities
+   (@utility registers real Tailwind utilities, so they work with variants
+   like hover: / md: and sit in the correct cascade layer.)
    ========================================================================== */
 
+/* Gradient text. Dark is the default, so the light gradient belongs to dark mode.
+   (The old rule was keyed to `.dark`, a class your app never sets, so dark mode
+   got the dark violet gradient on a dark background.) */
 @utility text-gradient {
-    background: linear-gradient(110deg, var(--primary), transparent);
-    background-clip: text;
+    background-image: linear-gradient(90deg, #a78bfa, #e9d5ff);
     -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
-    -webkit-text-fill-color: transparent;
+    /* keeps the last letter and descenders from being clipped */
+    padding: 0 0.08em 0.1em 0;
+
+    .light & {
+        background-image: linear-gradient(90deg, #6d28d9, #a855f7);
+    }
 }
 
-@utility text-balance {
-    text-wrap: balance;
-}
+/* Angled-corner shape. clip-path also clips outlines, so keyboard focus is drawn
+   as an inset ring that stays inside the shape. */
 
-@utility clip-polygon {
-    clip-path: polygon(10px 0,
-            100% 0,
-            100% calc(100% - 10px),
-            calc(100% - 10px) 100%,
-            0 100%,
-            0 10px);
-}
-
-@utility text-pretty {
-    text-wrap: pretty;
-}
 
 @utility glass {
     background: color-mix(in srgb, var(--card) 70%, transparent);
@@ -485,18 +604,6 @@
     animation: scale-up 500ms var(--ease-premium) backwards;
 }
 
-@utility font-display {
-    font-family: var(--font-display);
-}
-
-@utility font-body {
-    font-family: var(--font-body);
-}
-
-@utility font-code {
-    font-family: var(--font-code);
-}
-
 @utility bg-gradient {
     background:
         radial-gradient(circle at 30% 20%,
@@ -507,6 +614,9 @@
             transparent 70%);
 }
 
+/* (text-balance, text-pretty and the font-display / font-body / font-code
+   utilities were removed: Tailwind v4 already provides them, the fonts from the
+   @theme tokens above.) */
 
 /* ==========================================================================
    Animations
@@ -559,44 +669,13 @@
     }
 }
 
-/* ==========================================================================
-   Responsive Adjustments
-   ========================================================================== */
-
-@media (min-width: 640px) {
-    .container {
-        padding-inline: 1.5rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .container {
-        padding-inline: 2rem;
-    }
-}
-
-@media (max-width: 640px) {
-    .container {
-        padding-inline: 0.75rem;
+@keyframes glow-spin {
+    from {
+        transform: rotate(0deg);
     }
 
-    .card {
-        padding: 1rem;
-    }
-
-    .btn {
-        padding: 0.625rem 1.25rem;
-        font-size: 0.875rem;
-    }
-}
-
-@media (max-width: 768px) {
-    h1 {
-        font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem);
-    }
-
-    h2 {
-        font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+    to {
+        transform: rotate(360deg);
     }
 }
 

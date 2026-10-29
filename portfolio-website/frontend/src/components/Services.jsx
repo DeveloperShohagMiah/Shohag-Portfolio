@@ -91,11 +91,8 @@ export default function Services() {
         {/* HEADER */}
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <SectionHeader label="Services" />
-            <h2 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              What I can{" "}
-              <span className="text-gradient">build for you.</span>
-            </h2>
+            <SectionHeader label="Services" title={"What I can"} highlight={"build for you."} ></SectionHeader>
+
           </div>
         </div>
 
@@ -103,7 +100,7 @@ export default function Services() {
         {content}
 
         {/* CTA */}
-        <div className="relative mt-6 overflow-hidden border border-border/60 bg-card/40 p-8 backdrop-blur-sm sm:p-10 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(0,0,0,0.3)]">
+        <div className="relative mt-6 overflow-hidden rounded-md border border-border/60 bg-card/40 p-8 backdrop-blur-sm sm:p-10 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(0,0,0,0.3)]">
           <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 bg-primary/10 blur-[80px]" />
 
           <div className="relative flex flex-col gap-7 md:flex-row md:items-center md:justify-between">

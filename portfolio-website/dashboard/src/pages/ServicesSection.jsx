@@ -1,6 +1,8 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { DynamicIcon } from "../components/DynamicIcon.jsx";
+import DeleteConfirmation from "../ui/DeleteConfirmation.jsx";
 import {
   Plus,
   Pencil,
@@ -10,6 +12,12 @@ import {
   Layers,
   Check,
   Search,
+  ArrowUpRight,
+  Power,
+  BriefcaseBusiness,
+  CircleCheck,
+  CircleDashed,
+  Command,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -35,147 +43,724 @@ const AVAILABLE_ICONS = [
   "Zap",
 ];
 
-/* ---------- Shared styles ---------- */
 const inputBase =
-  "w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
+  "w-full rounded-xl border border-zinc-200/90 bg-white px-3.5 py-3 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 hover:border-zinc-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 dark:border-white/[0.09] dark:bg-[#131316] dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:border-white/[0.15] dark:focus:border-violet-400 dark:focus:ring-violet-400/10";
 
 const labelBase =
-  "mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400";
+  "mb-2 block text-[11px] font-semibold tracking-wide text-zinc-700 dark:text-zinc-300";
 
 const errorBase = "mt-1.5 text-xs font-medium text-rose-500";
 
 const btnPrimary =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 text-xs font-semibold text-white shadow-sm shadow-violet-600/15 transition-colors hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-500/20 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-violet-500 dark:hover:bg-violet-400";
 
-const btnGhost =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
+const btnSecondary =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/[0.09] dark:bg-[#18181b] dark:text-zinc-300 dark:hover:bg-white/[0.05]";
+
+const cn = (...classes) => classes.filter(Boolean).join(" ");
+
+function getServiceArray(response) {
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.data?.services)) return response.data.services;
+  if (Array.isArray(response?.services)) return response.services;
+  if (Array.isArray(response)) return response;
+  return [];
+}
+
+function getErrorMessage(error, fallback) {
+  return (
+    error?.data?.message ||
+    error?.data?.error ||
+    error?.message ||
+    fallback
+  );
+}
+
+function SectionEyebrow({ children }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-violet-200/70 bg-violet-50/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-700 dark:border-violet-400/15 dark:bg-violet-400/[0.07] dark:text-violet-300">
+      {children}
+    </div>
+  );
+}
+
+function StatCard({ label, value, description, icon: Icon, accent }) {
+  const accents = {
+    violet:
+      "bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300",
+    emerald:
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300",
+    amber:
+      "bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300",
+    zinc: "bg-zinc-100 text-zinc-600 dark:bg-white/[0.06] dark:text-zinc-300",
+  };
+
+  return (
+    <div className="group rounded-2xl border border-zinc-200/80 bg-white p-4 transition-colors hover:border-zinc-300 sm:p-5 dark:border-white/[0.07] dark:bg-[#111113] dark:hover:border-white/[0.13]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+            {label}
+          </p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950 tabular-nums dark:text-white">
+            {value}
+          </p>
+        </div>
+
+        <div
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+            accents[accent] || accents.zinc,
+          )}
+        >
+          <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} />
+        </div>
+      </div>
+
+      <p className="mt-3 text-[10px] text-zinc-400 dark:text-zinc-500">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function ServiceStatus({ active }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold",
+        active
+          ? "border-emerald-200/80 bg-emerald-50 text-emerald-700 dark:border-emerald-400/15 dark:bg-emerald-400/[0.08] dark:text-emerald-300"
+          : "border-zinc-200 bg-zinc-100 text-zinc-500 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-zinc-400",
+      )}
+    >
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full",
+          active ? "bg-emerald-500" : "bg-zinc-400",
+        )}
+      />
+      {active ? "Active" : "Inactive"}
+    </span>
+  );
+}
+
+function EmptyState({ searching, onCreate }) {
+  return (
+    <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white/60 px-6 py-16 text-center dark:border-white/[0.12] dark:bg-white/[0.015]">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-zinc-500 shadow-sm dark:border-white/[0.08] dark:bg-[#18181b] dark:text-zinc-400">
+        {searching ? (
+          <Search className="h-6 w-6" strokeWidth={1.6} />
+        ) : (
+          <Layers className="h-6 w-6" strokeWidth={1.6} />
+        )}
+      </div>
+
+      <h3 className="mt-5 text-sm font-semibold text-zinc-900 dark:text-white">
+        {searching ? "No matching services" : "Your services start here"}
+      </h3>
+
+      <p className="mt-2 max-w-sm text-xs leading-6 text-zinc-500 dark:text-zinc-400">
+        {searching
+          ? "Try another keyword or search by a technology stack."
+          : "Showcase your expertise by adding the services you offer to your portfolio."}
+      </p>
+
+      {!searching && (
+        <button
+          type="button"
+          onClick={onCreate}
+          className={`${btnPrimary} mt-5`}
+        >
+          <Plus className="h-4 w-4" />
+          Create your first service
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ServiceCard({ service, onEdit, onDelete, onToggle, togglingId }) {
+  const stacks = Array.isArray(service.stacks) ? service.stacks : [];
+  const isToggling = togglingId === service._id;
+
+  return (
+    <article
+      className={cn(
+        "group relative flex min-w-0 flex-col overflow-hidden rounded-2xl",
+        "border border-zinc-200/80 bg-white transition-colors duration-200",
+        "hover:border-violet-300/80 dark:border-white/[0.07]",
+        "dark:bg-[#111113] dark:hover:border-violet-400/30",
+      )}
+    >
+      <div className="flex items-start justify-between gap-3 px-5 pt-5">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-indigo-50 text-violet-700 dark:border-violet-400/15 dark:from-violet-400/[0.12] dark:to-indigo-400/[0.07] dark:text-violet-300">
+          <DynamicIcon
+            name={service.icon || "Code2"}
+            className="h-[21px] w-[21px]"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <ServiceStatus active={Boolean(service.isActive)} />
+
+          <button
+            type="button"
+            onClick={() => onToggle(service)}
+            disabled={isToggling}
+            title={service.isActive ? "Deactivate service" : "Activate service"}
+            aria-label={service.isActive ? "Deactivate service" : "Activate service"}
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-500 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:opacity-50 dark:border-white/[0.08] dark:text-zinc-400 dark:hover:border-violet-400/20 dark:hover:bg-violet-400/[0.08] dark:hover:text-violet-300"
+          >
+            {isToggling ? (
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current/30 border-t-current" />
+            ) : (
+              <Power className="h-3.5 w-3.5" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-5">
+        <h3 className="break-words text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+          {service.title || "Untitled service"}
+        </h3>
+
+        <p className="mt-2 min-h-[60px] whitespace-pre-line break-words text-xs leading-6 text-zinc-500 dark:text-zinc-400">
+          {service.description || "No description provided."}
+        </p>
+
+        <div className="mt-5">
+          <div className="mb-2.5 flex items-center justify-between gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-400 dark:text-zinc-500">
+              Technology stack
+            </span>
+            <span className="text-[10px] tabular-nums text-zinc-400">
+              {stacks.length} {stacks.length === 1 ? "item" : "items"}
+            </span>
+          </div>
+
+          {stacks.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {stacks.slice(0, 4).map((stack, index) => (
+                <span
+                  key={`${stack}-${index}`}
+                  className="inline-flex max-w-full items-center rounded-xl border border-zinc-200/80 bg-zinc-50 px-2.5 py-1.5 text-[10px] font-medium text-zinc-600 dark:border-white/[0.07] dark:bg-white/[0.025] dark:text-zinc-300"
+                >
+                  <span className="truncate">{stack}</span>
+                </span>
+              ))}
+
+              {stacks.length > 4 && (
+                <span className="inline-flex items-center rounded-xl border border-violet-200/70 bg-violet-50 px-2 py-1.5 text-[10px] font-semibold text-violet-700 dark:border-violet-400/15 dark:bg-violet-400/[0.07] dark:text-violet-300">
+                  +{stacks.length - 4}
+                </span>
+              )}
+            </div>
+          ) : (
+            <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
+              No technologies added
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-3 border-t border-zinc-100 bg-zinc-50/60 px-5 py-3.5 dark:border-white/[0.06] dark:bg-white/[0.015]">
+        <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
+          {service.isActive ? "Visible on portfolio" : "Hidden from portfolio"}
+        </span>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onEdit(service)}
+            className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-2.5 text-[10px] font-semibold text-zinc-600 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/20 dark:border-white/[0.08] dark:bg-[#18181b] dark:text-zinc-300 dark:hover:border-violet-400/20 dark:hover:bg-violet-400/[0.07] dark:hover:text-violet-300"
+          >
+            <Pencil className="h-3 w-3" />
+            Edit
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDelete(service)}
+            aria-label={`Delete ${service.title || "service"}`}
+            title="Delete service"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-transparent text-zinc-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/20 dark:hover:border-rose-400/15 dark:hover:bg-rose-400/[0.07] dark:hover:text-rose-400"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ServiceModal({ editingService, onClose, onSubmit, isSaving }) {
+  const [stacks, setStacks] = useState(
+    Array.isArray(editingService?.stacks) ? editingService.stacks : [],
+  );
+  const [stackInput, setStackInput] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      title: editingService?.title || "",
+      description: editingService?.description || "",
+      icon: editingService?.icon || "Code2",
+      isActive: editingService?.isActive ?? true,
+    },
+  });
+
+  const selectedIcon = watch("icon");
+
+  const addStack = (event) => {
+    event?.preventDefault();
+
+    const value = stackInput.trim();
+    if (!value) return;
+
+    if (stacks.some((stack) => stack.toLowerCase() === value.toLowerCase())) {
+      toast.error("This technology has already been added.");
+      return;
+    }
+
+    setStacks((previous) => [...previous, value]);
+    setStackInput("");
+  };
+
+  const removeStack = (item) => {
+    setStacks((previous) => previous.filter((stack) => stack !== item));
+  };
+
+  const submit = async (data) => {
+    await onSubmit({
+      title: data.title.trim(),
+      description: data.description.trim(),
+      icon: data.icon,
+      stacks,
+      isActive: data.isActive,
+    });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-zinc-950/55 p-3 backdrop-blur-sm sm:p-6"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget && !isSaving) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="service-modal-title"
+        className="my-auto flex max-h-[92dvh] w-full max-w-[620px] flex-col overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-2xl shadow-black/10 dark:border-white/[0.09] dark:bg-[#111113] dark:shadow-black/40"
+      >
+        <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 px-5 py-4 sm:px-6 dark:border-white/[0.07]">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-100 bg-violet-50 text-violet-700 dark:border-violet-400/15 dark:bg-violet-400/[0.08] dark:text-violet-300">
+              {editingService ? (
+                <Pencil className="h-4 w-4" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+            </div>
+
+            <div>
+              <h2
+                id="service-modal-title"
+                className="text-sm font-semibold text-zinc-900 dark:text-white"
+              >
+                {editingService ? "Edit service" : "Create a service"}
+              </h2>
+              <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+                Configure your portfolio offering.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSaving}
+            aria-label="Close modal"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-800 disabled:opacity-50 dark:hover:bg-white/[0.06] dark:hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form
+          onSubmit={handleSubmit(submit)}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="space-y-5 overflow-y-auto px-5 py-5 sm:px-6">
+            <div>
+              <label htmlFor="service-title" className={labelBase}>
+                Service name <span className="text-rose-500">*</span>
+              </label>
+              <input
+                id="service-title"
+                autoFocus
+                placeholder="e.g. Full-stack web development"
+                {...register("title", {
+                  required: "Service name is required.",
+                  validate: (value) =>
+                    Boolean(value.trim()) || "Service name is required.",
+                })}
+                className={inputBase}
+              />
+              {errors.title && (
+                <p className={errorBase}>{errors.title.message}</p>
+              )}
+            </div>
+
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label className={cn(labelBase, "mb-0")}>Service icon</label>
+                <span className="rounded-xl bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-500 dark:bg-white/[0.05] dark:text-zinc-400">
+                  {selectedIcon}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2 rounded-xl border border-zinc-200/80 bg-zinc-50/60 p-3 sm:grid-cols-6 dark:border-white/[0.07] dark:bg-white/[0.015]">
+                {AVAILABLE_ICONS.map((iconName) => {
+                  const selected = selectedIcon === iconName;
+
+                  return (
+                    <button
+                      key={iconName}
+                      type="button"
+                      onClick={() =>
+                        setValue("icon", iconName, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        })
+                      }
+                      aria-label={`Select ${iconName} icon`}
+                      aria-pressed={selected}
+                      title={iconName}
+                      className={cn(
+                        "relative flex aspect-square min-h-11 items-center justify-center rounded-xl border transition-colors",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
+                        selected
+                          ? "border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-400/30 dark:bg-violet-400/[0.1] dark:text-violet-300"
+                          : "border-transparent bg-white text-zinc-500 hover:border-zinc-200 hover:bg-zinc-100 dark:bg-[#18181b] dark:text-zinc-400 dark:hover:border-white/[0.1] dark:hover:bg-white/[0.05]",
+                      )}
+                    >
+                      <DynamicIcon
+                        name={iconName}
+                        className="h-[18px] w-[18px]"
+                      />
+                      {selected && (
+                        <span className="absolute right-1 top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-violet-600 text-white">
+                          <Check className="h-2.5 w-2.5" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="service-description" className={labelBase}>
+                Description <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                id="service-description"
+                rows={4}
+                placeholder="Describe the service, deliverables, and value you provide..."
+                {...register("description", {
+                  required: "Description is required.",
+                  validate: (value) =>
+                    Boolean(value.trim()) || "Description is required.",
+                })}
+                className={`${inputBase} resize-y leading-6`}
+              />
+              {errors.description && (
+                <p className={errorBase}>{errors.description.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="service-stack-input" className={labelBase}>
+                Technologies and tools
+              </label>
+
+              <div className="flex gap-2">
+                <input
+                  id="service-stack-input"
+                  value={stackInput}
+                  onChange={(event) => setStackInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addStack();
+                    }
+                  }}
+                  placeholder="Add a technology..."
+                  className={`${inputBase} min-w-0 flex-1`}
+                />
+                <button
+                  type="button"
+                  onClick={addStack}
+                  className={btnSecondary}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add
+                </button>
+              </div>
+
+              <div className="mt-3 flex min-h-8 flex-wrap gap-2">
+                {stacks.length ? (
+                  stacks.map((stack) => (
+                    <span
+                      key={stack}
+                      className="inline-flex max-w-full items-center gap-2 rounded-xl border border-violet-200/70 bg-violet-50/80 px-2.5 py-1.5 text-[11px] font-medium text-violet-800 dark:border-violet-400/15 dark:bg-violet-400/[0.06] dark:text-violet-300"
+                    >
+                      <span className="max-w-[180px] truncate">{stack}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeStack(stack)}
+                        aria-label={`Remove ${stack}`}
+                        className="text-violet-500 transition-colors hover:text-rose-500"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <p className="py-1 text-[11px] text-zinc-400 dark:text-zinc-500">
+                    Add the technologies used to deliver this service.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-zinc-200/80 p-3.5 transition-colors hover:bg-zinc-50 dark:border-white/[0.08] dark:hover:bg-white/[0.025]">
+              <input
+                type="checkbox"
+                {...register("isActive")}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 accent-violet-600 focus:ring-violet-500 dark:border-white/[0.2]"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                  Publish this service
+                </span>
+                <span className="mt-1 block text-[11px] leading-5 text-zinc-500 dark:text-zinc-400">
+                  Enable this service for display on your public portfolio.
+                </span>
+              </span>
+              <CircleCheck className="h-4 w-4 shrink-0 text-emerald-500" />
+            </label>
+          </div>
+
+          <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-zinc-100 bg-zinc-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:border-white/[0.07] dark:bg-white/[0.015]">
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+              <span className="text-rose-500">*</span> Required fields
+            </p>
+
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSaving}
+                className={btnSecondary}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                disabled={isSaving}
+                className={btnPrimary}
+              >
+                {isSaving ? (
+                  <>
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white dark:border-violet-900/30 dark:border-t-violet-900" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    {editingService ? "Save changes" : "Create service"}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </div>
+  );
+}
 
 export function ServicesSection({ searchQuery = "" }) {
   const {
     data: servicesResponse,
     isLoading: isLoadingServices,
     isError: isErrorServices,
+    refetch,
   } = useGetAllServicesQuery();
 
-  const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
-  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
-  const [deleteService] = useDeleteServiceMutation();
+  const [createService, { isLoading: isCreating }] =
+    useCreateServiceMutation();
+
+  const [updateService, { isLoading: isUpdating }] =
+    useUpdateServiceMutation();
+
+  const [deleteService, { isLoading: isDeleting }] =
+    useDeleteServiceMutation();
+
   const [toggleServiceStatus] = useToggleServiceStatusMutation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
-  const [stacks, setStacks] = useState([]);
-  const [stackInput, setStackInput] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    defaultValues: {
-      title: "",
-      description: "",
-      icon: "Code2",
-      isActive: true,
-    },
+  // Existing reusable DeleteConfirmation modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
+
+  const isSaving = isCreating || isUpdating;
+  const allServices = getServiceArray(servicesResponse);
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredServices = allServices.filter((service) => {
+    if (!normalizedQuery) return true;
+
+    const title = String(service?.title || "").toLowerCase();
+    const description = String(service?.description || "").toLowerCase();
+    const stacks = Array.isArray(service?.stacks) ? service.stacks : [];
+
+    return (
+      title.includes(normalizedQuery) ||
+      description.includes(normalizedQuery) ||
+      stacks.some((stack) =>
+        String(stack).toLowerCase().includes(normalizedQuery),
+      )
+    );
   });
 
-  const selectedIcon = watch("icon");
-  const isSaving = isCreating || isUpdating || isSubmitting;
+  const activeCount = allServices.filter(
+    (service) => service?.isActive,
+  ).length;
 
   const openCreateModal = () => {
     setEditingService(null);
-    setStacks([]);
-    setStackInput("");
-    reset({ title: "", description: "", icon: "Code2", isActive: true });
     setIsModalOpen(true);
   };
 
   const openEditModal = (service) => {
     setEditingService(service);
-    setStacks(service.stacks || []);
-    setStackInput("");
-    reset({
-      title: service.title,
-      description: service.description,
-      icon: service.icon || "Code2",
-      isActive: service.isActive,
-    });
     setIsModalOpen(true);
   };
 
-  const handleAddStack = (e) => {
-    if (e) e.preventDefault();
-    const val = stackInput.trim();
-    if (!val) return;
-
-    if (stacks.some((s) => s.toLowerCase() === val.toLowerCase())) {
-      toast.error("Stack already added");
-      return;
-    }
-
-    setStacks([...stacks, val]);
-    setStackInput("");
+  const closeModal = () => {
+    if (isSaving) return;
+    setIsModalOpen(false);
+    setEditingService(null);
   };
 
-  const handleRemoveStack = (item) => {
-    setStacks(stacks.filter((s) => s !== item));
-  };
-
-  const onSubmit = async (data) => {
-    const payload = {
-      title: data.title.trim(),
-      description: data.description.trim(),
-      icon: data.icon,
-      stacks,
-      isActive: data.isActive,
-    };
-
+  const onSubmit = async (payload) => {
     try {
       if (editingService) {
-        await updateService({ id: editingService._id, ...payload }).unwrap();
-        toast.success("Service updated successfully!");
+        await updateService({
+          id: editingService._id,
+          ...payload,
+        }).unwrap();
+
+        toast.success("Service updated successfully.");
       } else {
         await createService(payload).unwrap();
-        toast.success("Service created successfully!");
+        toast.success("Service created successfully.");
       }
+
       setIsModalOpen(false);
+      setEditingService(null);
     } catch (error) {
-      toast.error(
-        error?.data?.message || error?.message || "Failed to save service."
-      );
+      toast.error(getErrorMessage(error, "Failed to save service."));
     }
   };
 
   const handleToggleStatus = async (service) => {
+    if (!service?._id) return;
+
+    setTogglingId(service._id);
+
     try {
       await toggleServiceStatus(service._id).unwrap();
+
+      toast.success(
+        service.isActive ? "Service deactivated." : "Service activated.",
+      );
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to update status.");
+      toast.error(
+        getErrorMessage(error, "Failed to update service status."),
+      );
+    } finally {
+      setTogglingId(null);
     }
   };
 
-  const handleDelete = async (service) => {
-    if (!window.confirm(`Delete service "${service.title}"?`)) return;
+  // Open the reusable confirmation modal instead of window.confirm().
+  const handleDelete = (service) => {
+    if (!service?._id || isDeleting) return;
+
+    setServiceToDelete(service);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    if (isDeleting) return;
+
+    setIsDeleteModalOpen(false);
+    setServiceToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!serviceToDelete?._id || isDeleting) return;
+
     try {
-      await deleteService(service._id).unwrap();
-      toast.success("Service deleted successfully!");
+      await deleteService(serviceToDelete._id).unwrap();
+
+      toast.success("Service deleted successfully.");
+
+      setIsDeleteModalOpen(false);
+      setServiceToDelete(null);
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to delete service.");
+      toast.error(getErrorMessage(error, "Failed to delete service."));
     }
   };
 
   if (isLoadingServices) {
     return (
-      <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+      <div className="mx-auto max-w-[1440px] space-y-7">
+        <div className="animate-pulse space-y-3">
+          <div className="h-5 w-28 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+          <div className="h-8 w-64 max-w-full rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+          <div className="h-4 w-96 max-w-full rounded-xl bg-zinc-100 dark:bg-zinc-800/70" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
             <div
-              key={i}
-              className="h-56 animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100/60 dark:border-zinc-800 dark:bg-zinc-900/60"
+              key={index}
+              className="h-28 animate-pulse rounded-2xl border border-zinc-200 bg-white dark:border-white/[0.07] dark:bg-[#111113]"
+            />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-72 animate-pulse rounded-2xl border border-zinc-200 bg-white dark:border-white/[0.07] dark:bg-[#111113]"
             />
           ))}
         </div>
@@ -185,435 +770,193 @@ export function ServicesSection({ searchQuery = "" }) {
 
   if (isErrorServices) {
     return (
-      <div className="mx-auto max-w-6xl">
-        <div className="rounded-2xl border border-dashed border-rose-300/60 bg-rose-50/40 p-10 text-center dark:border-rose-900/50 dark:bg-rose-950/10">
-          <p className="text-sm font-semibold text-rose-600 dark:text-rose-400">
-            Failed to load services.
+      <div className="mx-auto max-w-[1440px]">
+        <div className="flex flex-col items-center rounded-2xl border border-rose-200/80 bg-white px-6 py-14 text-center dark:border-rose-400/15 dark:bg-[#111113]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 dark:bg-rose-400/[0.08] dark:text-rose-400">
+            <CircleDashed className="h-6 w-6" />
+          </div>
+
+          <h2 className="mt-4 text-sm font-semibold text-zinc-900 dark:text-white">
+            Unable to load services
+          </h2>
+
+          <p className="mt-2 max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+            We could not retrieve your services. Try requesting the data again.
           </p>
-          <p className="mt-1.5 text-xs text-zinc-500">
-            Refresh the page to try again.
-          </p>
+
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className={`${btnPrimary} mt-5`}
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
-  const allServices = servicesResponse?.data || [];
-
-  const filteredServices = allServices.filter((service) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      service.title.toLowerCase().includes(q) ||
-      service.description.toLowerCase().includes(q) ||
-      (service.stacks || []).some((s) => s.toLowerCase().includes(q))
-    );
-  });
-
-  const activeCount = allServices.filter((s) => s.isActive).length;
-
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      {/* ============================================================
-          Header
-          ============================================================ */}
-      <div className="flex flex-col gap-4 border-b border-zinc-200 pb-5 sm:flex-row sm:items-end sm:justify-between dark:border-zinc-800">
-        <div className="max-w-2xl">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-            <Sparkles className="h-3 w-3" />
-            Services
+    <div className="mx-auto max-w-[1440px] space-y-7 pb-8">
+      {/* Page header */}
+      <section className="relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-white dark:border-white/[0.07] dark:bg-[#111113]">
+        <div className="pointer-events-none absolute -right-12 -top-24 h-64 w-64 rounded-full bg-violet-500/[0.07] blur-3xl dark:bg-violet-500/[0.1]" />
+        <div className="pointer-events-none absolute -bottom-32 right-1/3 h-48 w-48 rounded-full bg-indigo-500/[0.04] blur-3xl dark:bg-indigo-500/[0.06]" />
+
+        <div className="relative flex flex-col gap-6 p-5 sm:p-7 lg:flex-row lg:items-center lg:justify-between lg:p-8">
+          <div className="min-w-0">
+            <SectionEyebrow>
+              <Sparkles className="h-3.5 w-3.5" />
+              Portfolio management
+            </SectionEyebrow>
+
+            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-zinc-950 sm:text-3xl dark:text-white">
+              Your services<span className="text-violet-500">.</span>
+            </h1>
+
+            <p className="mt-2 max-w-xl text-xs leading-6 text-zinc-500 sm:text-sm dark:text-zinc-400">
+              Manage your offerings, highlight your technical expertise, and
+              control what visitors see on your portfolio.
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] text-zinc-400 dark:text-zinc-500">
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200/80 bg-zinc-50 px-2.5 py-1.5 dark:border-white/[0.07] dark:bg-white/[0.025]">
+                <Layers className="h-3.5 w-3.5" />
+                {allServices.length} total offerings
+              </span>
+
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200/70 bg-emerald-50/70 px-2.5 py-1.5 text-emerald-700 dark:border-emerald-400/15 dark:bg-emerald-400/[0.05] dark:text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                {activeCount} published
+              </span>
+            </div>
           </div>
 
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Manage your offerings
-          </h1>
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className={`${btnPrimary} h-11 shrink-0 px-5`}
+          >
+            <Plus className="h-4 w-4" />
+            Add new service
+            <ArrowUpRight className="ml-1 h-3.5 w-3.5 opacity-70" />
+          </button>
+        </div>
+      </section>
 
-          <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Icon, title, description, technology stacks, and public visibility
-            — everything that appears on your portfolio services section.
-          </p>
+      {/* Statistics */}
+      <section
+        aria-label="Service statistics"
+        className="grid grid-cols-2 gap-3 xl:grid-cols-4"
+      >
+        <StatCard
+          label="Total services"
+          value={allServices.length}
+          description="All offerings in your CMS"
+          icon={BriefcaseBusiness}
+          accent="violet"
+        />
+
+        <StatCard
+          label="Published"
+          value={activeCount}
+          description="Currently marked as active"
+          icon={CircleCheck}
+          accent="emerald"
+        />
+
+        <StatCard
+          label="Inactive"
+          value={allServices.length - activeCount}
+          description="Currently marked as inactive"
+          icon={Power}
+          accent="amber"
+        />
+
+        <StatCard
+          label="Search results"
+          value={filteredServices.length}
+          description={
+            normalizedQuery
+              ? "Services matching your search"
+              : "All services currently displayed"
+          }
+          icon={Search}
+          accent="zinc"
+        />
+      </section>
+
+      {/* Service list */}
+      <section>
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                All services
+              </h2>
+
+              <span className="rounded-md border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:border-white/[0.08] dark:bg-white/[0.025] dark:text-zinc-400">
+                {filteredServices.length}
+              </span>
+            </div>
+
+            <p className="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+              Edit service details or change their visibility.
+            </p>
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 self-start text-[10px] text-zinc-400 dark:text-zinc-500 sm:self-auto">
+            <Command className="h-3.5 w-3.5" />
+            Global search
+          </span>
         </div>
 
-        <button type="button" onClick={openCreateModal} className={btnPrimary}>
-          <Plus className="h-4 w-4" />
-          Add service
-        </button>
-      </div>
-
-      {/* ============================================================
-          Stats strip
-          ============================================================ */}
-      {allServices.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              Total
-            </p>
-            <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
-              {allServices.length}
-            </p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              Active
-            </p>
-            <p className="mt-1 text-xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
-              {activeCount}
-            </p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              Disabled
-            </p>
-            <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-500">
-              {allServices.length - activeCount}
-            </p>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              Shown
-            </p>
-            <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
-              {filteredServices.length}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================
-          Services grid
-          ============================================================ */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredServices.length === 0 ? (
-          <div className="col-span-full rounded-2xl border border-dashed border-zinc-300 bg-white/60 p-12 text-center dark:border-zinc-800 dark:bg-zinc-900/40">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-              <Search className="h-5 w-5" />
-            </div>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              {searchQuery ? "No matching services" : "No services yet"}
-            </p>
-            <p className="mt-1 text-xs text-zinc-500">
-              {searchQuery
-                ? "Try a different search term."
-                : "Add your first service to display it on your portfolio."}
-            </p>
-            {!searchQuery && (
-              <button
-                type="button"
-                onClick={openCreateModal}
-                className={`${btnPrimary} mt-5`}
-              >
-                <Plus className="h-4 w-4" />
-                Add service
-              </button>
-            )}
-          </div>
+          <EmptyState
+            searching={Boolean(normalizedQuery)}
+            onCreate={openCreateModal}
+          />
         ) : (
-          filteredServices.map((service) => (
-            <article
-              key={service._id}
-              id={`service-card-${service._id}`}
-              className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
-            >
-              {/* Top row: icon + status */}
-              <div className="flex items-start justify-between">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-50 text-zinc-800 ring-1 ring-inset ring-zinc-200/60 dark:from-zinc-800 dark:to-zinc-800/60 dark:text-zinc-200 dark:ring-zinc-700/60">
-                  <DynamicIcon name={service.icon} className="h-5 w-5" />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleToggleStatus(service)}
-                  title={service.isActive ? "Deactivate" : "Activate"}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${service.isActive
-                      ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
-                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
-                    }`}
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${service.isActive ? "bg-emerald-500" : "bg-zinc-400"
-                      }`}
-                  />
-                  {service.isActive ? "Active" : "Disabled"}
-                </button>
-              </div>
-
-              {/* Title + description */}
-              <div className="mt-4 flex-1">
-                <h3 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-                  {service.title}
-                </h3>
-                <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  {service.description}
-                </p>
-
-                {/* Stacks */}
-                {service.stacks && service.stacks.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {service.stacks.slice(0, 4).map((st, i) => (
-                      <span
-                        key={i}
-                        className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[10px] font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-300"
-                      >
-                        {st}
-                      </span>
-                    ))}
-                    {service.stacks.length > 4 && (
-                      <span className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[10px] font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-800/50">
-                        +{service.stacks.length - 4}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4 dark:border-zinc-800">
-                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-400">
-                  {service.stacks?.length || 0} tech
-                </p>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => openEditModal(service)}
-                    title="Edit service"
-                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(service)}
-                    title="Delete service"
-                    className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))
-        )}
-      </div>
-
-      {/* ============================================================
-          Modal
-          ============================================================ */}
-      {isModalOpen && (
-        <div
-          id="service-modal"
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-zinc-950/50 p-4 backdrop-blur-sm"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsModalOpen(false);
-          }}
-        >
-          <div className="relative my-8 w-full max-w-2xl overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                  <Layers className="h-4 w-4" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                    {editingService ? "Edit service" : "New service"}
-                  </h2>
-                  <p className="text-[11px] text-zinc-500">
-                    {editingService
-                      ? "Update the offering details"
-                      : "Add a new offering to your portfolio"}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                aria-label="Close"
-                className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Body */}
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <div className="max-h-[65vh] space-y-5 overflow-y-auto px-6 py-5">
-                {/* Title */}
-                <div>
-                  <label htmlFor="title" className={labelBase}>
-                    Service title <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="title"
-                    type="text"
-                    placeholder="e.g. Full-Stack Web Development"
-                    {...register("title", { required: "Title is required" })}
-                    className={inputBase}
-                  />
-                  {errors.title && (
-                    <p className={errorBase}>{errors.title.message}</p>
-                  )}
-                </div>
-
-                {/* Icon picker */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <label className={labelBase}>Choose icon</label>
-                    <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-400">
-                      {selectedIcon}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-6 gap-2 rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/30">
-                    {AVAILABLE_ICONS.map((iconKey) => {
-                      const isSelected = selectedIcon === iconKey;
-                      return (
-                        <button
-                          key={iconKey}
-                          type="button"
-                          onClick={() => setValue("icon", iconKey)}
-                          title={iconKey}
-                          className={`relative flex aspect-square items-center justify-center rounded-lg transition-all ${isSelected
-                              ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
-                              : "text-zinc-600 hover:bg-zinc-200/70 dark:text-zinc-400 dark:hover:bg-zinc-700/60"
-                            }`}
-                        >
-                          <DynamicIcon name={iconKey} className="h-4 w-4" />
-                          {isSelected && (
-                            <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-emerald-500">
-                              <Check className="h-2 w-2 text-white" />
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label htmlFor="description" className={labelBase}>
-                    Description <span className="text-rose-500">*</span>
-                  </label>
-                  <textarea
-                    id="description"
-                    rows={4}
-                    placeholder="Describe your methodology, deliverables, and architecture…"
-                    {...register("description", {
-                      required: "Description is required",
-                    })}
-                    className={`${inputBase} resize-none leading-relaxed`}
-                  />
-                  {errors.description && (
-                    <p className={errorBase}>{errors.description.message}</p>
-                  )}
-                </div>
-
-                {/* Stack */}
-                <div>
-                  <label className={labelBase}>Technologies & stacks</label>
-                  <div className="mb-2 flex gap-2">
-                    <input
-                      type="text"
-                      value={stackInput}
-                      onChange={(e) => setStackInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddStack();
-                        }
-                      }}
-                      placeholder="e.g. React, Next.js, Node.js"
-                      className={`${inputBase} flex-1`}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddStack}
-                      className="inline-flex h-[42px] shrink-0 items-center gap-1.5 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      Add
-                    </button>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5">
-                    {stacks.length === 0 ? (
-                      <p className="text-xs italic text-zinc-400">
-                        No technologies added yet.
-                      </p>
-                    ) : (
-                      stacks.map((st) => (
-                        <span
-                          key={st}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-300"
-                        >
-                          {st}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveStack(st)}
-                            className="text-zinc-400 transition-colors hover:text-rose-500"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </span>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* Active toggle */}
-                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3.5 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/50">
-                  <input
-                    type="checkbox"
-                    {...register("isActive")}
-                    className="mt-0.5 h-4 w-4 cursor-pointer rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/30 dark:border-zinc-700 dark:bg-zinc-800"
-                  />
-                  <div>
-                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
-                      Active
-                    </p>
-                    <p className="mt-0.5 text-[11px] text-zinc-500">
-                      Visible on your public portfolio
-                    </p>
-                  </div>
-                </label>
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between gap-3 border-t border-zinc-100 bg-zinc-50/50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900/50">
-                <p className="hidden text-[11px] text-zinc-500 sm:block">
-                  {editingService
-                    ? "Changes are saved to your portfolio instantly."
-                    : "Your service will appear on the portfolio immediately."}
-                </p>
-
-                <div className="ml-auto flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className={btnGhost}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSaving}
-                    className={btnPrimary}
-                  >
-                    {isSaving
-                      ? "Saving…"
-                      : editingService
-                        ? "Update service"
-                        : "Create service"}
-                  </button>
-                </div>
-              </div>
-            </form>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filteredServices.map((service) => (
+              <ServiceCard
+                key={service._id}
+                service={service}
+                onEdit={openEditModal}
+                onDelete={handleDelete}
+                onToggle={handleToggleStatus}
+                togglingId={togglingId}
+              />
+            ))}
           </div>
-        </div>
+        )}
+      </section>
+
+      {/* Create / edit modal */}
+      {isModalOpen && (
+        <ServiceModal
+          key={editingService?._id || "new-service"}
+          editingService={editingService}
+          onClose={closeModal}
+          onSubmit={onSubmit}
+          isSaving={isSaving}
+        />
       )}
+
+      {/* Existing reusable delete confirmation modal */}
+      <DeleteConfirmation
+        open={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        title="Delete service?"
+        description="This service will be permanently removed from your portfolio. This action cannot be undone."
+        itemName={serviceToDelete?.title || "Untitled service"}
+        confirmLabel="Delete service"
+        cancelLabel="Keep service"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
+
+export default ServicesSection;

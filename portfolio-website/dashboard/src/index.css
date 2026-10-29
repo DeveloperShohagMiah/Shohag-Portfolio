@@ -25,11 +25,33 @@ pre {
 }
 
 /* Hide scrollbar when sidebar is collapsed or on custom elements */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+@layer base {
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #E94560;
+    border-radius: var(--radius-lg);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #3E2F5B;
+    border: 2px solid #E94560;
+    border-radius: var(--radius-lg);
+  }
+
+
 }

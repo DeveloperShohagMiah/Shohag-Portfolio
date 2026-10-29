@@ -255,7 +255,7 @@ export function RichContentEditor({
                 </label>
 
                 {/* View Switcher: Write, Preview, Split */}
-                <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                <div className="flex items-center gap-1 p-0.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                     <button
                         type="button"
                         onClick={() => setViewMode('write')}
@@ -306,7 +306,7 @@ export function RichContentEditor({
                                 type="button"
                                 onClick={handleUndo}
                                 disabled={historyIndex <= 0}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:hover:bg-transparent"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:hover:bg-transparent"
                                 title="Undo (Ctrl+Z)"
                             >
                                 <Undo2 className="w-4 h-4" />
@@ -315,7 +315,7 @@ export function RichContentEditor({
                                 type="button"
                                 onClick={handleRedo}
                                 disabled={historyIndex >= history.length - 1}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:hover:bg-transparent"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:hover:bg-transparent"
                                 title="Redo (Ctrl+Shift+Z)"
                             >
                                 <Redo2 className="w-4 h-4" />
@@ -329,7 +329,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => insertFormatting('**', '**', 'bold text')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Bold (Ctrl+B)"
                             >
                                 <Bold className="w-4 h-4" />
@@ -337,7 +337,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => insertFormatting('*', '*', 'italic text')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Italic (Ctrl+I)"
                             >
                                 <Italic className="w-4 h-4" />
@@ -345,7 +345,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => insertFormatting('~~', '~~', 'strikethrough')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Strikethrough"
                             >
                                 <Strikethrough className="w-4 h-4" />
@@ -359,7 +359,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => applyLinePrefix('# ')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center"
                                 title="Heading 1"
                             >
                                 <Heading1 className="w-4 h-4" />
@@ -367,7 +367,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => applyLinePrefix('## ')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center"
                                 title="Heading 2"
                             >
                                 <Heading2 className="w-4 h-4" />
@@ -375,7 +375,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => applyLinePrefix('### ')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center"
                                 title="Heading 3"
                             >
                                 <Heading3 className="w-4 h-4" />
@@ -389,7 +389,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => applyLinePrefix('- ')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Bullet List"
                             >
                                 <List className="w-4 h-4" />
@@ -397,7 +397,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => applyLinePrefix('1. ')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Numbered List"
                             >
                                 <ListOrdered className="w-4 h-4" />
@@ -405,7 +405,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => applyLinePrefix('- [ ] ')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Task Checklist"
                             >
                                 <CheckSquare className="w-4 h-4" />
@@ -413,7 +413,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => applyLinePrefix('> ')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Blockquote"
                             >
                                 <Quote className="w-4 h-4" />
@@ -427,7 +427,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => insertFormatting('`', '`', 'code')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Inline Code"
                             >
                                 <Code className="w-4 h-4" />
@@ -435,7 +435,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => insertFormatting('```javascript\n', '\n```', '// Your code here')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Code Block"
                             >
                                 <FileCode className="w-4 h-4" />
@@ -443,7 +443,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={handleOpenLinkModal}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Insert Link (Ctrl+K)"
                             >
                                 <LinkIcon className="w-4 h-4" />
@@ -451,7 +451,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={handleOpenImageModal}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Insert Image"
                             >
                                 <ImageIcon className="w-4 h-4" />
@@ -459,7 +459,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => insertFormatting('\n| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |\n', '', '')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Insert Table"
                             >
                                 <TableIcon className="w-4 h-4" />
@@ -467,7 +467,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => insertFormatting('\n---\n', '', '')}
-                                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                className="p-1.5 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700"
                                 title="Horizontal Divider"
                             >
                                 <Minus className="w-4 h-4" />
@@ -479,7 +479,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => setIsMonoFont(!isMonoFont)}
-                                className={`p-1.5 rounded-lg text-xs font-mono transition-colors ${isMonoFont
+                                className={`p-1.5 rounded-xl text-xs font-mono transition-colors ${isMonoFont
                                     ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-bold'
                                     : 'hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500'
                                     }`}
@@ -491,7 +491,7 @@ export function RichContentEditor({
                             <button
                                 type="button"
                                 onClick={() => setShowCheatsheet(!showCheatsheet)}
-                                className={`p-1.5 rounded-lg transition-colors ${showCheatsheet
+                                className={`p-1.5 rounded-xl transition-colors ${showCheatsheet
                                     ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100'
                                     : 'hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500'
                                     }`}
@@ -681,13 +681,13 @@ export function RichContentEditor({
                                 <button
                                     type="button"
                                     onClick={() => setShowLinkModal(false)}
-                                    className="px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+                                    className="px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-1.5 text-xs font-semibold bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-lg"
+                                    className="px-4 py-1.5 text-xs font-semibold bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-xl"
                                 >
                                     Insert Link
                                 </button>
@@ -777,13 +777,13 @@ export function RichContentEditor({
                                 <button
                                     type="button"
                                     onClick={() => setShowImageModal(false)}
-                                    className="px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+                                    className="px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-1.5 text-xs font-semibold bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-lg"
+                                    className="px-4 py-1.5 text-xs font-semibold bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-xl"
                                 >
                                     Insert Image
                                 </button>

@@ -66,7 +66,7 @@ const DeleteModal = ({
                             type="button"
                             onClick={onClose}
                             disabled={isLoading}
-                            className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg hover:bg-zinc-800/50 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed outline-none focus:ring-1 focus:ring-zinc-600"
+                            className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-200 p-1.5 rounded-xl hover:bg-zinc-800/50 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed outline-none focus:ring-1 focus:ring-zinc-600"
                             aria-label="Close modal"
                         >
                             <X size={18} />
@@ -93,7 +93,7 @@ const DeleteModal = ({
 
                                 {itemName && (
                                     <div className="pt-2">
-                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 max-w-full truncate">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 max-w-full truncate">
                                             <Trash2 size={13} className="text-zinc-500 flex-shrink-0" />
                                             <span className="truncate">{itemName}</span>
                                         </div>

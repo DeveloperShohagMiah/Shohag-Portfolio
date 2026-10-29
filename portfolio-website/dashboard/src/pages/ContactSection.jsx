@@ -36,7 +36,7 @@ import {
 
 /* ---------- Shared styles ---------- */
 const inputBase =
-  "w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
+  "w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-200 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-zinc-100/5";
 
 const labelBase =
   "mb-2 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400";
@@ -44,10 +44,10 @@ const labelBase =
 const errorBase = "mt-1.5 text-xs font-medium text-rose-500";
 
 const btnPrimary =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 text-xs font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200";
 
 const btnGhost =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-xs font-semibold text-zinc-700 transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800";
 
 /* Status styling */
 const STATUS_STYLES = {
@@ -256,9 +256,9 @@ export function ContactSection({ searchQuery = "" }) {
           <button
             type="button"
             onClick={() => setActiveTab("inbox")}
-            className={`relative inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition-all ${activeTab === "inbox"
-                ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
-                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+            className={`relative inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${activeTab === "inbox"
+              ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
+              : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
               }`}
           >
             <Inbox className="h-3.5 w-3.5" />
@@ -266,8 +266,8 @@ export function ContactSection({ searchQuery = "" }) {
             {unreadCount > 0 && (
               <span
                 className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold tabular-nums ${activeTab === "inbox"
-                    ? "bg-white/20 text-white dark:bg-zinc-900/20 dark:text-zinc-900"
-                    : "bg-emerald-500 text-white"
+                  ? "bg-white/20 text-white dark:bg-zinc-900/20 dark:text-zinc-900"
+                  : "bg-emerald-500 text-white"
                   }`}
               >
                 {unreadCount}
@@ -278,9 +278,9 @@ export function ContactSection({ searchQuery = "" }) {
           <button
             type="button"
             onClick={() => setActiveTab("info")}
-            className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition-all ${activeTab === "info"
-                ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
-                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+            className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${activeTab === "info"
+              ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
+              : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
               }`}
           >
             <Globe className="h-3.5 w-3.5" />
@@ -383,8 +383,8 @@ export function ContactSection({ searchQuery = "" }) {
                         type="button"
                         onClick={() => handleSelectMessage(msg)}
                         className={`group block w-full rounded-xl border p-4 text-left transition-all ${isSelected
-                            ? "border-zinc-900 bg-zinc-50/90 shadow-sm dark:border-zinc-100 dark:bg-zinc-800/60"
-                            : "border-zinc-200 bg-white hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                          ? "border-zinc-900 bg-zinc-50/90 shadow-sm dark:border-zinc-100 dark:bg-zinc-800/60"
+                          : "border-zinc-200 bg-white hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
                           }`}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -436,7 +436,7 @@ export function ContactSection({ searchQuery = "" }) {
                               handleDeleteMessage(msg);
                             }}
                             title="Delete message"
-                            className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+                            className="rounded-xl p-1.5 text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -475,7 +475,7 @@ export function ContactSection({ searchQuery = "" }) {
                                 ? "Mark as read"
                                 : "Mark as unread"
                             }
-                            className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                            className="rounded-xl p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
                           >
                             {selectedMessage.status === "unread" ? (
                               <CheckCheck className="h-3.5 w-3.5" />
@@ -488,7 +488,7 @@ export function ContactSection({ searchQuery = "" }) {
                             type="button"
                             onClick={() => handleDeleteMessage(selectedMessage)}
                             title="Delete message"
-                            className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+                            className="rounded-xl p-1.5 text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -519,9 +519,9 @@ export function ContactSection({ searchQuery = "" }) {
                           >
                             <span
                               className={`h-1.5 w-1.5 rounded-full ${(
-                                  STATUS_STYLES[selectedMessage.status] ||
-                                  STATUS_STYLES.read
-                                ).dot
+                                STATUS_STYLES[selectedMessage.status] ||
+                                STATUS_STYLES.read
+                              ).dot
                                 }`}
                             />
                             {selectedMessage.status}
@@ -543,7 +543,7 @@ export function ContactSection({ searchQuery = "" }) {
                           <p className="mb-1.5 font-code text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
                             Message
                           </p>
-                          <div className="whitespace-pre-wrap rounded-lg border border-zinc-100 bg-zinc-50/60 p-3.5 text-xs leading-relaxed text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/30 dark:text-zinc-300">
+                          <div className="whitespace-pre-wrap rounded-xl border border-zinc-100 bg-zinc-50/60 p-3.5 text-xs leading-relaxed text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/30 dark:text-zinc-300">
                             {selectedMessage.message}
                           </div>
                         </div>
@@ -555,7 +555,7 @@ export function ContactSection({ searchQuery = "" }) {
                               <CornerUpLeft className="h-3 w-3" />
                               Your reply
                             </p>
-                            <div className="whitespace-pre-wrap rounded-lg border border-emerald-500/20 bg-emerald-50/60 p-3.5 text-xs leading-relaxed text-zinc-700 dark:bg-emerald-950/20 dark:text-zinc-300">
+                            <div className="whitespace-pre-wrap rounded-xl border border-emerald-500/20 bg-emerald-50/60 p-3.5 text-xs leading-relaxed text-zinc-700 dark:bg-emerald-950/20 dark:text-zinc-300">
                               {selectedMessage.reply}
                             </div>
                           </div>
@@ -634,7 +634,7 @@ export function ContactSection({ searchQuery = "" }) {
           {/* Contact coordinates */}
           <div className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900">
             <div className="mb-5 flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 <Mail className="h-3.5 w-3.5" />
               </div>
               <div>
@@ -706,7 +706,7 @@ export function ContactSection({ searchQuery = "" }) {
           {/* Social handles */}
           <div className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900">
             <div className="mb-5 flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                 <Globe className="h-3.5 w-3.5" />
               </div>
               <div>
