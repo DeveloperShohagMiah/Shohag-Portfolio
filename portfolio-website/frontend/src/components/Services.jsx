@@ -7,7 +7,7 @@ import EmptyServices from "../ui/EmptyServices";
 import ServicesSkeleton from "../ui/ServicesSkeleton";
 import ServiceCard from "../ui/ServiceCard";
 import ServerDownNotice from "../ui/ServerDownNotice";
-import { isServerDown } from "../ui/serverStatus";
+import { isServerDown } from "../ui/ServerStatus.js";
 
 /* ------------------------------------------------------------------ */
 /*  Section                                                           */
