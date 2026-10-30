@@ -181,7 +181,7 @@ const Login = () => {
                     initial={reduced ? false : { opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, ease: EASE }}
-                    className="mx-auto w-full max-w-xl lg:mx-0 lg:py-8"
+                    className="mx-auto w-full max-w-xl lg:mx-0 lg:py-8 hidden! md:block!"
                 >
                     <div
                         className={`mb-7 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-violet-100 sm:text-sm ${GLASS}`}
@@ -223,7 +223,7 @@ const Login = () => {
                     initial={reduced ? false : { opacity: 0, y: 28, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}
-                    className="mx-auto w-full max-w-[550px] lg:mx-0 lg:justify-self-end"
+                    className="mx-auto w-full max-w-137.5 lg:mx-0 lg:justify-self-end"
                 >
                     <LiquidCard className="p-5 sm:p-8 md:p-10">
                         <div className="mb-8 text-center sm:mb-9">

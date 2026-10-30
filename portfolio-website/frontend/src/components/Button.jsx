@@ -17,11 +17,11 @@ const variants = {
 
 const base =
     "group relative isolate inline-flex shrink-0 items-center justify-center gap-2 " +
-    "overflow-hidden rounded-sm px-6 py-3 text-xs font-semibold uppercase tracking-widest " +
+    "overflow-hidden rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-widest " +
     "transition-all duration-300 ease-out " +
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
     "focus-visible:ring-offset-2 focus-visible:ring-offset-background " +
-    "disabled:pointer-events-none disabled:opacity-50";
+    "disabled:pointer-events-none disabled:opacity-50" + "backdrop-blur-2xl backdrop-saturate-150 shadow-[inset_0_2px_4px_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(255,255,255,0.04),0_24px_60px_-28px_rgba(0,0,0,0.8)]";
 
 const getVariantClasses = (variant) =>
     variants[variant] ?? variants.primary;
@@ -52,7 +52,7 @@ const ButtonEffects = ({ variant }) => (
                 opacity-70
                 transition-opacity duration-300
                 group-hover:opacity-100
-                inset-0
+                inset-0 
             "
         />
 

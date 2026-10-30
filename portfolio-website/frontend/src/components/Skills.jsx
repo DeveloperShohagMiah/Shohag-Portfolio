@@ -665,8 +665,8 @@ export default function SkillsNetwork({
                             </div>
 
                             {/* mobile / tablet domain pills */}
-                            <div className="relative -mx-4 mb-6 overflow-x-auto px-4 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
-                                <div role="tablist" aria-label="Skill domains" className="flex min-w-max gap-2">
+                            <div className="relative -mx-4 mb-6 px-4">
+                                <div role="tablist" aria-label="Skill domains" className="flex flex-wrap gap-2">
                                     {activeGroups.map((g, i) => {
                                         const on = i === safeActive;
                                         return (

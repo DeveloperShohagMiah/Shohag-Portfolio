@@ -9,7 +9,7 @@ const COOKIE_NAME = "token";
 const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
+    sameSite: "strict",
     maxAge: 60 * 60 * 1000,
     path: "/",
 };

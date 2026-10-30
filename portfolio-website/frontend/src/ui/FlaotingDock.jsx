@@ -97,14 +97,14 @@ const FloatingDock = ({
 
             await navigator.clipboard.writeText(shareData.url);
             setIsCopied(true);
-            window.setTimeout(() => setIsCopied(false), 1800);
+            window.setTimeout(() => setIsCopied(false), 1600);
         } catch (error) {
             if (error.name === "AbortError") return;
 
             try {
                 await navigator.clipboard.writeText(shareData.url);
                 setIsCopied(true);
-                window.setTimeout(() => setIsCopied(false), 1800);
+                window.setTimeout(() => setIsCopied(false), 1600);
             } catch {
                 // Clipboard access may be unavailable in some environments.
             }
@@ -134,15 +134,14 @@ const FloatingDock = ({
     }, []);
 
     const iconButton =
-        "group relative flex h-10 w-10 shrink-0 items-center justify-center " +
+        "group relative flex h-7 w-7 shrink-0 items-center justify-center " +
         "rounded-full text-muted-foreground " +
         "transition-colors duration-200 " +
         "hover:bg-primary/10 hover:text-primary " +
         "active:bg-primary/15 " +
         "focus-visible:outline-none focus-visible:ring-2 " +
         "focus-visible:ring-primary focus-visible:ring-offset-2 " +
-        "focus-visible:ring-offset-background " +
-        "sm:h-11 sm:w-11";
+        "focus-visible:ring-offset-background ";
 
     return (
         <aside
@@ -153,18 +152,15 @@ const FloatingDock = ({
     left-1/2 -translate-x-1/2
     flex flex-row items-center
     rounded-full border border-border/70
-    bg-background/30 p-1.5
-    shadow-[0_8px_35px_rgba(0,0,0,0.14)]
+    bg-background/30
     backdrop-blur-2xl
     transition-[opacity,transform] duration-300 ease-out gap-0.5
     sm:left-auto sm:right-5 sm:bottom-5
     sm:translate-x-0
-    sm:flex-col sm:gap-1 sm:p-2
-
-    lg:right-7 lg:bottom-7
-
+    sm:flex-col py-1.5 px-2 sm:px-0
+    lg:right-7 lg:bottom-7 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.28),inset_0_-2px_0_rgba(255,255,255,0.04),0_24px_60px_-28px_rgba(0,0,0,0.8)]
     ${isVisible
-                    ? "translate-y-0 opacity-100"
+                    ? "translate-y-0 opacity-100 "
                     : "pointer-events-none translate-y-4 opacity-0"
                 }
   `}
@@ -192,7 +188,7 @@ const FloatingDock = ({
                 title="Telegram"
                 className={iconButton}
             >
-                <Send size={18} strokeWidth={1.7} aria-hidden="true" />
+                <Send size={16} strokeWidth={1.7} aria-hidden="true" />
             </a>
 
             {/* GitHub */}
@@ -204,7 +200,7 @@ const FloatingDock = ({
                 title="GitHub"
                 className={iconButton}
             >
-                <GitBranch size={18} strokeWidth={1.7} aria-hidden="true" />
+                <GitBranch size={16} strokeWidth={1.7} aria-hidden="true" />
             </a>
 
             {/* Share */}
@@ -217,13 +213,13 @@ const FloatingDock = ({
             >
                 {isCopied ? (
                     <Check
-                        size={18}
+                        size={16}
                         strokeWidth={1.8}
                         className="text-emerald-500"
                         aria-hidden="true"
                     />
                 ) : (
-                    <Share2 size={18} strokeWidth={1.7} aria-hidden="true" />
+                    <Share2 size={16} strokeWidth={1.7} aria-hidden="true" />
                 )}
             </button>
 
@@ -239,9 +235,9 @@ const FloatingDock = ({
                 className={iconButton}
             >
                 {isLight ? (
-                    <Sun size={18} strokeWidth={1.7} aria-hidden="true" />
+                    <Sun size={16} strokeWidth={1.7} aria-hidden="true" />
                 ) : (
-                    <Moon size={18} strokeWidth={1.7} aria-hidden="true" />
+                    <Moon size={16} strokeWidth={1.7} aria-hidden="true" />
                 )}
             </button>
 
