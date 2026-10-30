@@ -250,7 +250,7 @@ const Navbar = () => {
                         <span
                             aria-hidden="true"
                             className={`
-                pointer-events-none absolute inset-x-8 top-0 h-px
+                pointer-events-none absolute inset-x-8 top-0 h-[1.5px]
                 bg-gradient-to-r from-transparent via-primary/70 to-transparent
                 transition-opacity duration-500
                 ${scrolled || isOpen ? "opacity-100" : "opacity-0"}
