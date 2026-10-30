@@ -8,7 +8,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { FiMenu, FiX, FiMoon, FiSun, FiArrowUpRight, FiGithub, FiSend } from "react-icons/fi";
 import Button from "./Button";
-
+import logo from "../assets/logo.png"
 const NAV_LINKS = [
     { id: "about", label: "About", path: "/about" },
     { id: "services", label: "Services", path: "/services" },
@@ -266,11 +266,11 @@ const Navbar = () => {
                             }}
                             className={`group relative z-10 flex shrink-0 items-center gap-2.5 ${FOCUS}`}
                         >
-                            <span className="flex items-center font-code text-base font-semibold tracking-tight md:text-lg">
+                            <span className="flex items-center text-base font-semibold tracking-tight md:text-lg">
                                 <span className="text-primary transition-transform duration-300 group-hover:-translate-x-0.5">
                                     {"<"}
                                 </span>
-                                <span className="mx-0.5 text-foreground transition-colors duration-300 group-hover:text-primary">
+                                <span className="mx-0.5 font-display! text-foreground transition-colors duration-300 group-hover:text-primary">
                                     shohag
                                 </span>
                                 <span className="text-primary transition-transform duration-300 group-hover:translate-x-0.5">
@@ -278,14 +278,10 @@ const Navbar = () => {
                                 </span>
                             </span>
 
-                            {/* availability dot */}
-                            <span
-                                aria-hidden="true"
-                                className="relative hidden h-2 w-2 sm:block"
-                            >
-                                <span className="absolute inset-0 animate-ping rounded-full bg-primary/60" />
-                                <span className="relative block h-2 w-2 rounded-full bg-primary" />
-                            </span>
+                            {/* <img src={logo} alt="Shohag Miah Logo"
+                                className="h-25 w-auto object-contain" /> */}
+
+
                         </Link>
 
                         {/* ------------------------ Desktop navigation ------------------------ */}

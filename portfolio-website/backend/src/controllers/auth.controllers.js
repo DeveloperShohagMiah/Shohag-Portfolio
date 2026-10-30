@@ -8,12 +8,11 @@ const COOKIE_NAME = "token";
 
 const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "product ion",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
     maxAge: 60 * 60 * 1000,
     path: "/",
 };
-
 const generateAuthToken = (user) => {
     if (!process.env.JWT_SECRET) {
         throw new Error("JWT_SECRET is not configured.");
