@@ -15,7 +15,7 @@ const NAV_LINKS = [
     { id: "skills", label: "Skills", path: "/skills" },
     { id: "portfolio", label: "Projects", path: "/portfolio" },
     { id: "blog", label: "Blogs", path: "/blogs" },
-    { id: "faq", label: "Faq", path: "/faq" },
+    { id: "testimonial", label: "Testimonials", path: "/testimonials" },
     { id: "contact", label: "Contact", path: "/contact" },
 ];
 
@@ -315,8 +315,7 @@ const Navbar = () => {
                                             onBlur={() => setHovered(null)}
                                             aria-current={active ? "page" : undefined}
                                             className={`
-                        relative px-3.5 py-2 xl:px-4
-                        font-code text-xs font-medium tracking-wide
+                        relative px-3.5 py-2 xl:px-4 font-display text-xs font-medium tracking-wide
                         transition-colors duration-300 ${FOCUS}
                         ${active
                                                     ? "text-primary"

@@ -68,7 +68,6 @@
 @theme {
     --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
     --font-heading: "Decaydence", "Philosopher", ui-sans-serif, sans-serif;
-    --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
     --radius-sm: 0.375rem;

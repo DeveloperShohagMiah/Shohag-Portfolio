@@ -434,7 +434,7 @@ function Headline() {
     <motion.h1
       variants={stagger}
       aria-label={label}
-      className="mt-6 flex flex-wrap justify-center gap-x-[0.26em] text-balance font-heading text-[clamp(1.75rem,8vw,2.25rem)] font-semibold leading-[1.1] tracking-tight text-foreground sm:mt-8 sm:text-4xl md:text-5xl lg:justify-start xl:text-6xl 2xl:text-7xl"
+      className="mt-6 flex flex-wrap justify-center gap-x-[0.26em] text-balance font-heading text-[clamp(1.75rem,8vw,2.25rem)] font-semibold leading-[1.1] tracking-tight text-foreground sm:mt-8 sm:text-4xl md:text-4xl lg:justify-start xl:text-5xl 2xl:text-7xl"
     >
       {HEADLINE.map((w) => (
         <span

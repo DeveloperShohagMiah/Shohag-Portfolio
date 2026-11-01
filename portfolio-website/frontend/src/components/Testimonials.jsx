@@ -142,7 +142,7 @@ function ReviewCard({ review }) {
     return (
         <article className="relative rounded-md border border-border/80 bg-card/60 p-6 text-card-foreground shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-8">
             {/* decorative quote mark */}
-            <span className="pointer-events-none absolute right-5 top-5 text-primary/50">
+            <span className="pointer-events-none absolute right-5 top-5 text-primary/20">
                 <QuoteIcon />
             </span>
 
@@ -159,7 +159,7 @@ function ReviewCard({ review }) {
                     </span>
                 </div>
 
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 transition">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/50 transition">
                     <span className="text-primary">
                         <TagIcon />
                     </span>
@@ -172,7 +172,7 @@ function ReviewCard({ review }) {
                 “{message}”
             </p>
 
-            <hr className="my-6 border-border/70" />
+            <hr className="my-6 border-border/30" />
 
             {/* author */}
             <footer className="flex items-center justify-between gap-3">
@@ -260,7 +260,7 @@ export default function TestimonialSection({ reviews = REVIEWS }) {
         }`;
 
     return (
-        <section className="relative w-full overflow-hidden bg-background py-12 sm:py-16">
+        <section id="testimonial" className="relative w-full overflow-hidden bg-background py-12 sm:py-16">
             {/* component-scoped keyframes */}
             <style>{`
         @keyframes tm-slide-up   { from { transform: translateY(0) }    to { transform: translateY(-50%) } }
@@ -275,7 +275,7 @@ export default function TestimonialSection({ reviews = REVIEWS }) {
                 {/* toolbar */}
                 <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
                     <div className="flex flex-wrap items-center gap-3">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100/80 text-orange-900 border border-orange-200">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-border/70">
                             <span className="relative flex h-2.5 w-2.5">
                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
                                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -296,10 +296,10 @@ export default function TestimonialSection({ reviews = REVIEWS }) {
                             onClick={() => setUserPaused((p) => !p)}
                             disabled={isGrid}
                             aria-pressed={userPaused}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs transition cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-card border border-border shadow-2xs transition cursor-pointer"
                         >
-                            <span className="text-primary">{userPaused ? <PlayIcon /> : <PauseIcon />}</span>
-                            {userPaused ? "Play" : "Pause"}
+                            <span className={`${userPaused ? 'text-emerald-600' : "text-primary"}`}>{userPaused ? <PlayIcon /> : <PauseIcon />}</span>
+                            {userPaused ? "Resume" : "Pause"}
                         </button>
 
                         {/* Mode switch */}

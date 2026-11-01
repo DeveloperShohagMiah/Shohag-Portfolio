@@ -18,10 +18,10 @@ const Layout = () => {
             <Hero />
             <About />
             <Services />
-            <Testimonials />
             <Skills />
             <Projects />
             <Blog />
+            <Testimonials />
             <FAQ />
             <Contact />
             <FloatingDock
