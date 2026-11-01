@@ -9,6 +9,7 @@ import Contact from '../components/Contact '
 import Blog from '../components/Blogs'
 import FAQ from '../components/Faq'
 import FloatingDock from '../ui/FlaotingDock'
+import Testimonials from './Testimonials'
 
 
 const Layout = () => {
@@ -17,6 +18,7 @@ const Layout = () => {
             <Hero />
             <About />
             <Services />
+            <Testimonials />
             <Skills />
             <Projects />
             <Blog />

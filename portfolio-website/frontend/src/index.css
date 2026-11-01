@@ -1,12 +1,7 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.cdnfonts.com/css/decaydence');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Outfit:wght@100..900&display=swap');
 
-/* Not referenced anywhere in this file — re-enable only if a component uses them:
-@import url('https://fonts.cdnfonts.com/css/fonarto');
-@import url('https://fonts.cdnfonts.com/css/recoleta');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-*/
 
 @import "tailwindcss";
 
@@ -71,7 +66,7 @@
 
 /* Static values */
 @theme {
-    --font-display: "Philosopher", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
     --font-heading: "Decaydence", "Philosopher", ui-sans-serif, sans-serif;
     --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
