@@ -112,10 +112,9 @@ export function Sidebar({
         aria-hidden={!mobileOpen && undefined}
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col",
-          "border-r border-zinc-200/80 bg-white",
+          "border-r border-sidebar-border bg-sidebar text-sidebar-foreground",
           "transition-[width,transform] duration-200 ease-out",
           "motion-reduce:transition-none",
-          "dark:border-white/[0.08] dark:bg-[#101012]",
           sidebarWidth,
           mobileOpen
             ? "translate-x-0"

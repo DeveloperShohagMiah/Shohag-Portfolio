@@ -9,11 +9,11 @@ export function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Toaster
         position="top-right"
         toastOptions={{
-          className: 'text-xs font-medium rounded-xl dark:bg-zinc-800 dark:text-zinc-100 shadow-xl border border-zinc-200 dark:border-zinc-700',
+          className: 'text-xs font-medium rounded-xl bg-card text-card-foreground shadow-xl border border-border',
           duration: 3500
         }}
       />
