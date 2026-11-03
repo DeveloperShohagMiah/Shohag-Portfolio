@@ -20,7 +20,7 @@ router.get("/:id", validateObjectId(), getFaqById);
 
 // Protected routes — admin/moderator only
 router.post("/", protect, authorize("admin", "moderator"), createFaq);
-router.put("/:id", protect, authorize("admin", "moderator"), validateObjectId(), updateFaq);
+router.put("/:id", protect, authorize("admin", "moderator"), updateFaq);
 router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteFaq);
 router.patch("/:id/toggle-status", protect, authorize("admin", "moderator"), validateObjectId(), toggleFaqStatus);
 

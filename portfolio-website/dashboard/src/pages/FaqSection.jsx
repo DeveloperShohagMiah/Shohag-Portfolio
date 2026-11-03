@@ -221,6 +221,7 @@ export function FaqSection() {
       if (editingFaq) {
         await updateFaq({ id: editingFaq._id, ...payload }).unwrap();
         toast.success("FAQ updated successfully!");
+
       } else {
         await addFaq(payload).unwrap();
         toast.success('FAQ added successfully!');
