@@ -5,14 +5,32 @@ import ApiError from "../utils/apierror.js";
 import ApiResponse from "../utils/apiResponse.js";
 
 const COOKIE_NAME = "token";
+const isProd = process.env.NODE_ENV === "production";
 
-const cookieOptions = {
+/*
+  Cookie rules:
+  - Production, frontend and API on DIFFERENT sites  -> sameSite "none" + secure (HTTPS only)
+  - Local development (localhost:5173 -> localhost:3000, same site)
+                                                      -> sameSite "lax", secure false
+  `sameSite: "none"` WITHOUT `secure: true` is rejected by Chrome, so the old
+  config could never work when NODE_ENV was not "production".
+*/
+const baseCookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 60 * 60 * 1000,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     path: "/",
 };
+
+const cookieOptions = {
+    ...baseCookieOptions,
+    maxAge: 60 * 60 * 1000, // 1 hour, same as the JWT
+};
+
+// NO maxAge here. In Express 4, clearCookie with `maxAge` sets a new expiry one
+// hour from now instead of deleting the cookie, so logout never actually worked.
+const clearCookieOptions = { ...baseCookieOptions };
+
 const generateAuthToken = (user) => {
     if (!process.env.JWT_SECRET) {
         throw new Error("JWT_SECRET is not configured.");
@@ -41,15 +59,15 @@ export const register = asyncHandler(async (req, res) => {
         const newUser = await User.create({
             name: name.trim(),
             email: normalizedEmail,
-            password
+            password,
         });
 
         res.status(201).json(
-            new ApiResponse(201, {
-                id: newUser._id,
-                name: newUser.name,
-                email: newUser.email
-            }, "User registered successfully.")
+            new ApiResponse(
+                201,
+                { id: newUser._id, name: newUser.name, email: newUser.email },
+                "User registered successfully."
+            )
         );
     } catch (err) {
         if (err.code === 11000) {
@@ -76,22 +94,26 @@ export const login = asyncHandler(async (req, res) => {
     const authToken = generateAuthToken(user);
     res.cookie(COOKIE_NAME, authToken, cookieOptions);
 
-    // token আর response body তে পাঠানো হচ্ছে না -- শুধু httpOnly cookie তেই থাকছে
+    // The token is not sent in the response body — it only lives in the httpOnly cookie
     res.status(200).json(
-        new ApiResponse(200, {
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            }
-        }, "Logged in successfully.")
+        new ApiResponse(
+            200,
+            {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                },
+            },
+            "Logged in successfully."
+        )
     );
 });
 
 export const logout = asyncHandler(async (req, res) => {
-    res.clearCookie(COOKIE_NAME, cookieOptions);
-    res.status(200).json(new ApiResponse(200, null, "Logged out successfully.signup"));
+    res.clearCookie(COOKIE_NAME, clearCookieOptions);
+    res.status(200).json(new ApiResponse(200, null, "Logged out successfully."));
 });
 
 export const getProfile = asyncHandler(async (req, res) => {

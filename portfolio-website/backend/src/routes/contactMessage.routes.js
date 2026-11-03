@@ -7,7 +7,7 @@ import {
     replyToMessage,
     deleteMessage,
 } from "../controllers/contactMessage.controllers.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
@@ -16,10 +16,10 @@ const router = Router();
 router.post("/", createMessage);
 
 // Admin only — inbox management
-router.get("/", authMiddleware, authorize("admin", "moderator"), getAllMessages);
-router.get("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), getMessageById);
-router.patch("/:id/status", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateMessageStatus);
-router.patch("/:id/reply", authMiddleware, authorize("admin", "moderator"), validateObjectId(), replyToMessage);
-router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteMessage);
+router.get("/", protect, authorize("admin", "moderator"), getAllMessages);
+router.get("/:id", protect, authorize("admin", "moderator"), validateObjectId(), getMessageById);
+router.patch("/:id/status", protect, authorize("admin", "moderator"), validateObjectId(), updateMessageStatus);
+router.patch("/:id/reply", protect, authorize("admin", "moderator"), validateObjectId(), replyToMessage);
+router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteMessage);
 
 export default router;

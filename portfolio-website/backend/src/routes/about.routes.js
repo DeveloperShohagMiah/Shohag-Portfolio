@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { authorize, protect } from "../middlewares/authMiddleware.js";
 import { getAbout, updateAbout } from "../controllers/about.controllers.js"
 const router = Router();
 
@@ -7,6 +7,6 @@ const router = Router();
 router.get("/", getAbout);
 
 // Protected — only admin can update the singleton About document
-router.put("/", authMiddleware, updateAbout);
+router.put("/", protect, authorize("admin"), updateAbout);
 
 export default router;

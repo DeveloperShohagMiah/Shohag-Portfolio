@@ -8,7 +8,7 @@ import {
     deleteService,
     toggleServiceStatus
 } from "../controllers/service.controllers.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
@@ -19,9 +19,9 @@ router.get("/active", activeServices);
 router.get("/:id", validateObjectId(), getServiceById);
 
 // Protected routes — admin/moderator only
-router.post("/", authMiddleware, createService);
-router.put("/:id", authMiddleware, validateObjectId(), updateService);
-router.delete("/:id", authMiddleware, validateObjectId(), deleteService);
-router.patch("/:id/toggle-status", authMiddleware, validateObjectId(), toggleServiceStatus);
+router.post("/", protect, authorize("admin"), createService);
+router.put("/:id", protect, authorize("admin"), validateObjectId(), updateService);
+router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteService);
+router.patch("/:id/toggle-status", protect, authorize("admin"), validateObjectId(), toggleServiceStatus);
 
 export default router;

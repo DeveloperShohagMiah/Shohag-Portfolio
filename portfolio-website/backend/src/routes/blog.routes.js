@@ -9,7 +9,7 @@ import {
     deleteBlog,
     togglePublishStatus,
 } from "../controllers/blog.controllers.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
@@ -23,9 +23,9 @@ router.get("/slug/:slug", getBlogBySlug);
 router.get("/", getAllBlogs);
 router.get("/:slug", getBlogById);
 
-router.post("/", authMiddleware, authorize("admin", "moderator"), createBlog);
-router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateBlog);
-router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteBlog);
-router.patch("/:id/toggle-publish", authMiddleware, authorize("admin", "moderator"), validateObjectId(), togglePublishStatus);
+router.post("/", protect, authorize("admin", "moderator"), createBlog);
+router.put("/:id", protect, authorize("admin", "moderator"), validateObjectId(), updateBlog);
+router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteBlog);
+router.patch("/:id/toggle-publish", protect, authorize("admin", "moderator"), validateObjectId(), togglePublishStatus);
 
 export default router;

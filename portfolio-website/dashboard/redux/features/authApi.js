@@ -16,7 +16,7 @@ export const authApi = apiSlice.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["User"], // 👈 triggers userProfile refetch
+            invalidatesTags: ["User"],
         }),
 
         userLogout: builder.mutation({

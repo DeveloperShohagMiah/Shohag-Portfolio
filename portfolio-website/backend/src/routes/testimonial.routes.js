@@ -8,7 +8,7 @@ import {
     deleteTestimonial,
     toggleTestimonialStatus,
 } from "../controllers/testimonial.controller.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
@@ -19,9 +19,9 @@ router.get("/active", activeTestimonials);
 router.get("/:id", validateObjectId(), getTestimonialById);
 
 // Protected routes — admin/moderator only
-router.post("/", authMiddleware, authorize("admin", "moderator"), createTestimonial);
-router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateTestimonial);
-router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteTestimonial);
-router.patch("/:id/toggle-status", authMiddleware, authorize("admin", "moderator"), validateObjectId(), toggleTestimonialStatus);
+router.post("/", protect, authorize("admin", "moderator"), createTestimonial);
+router.put("/:id", protect, authorize("admin", "moderator"), validateObjectId(), updateTestimonial);
+router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteTestimonial);
+router.patch("/:id/toggle-status", protect, authorize("admin", "moderator"), validateObjectId(), toggleTestimonialStatus);
 
 export default router;

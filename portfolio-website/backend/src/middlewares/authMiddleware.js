@@ -1,11 +1,22 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "../utils/asyncHandler.js";
-import User from "../models/User.js";
 import ApiError from "../utils/apierror.js";
 
-// Verifies the JWT from the httpOnly cookie and attaches the user to req.user
-export const authMiddleware = asyncHandler(async (req, res, next) => {
-    const token = req.cookies?.token;
+const COOKIE_NAME = "token";
+
+/**
+ * Protects a route. Reads the JWT from the httpOnly cookie (needs `cookie-parser`
+ * registered BEFORE your routes). A Bearer header is accepted as a fallback for
+ * tools like Postman.
+ *
+ *   router.get("/profile", protect, getProfile);
+ *   router.post("/projects", protect, authorize("admin"), createProject);
+ */
+export const protect = asyncHandler(async (req, res, next) => {
+    const header = req.headers.authorization;
+    const token =
+        req.cookies?.[COOKIE_NAME] ||
+        (header?.startsWith("Bearer ") ? header.split(" ")[1] : null);
 
     if (!token) {
         throw new ApiError(401, "Not authenticated. Please log in.");
@@ -14,28 +25,19 @@ export const authMiddleware = asyncHandler(async (req, res, next) => {
     let decoded;
     try {
         decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-        throw new ApiError(401, "Invalid or expired session. Please log in again.");
+    } catch {
+        throw new ApiError(401, "Session expired or invalid. Please log in again.");
     }
 
-    const user = await User.findById(decoded.id);
-    if (!user) {
-        throw new ApiError(401, "User no longer exists.");
-    }
-
-    req.user = { id: user._id, role: user.role, email: user.email };
+    // getProfile reads req.user.id
+    req.user = { id: decoded.id, role: decoded.role };
     next();
 });
 
-// Restricts access to specific roles. Usage: authorize("admin"), authorize("admin", "moderator")
-export const authorize = (...allowedRoles) => {
-    return (req, res, next) => {
-        if (!req.user) {
-            throw new ApiError(401, "Not authenticated.");
-        }
-        if (!allowedRoles.includes(req.user.role)) {
-            throw new ApiError(403, "You do not have permission to perform this action.");
+export const authorize = (...roles) =>
+    (req, res, next) => {
+        if (!roles.includes(req.user?.role)) {
+            return next(new ApiError(403, "You don't have permission to do this."));
         }
         next();
     };
-};

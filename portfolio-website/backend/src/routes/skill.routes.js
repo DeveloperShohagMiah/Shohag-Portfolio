@@ -10,7 +10,7 @@ import {
     deleteSkill,
     toggleSkillStatus,
 } from "../controllers/skills.controllers.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
@@ -22,9 +22,9 @@ router.get("/active", getActiveSkills);
 router.get("/", getAllSkills);
 router.get("/:id", validateObjectId(), getSkillById);
 
-router.post("/", authMiddleware, authorize("admin", "moderator"), createSkill);
-router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateSkill);
-router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteSkill);
-router.patch("/:id/toggle-status", authMiddleware, authorize("admin", "moderator"), validateObjectId(), toggleSkillStatus);
+router.post("/", protect, authorize("admin", "moderator"), createSkill);
+router.put("/:id", protect, authorize("admin", "moderator"), validateObjectId(), updateSkill);
+router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteSkill);
+router.patch("/:id/toggle-status", protect, authorize("admin", "moderator"), validateObjectId(), toggleSkillStatus);
 
 export default router;

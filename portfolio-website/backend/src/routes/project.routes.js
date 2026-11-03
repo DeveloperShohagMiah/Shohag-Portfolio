@@ -6,7 +6,7 @@ import {
     updateProject,
     deleteProject,
 } from "../controllers/projects.controllers.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
@@ -16,8 +16,8 @@ router.get("/", getAllProjects);
 router.get("/:id", validateObjectId(), getProjectById);
 
 // Protected routes — admin/moderator only
-router.post("/", authMiddleware, authorize("admin", "moderator"), createProject);
-router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateProject);
-router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteProject);
+router.post("/", protect, authorize("admin", "moderator"), createProject);
+router.put("/:id", protect, authorize("admin", "moderator"), validateObjectId(), updateProject);
+router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteProject);
 
 export default router;

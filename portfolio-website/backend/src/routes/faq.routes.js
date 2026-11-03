@@ -8,7 +8,7 @@ import {
     deleteFaq,
     toggleFaqStatus,
 } from "../controllers/faq.controllers.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 import validateObjectId from "../middlewares/validateObjectId.js";
 
 const router = Router();
@@ -19,9 +19,9 @@ router.get("/active", activeFaqs);
 router.get("/:id", validateObjectId(), getFaqById);
 
 // Protected routes — admin/moderator only
-router.post("/", authMiddleware, authorize("admin", "moderator"), createFaq);
-router.put("/:id", authMiddleware, authorize("admin", "moderator"), validateObjectId(), updateFaq);
-router.delete("/:id", authMiddleware, authorize("admin"), validateObjectId(), deleteFaq);
-router.patch("/:id/toggle-status", authMiddleware, authorize("admin", "moderator"), validateObjectId(), toggleFaqStatus);
+router.post("/", protect, authorize("admin", "moderator"), createFaq);
+router.put("/:id", protect, authorize("admin", "moderator"), validateObjectId(), updateFaq);
+router.delete("/:id", protect, authorize("admin"), validateObjectId(), deleteFaq);
+router.patch("/:id/toggle-status", protect, authorize("admin", "moderator"), validateObjectId(), toggleFaqStatus);
 
 export default router;

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getProfile, updateProfile } from "../controllers/profile.controllers.js";
-import { authMiddleware, authorize } from "../middlewares/authMiddleware.js";
+import { protect, authorize } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -8,6 +8,6 @@ const router = Router();
 router.get("/", getProfile);
 
 // Protected — only admin can update
-router.put("/", authMiddleware, authorize("admin"), updateProfile);
+router.put("/", protect, authorize("admin"), updateProfile);
 
 export default router;
