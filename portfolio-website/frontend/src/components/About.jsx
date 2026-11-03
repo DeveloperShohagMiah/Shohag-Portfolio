@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     FiArrowUpRight,
     FiMapPin,
@@ -9,14 +9,8 @@ import {
     FiTrendingUp,
     FiRefreshCw,
     FiHeart,
-    FiCompass,
 } from "react-icons/fi";
-import {
-    motion,
-    animate,
-    useInView,
-    useReducedMotion,
-} from "framer-motion";
+import { motion, animate, useInView, useReducedMotion } from "framer-motion";
 import SectionHeader from "./SectionHeader";
 import fallbackaboutImage from "../assets/about.png";
 import Button from "./Button";
@@ -35,7 +29,6 @@ const FALLBACK_ABOUT = {
         "I'm a full-stack developer focused on building modern web applications that are simple to use, fast to load, and enjoyable to interact with.",
         "I enjoy working from the first idea all the way through development and deployment — combining thoughtful UI with solid backend architecture.",
     ].join("\n\n"),
-    // Replaced coreStack with hobbies
     hobbies: ["Open Source", "Mechanical Keyboards", "Rock Climbing", "Espresso", "Sci-Fi", "Design Systems"],
     stats: [
         { value: "06+", label: "Years building" },
@@ -45,11 +38,10 @@ const FALLBACK_ABOUT = {
     ctaText: "Say Hello",
     ctaUrl: "#contact",
     isAvailable: true,
-    availabilityText: "Available",
+    availabilityText: "Available for work",
     developerTag: "DEV / 001",
     roleLabel: "A little story of mine",
-    // Renamed label
-    interestLabel: "Hobbies & Interests",
+    interestLabel: "Hobbies & interests",
 };
 
 const DEFAULT_CONTENT = {
@@ -58,14 +50,23 @@ const DEFAULT_CONTENT = {
     title: "I turn ideas into",
     highlight: "web experiences.",
     description: "",
-    ctaEyebrow: "",
-    ctaText: "If something here resonated,I would love to hear from you.",
+    ctaEyebrow: "Let's talk",
+    ctaText: "If something here resonated, I would love to hear from you.",
     errorTitle: "Couldn't load about data",
     errorText: "Please check your connection and try again.",
 };
 
-// Updated icons for hobbies
 const STAT_ICONS = [FiAward, FiCode, FiTrendingUp];
+
+/** Merge that ignores null / undefined / "" from the API, so a missing field
+    falls back to its default instead of overwriting it (and crashing renders). */
+const mergeDefined = (base, over) => {
+    const out = { ...base };
+    for (const [key, value] of Object.entries(over ?? {})) {
+        if (value !== undefined && value !== null && value !== "") out[key] = value;
+    }
+    return out;
+};
 
 /* ========================================================================== */
 /*  Motion helpers                                                            */
@@ -85,7 +86,7 @@ const fadeUp = {
 
 const stagger = {
     hidden: {},
-    show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+    show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 };
 
 function ScrollReveal({ children, delay = 0, className = "", amount = 0.15 }) {
@@ -117,32 +118,36 @@ function Counter({ value }) {
     const target = match ? Number(match[1]) : 0;
     const width = match ? match[1].length : 0;
     const suffix = match ? match[2] : "";
-    const [n, setN] = useState(match ? 0 : null);
+    const isNumber = Boolean(match);
+    const [n, setN] = useState(0);
 
     useEffect(() => {
-        if (!match || !inView) return;
-        if (reduced) return setN(target);
+        if (!isNumber || !inView) return;
+        if (reduced) {
+            setN(target);
+            return;
+        }
         const controls = animate(0, target, {
             duration: 1.6,
             ease: EASE,
             onUpdate: (v) => setN(Math.round(v)),
         });
         return () => controls.stop();
-    }, [inView, reduced, target]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [inView, reduced, target, isNumber]);
 
-    if (!match) return <span ref={ref}>{text}</span>;
+    if (!isNumber) return <span ref={ref}>{text}</span>;
     return (
         <span ref={ref}>
-            {String(n ?? 0).padStart(width, "0")}
+            {String(n).padStart(width, "0")}
             {suffix}
         </span>
     );
 }
 
 /* ========================================================================== */
-/*  Card — glass surface with a cursor spotlight                              */
+/*  Card — 1px gradient border + glass body + cursor spotlight                */
 /* ========================================================================== */
-function Card({ children, className = "", inset = "inset-x-7 sm:inset-x-10" }) {
+function Card({ children, className = "", inset = "inset-x-8 sm:inset-x-12", bodyClassName = "" }) {
     const ref = useRef(null);
 
     const onMove = useCallback((e) => {
@@ -154,39 +159,45 @@ function Card({ children, className = "", inset = "inset-x-7 sm:inset-x-10" }) {
         el.style.setProperty("--my", `${e.clientY - r.top}px`);
     }, []);
 
-    const mask =
-        "radial-gradient(340px circle at var(--mx,50%) var(--my,50%), #000, transparent 70%)";
-
     return (
         <div
             ref={ref}
             onPointerMove={onMove}
-            className={`group/card relative flex h-full flex-col overflow-hidden rounded-lg border border-border/50 bg-card/60 backdrop-blur-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-20px_rgba(0,0,0,0.4)] transition-[border-color,box-shadow] duration-500  ${className}`}
+            className={`group/card relative h-full rounded-[28px] bg-linear-to-b from-border via-border/40 to-border/10 p-px shadow-[var(--elev-md)] transition-all duration-500 hover:from-primary/50 hover:via-primary/15 hover:to-primary/5 ${className}`}
         >
             <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-0 bg-primary/[0.10] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
-                style={{ maskImage: mask, WebkitMaskImage: mask }}
-            />
-            <div
-                aria-hidden="true"
-                className={`pointer-events-none absolute ${inset} top-0 z-20 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent opacity-40 transition-opacity duration-500 group-hover/card:opacity-100`}
-            />
-            {children}
+                className={`relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1px)] bg-card/85 backdrop-blur-2xl ${bodyClassName}`}
+            >
+                {/* cursor spotlight */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+                    style={{
+                        background:
+                            "radial-gradient(380px circle at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--primary) 12%, transparent), transparent 70%)",
+                    }}
+                />
+                {/* top highlight */}
+                <div
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute ${inset} top-0 z-20 h-px bg-linear-to-r from-transparent via-primary/70 to-transparent opacity-40 transition-opacity duration-500 group-hover/card:opacity-100`}
+                />
+                {children}
+            </div>
         </div>
     );
 }
 
 /* ========================================================================== */
-/*  Markdown styles (unchanged behaviour)                                     */
+/*  Markdown styles                                                           */
 /* ========================================================================== */
 const markdownStyles = `
   [&_h1]:mt-8 [&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:text-foreground [&_h1]:tracking-tight
   [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:tracking-tight
   [&_h3]:mt-7 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:tracking-tight
   [&_h4]:mt-6 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground
-  [&_p]:mt-4 [&_p]:leading-8 [&_p]:text-muted-foreground
-  [&_p:first-child]:mt-0
+  [&_p]:mt-5 [&_p]:leading-8 [&_p]:text-muted-foreground
+  [&_p:first-child]:mt-0 [&_p:first-child]:text-lg [&_p:first-child]:leading-9 [&_p:first-child]:text-foreground/90
   [&_strong]:text-foreground [&_strong]:font-semibold
   [&_em]:italic
   [&_ul]:mt-4 [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:list-disc [&_ul]:text-muted-foreground
@@ -194,22 +205,24 @@ const markdownStyles = `
   [&_li]:leading-7 [&_li]:marker:text-primary/60
   [&_blockquote]:mt-6 [&_blockquote]:border-l-2 [&_blockquote]:border-primary/60 [&_blockquote]:bg-primary/5 [&_blockquote]:py-3 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-muted-foreground
   [&_blockquote_p]:mt-0
-  [&_code]:font-code [&_code]:text-[0.85em] [&_code]:bg-muted/40 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded
-  [&_pre]:mt-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-zinc-900 [&_pre]:p-4 [&_pre]:text-sm
+  [&_code]:font-code [&_code]:text-[0.85em] [&_code]:bg-muted/60 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded
+  [&_pre]:mt-4 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-zinc-900 [&_pre]:p-4 [&_pre]:text-sm
   [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:opacity-80
   [&_hr]:my-8 [&_hr]:border-border/60
-  [&_img]:mt-6 [&_img]:rounded-lg [&_img]:shadow-lg
+  [&_img]:mt-6 [&_img]:rounded-2xl [&_img]:shadow-lg
 `;
 
 /* ========================================================================== */
 /*  Profile card                                                              */
 /* ========================================================================== */
 function ProfileCard({ about }) {
-    const { headline, role, location, avatar, isAvailable, developerTag, availabilityText } = about;
+    const { role, location, avatar, isAvailable, developerTag, availabilityText } = about;
+    // API may send `headline`; the defaults use `name` — support both
+    const headline = about.headline || about.name;
     const reduced = useReducedMotion();
 
     return (
-        <Card inset="inset-x-6 sm:inset-x-8">
+        <Card inset="inset-x-8 sm:inset-x-10">
             {/* faint technical grid */}
             <div
                 aria-hidden="true"
@@ -217,26 +230,24 @@ function ProfileCard({ about }) {
             />
 
             {/* Meta strip */}
-            <div className="relative z-10 flex items-center justify-between border-b border-border/50 px-6 py-4">
-                {developerTag && (
-                    <div className="flex items-center gap-2 font-code text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
+            <div className="relative z-10 flex items-center justify-between gap-3 border-b border-border/50 px-6 py-4">
+                {developerTag ? (
+                    <div className="flex items-center gap-2 font-code text-[11px] text-muted-foreground/80">
                         <FiCircle size={6} className="fill-primary text-primary" aria-hidden="true" />
                         <span>{developerTag}</span>
                     </div>
+                ) : (
+                    <span />
                 )}
-                <div className="flex items-center gap-2">
-                    {isAvailable && availabilityText && (
-                        <span className="font-code text-[10px] uppercase tracking-[0.2em] text-primary">
-                            {availabilityText}
+                {isAvailable && (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+                        <span className="relative flex h-1.5 w-1.5">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
+                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         </span>
-                    )}
-                    {isAvailable && (
-                        <span className="relative flex h-2 w-2">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60 motion-reduce:animate-none" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                        </span>
-                    )}
-                </div>
+                        {availabilityText}
+                    </span>
+                )}
             </div>
 
             {/* Avatar */}
@@ -247,77 +258,80 @@ function ProfileCard({ about }) {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1, ease: EASE, delay: 0.15 }}
                 >
+                    {/* soft glow */}
+                    <div
+                        aria-hidden="true"
+                        className="absolute inset-0 -z-10 rounded-full bg-primary/25 blur-[70px] transition-colors duration-700 group-hover/card:bg-primary/40"
+                    />
+
                     {/* orbiting dashed ring + satellite dot */}
                     <motion.div
                         aria-hidden="true"
-                        className="absolute -inset-6 rounded-full border border-dashed border-primary/25"
+                        className="absolute -inset-7 rounded-full border border-dashed border-primary/25"
                         animate={reduced ? undefined : { rotate: 360 }}
                         transition={{ duration: 48, ease: "linear", repeat: Infinity }}
                     >
-                        <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
+                        <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_14px_var(--primary)]" />
                         <span className="absolute bottom-3 right-3 h-1.5 w-1.5 rounded-full bg-primary/60" />
                     </motion.div>
 
-                    {/* static outer ring + glow */}
-                    <div
+                    {/* gradient ring */}
+                    <motion.div
                         aria-hidden="true"
-                        className="absolute -inset-3 rounded-full border border-border/40 transition-colors duration-700 group-hover/card:border-primary/30"
-                    />
-                    <div
-                        aria-hidden="true"
-                        className="absolute inset-0 -z-10 rounded-full bg-primary/20 blur-[70px] transition-colors duration-700 group-hover/card:bg-primary/35"
+                        className="absolute -inset-1 rounded-full opacity-90"
+                        style={{
+                            background:
+                                "conic-gradient(from 0deg, var(--primary), var(--chart-2), var(--chart-3), var(--primary))",
+                        }}
+                        animate={reduced ? undefined : { rotate: 360 }}
+                        transition={{ duration: 14, ease: "linear", repeat: Infinity }}
                     />
 
-                    <div className="relative h-48 w-48 overflow-hidden rounded-full border border-border/60 bg-muted/20 p-1.5 sm:h-56 sm:w-56">
+                    <div className="relative h-48 w-48 rounded-full bg-card p-1.5 sm:h-56 sm:w-56">
                         <div className="h-full w-full overflow-hidden rounded-full">
                             <img
                                 src={avatar || fallbackaboutImage}
-                                alt={headline}
-                                loading="lazy"
-                                className="h-full w-full object-cover brightness-90 contrast-105 saturate-90 transition-all duration-1000 group-hover/card:scale-105 group-hover/card:brightness-100"
+                                alt={headline || "Profile photo"}
+                                className="h-full w-full object-cover transition-transform duration-1000 group-hover/card:scale-105"
                                 onError={(e) => {
                                     e.currentTarget.onerror = null; // prevent loops
                                     e.currentTarget.src = fallbackaboutImage;
                                 }}
                             />
                         </div>
-                        <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-background/30 via-transparent to-transparent" />
                     </div>
                 </motion.div>
             </div>
 
             {/* Identity */}
-            <div className="relative z-10 flex-1 px-6 pb-8 pt-9 text-center">
-                <h3 className="font-display  text-2xl font-bold tracking-widest uppercase text-foreground sm:text-[1.65rem]">
+            <div className="relative z-10 flex-1 px-6 pb-8 pt-10 text-center">
+                <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
                     {headline}
                 </h3>
                 {role && (
-                    <p className="mt-2 font-code text-[10px] uppercase tracking-[0.24em] text-primary">
-                        {role}
+                    <p className="mt-2 text-sm font-medium">
+                        <span className="text-gradient">{role}</span>
                     </p>
                 )}
                 {location && (
-                    <div className="mt-4 flex items-center justify-center gap-2 font-code text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                        <FiMapPin size={11} aria-hidden="true" />
+                    <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/50 px-3.5 py-1.5 text-xs text-muted-foreground backdrop-blur-md">
+                        <FiMapPin size={12} className="text-primary" aria-hidden="true" />
                         <span>{location}</span>
                     </div>
                 )}
             </div>
 
             {/* Terminal strip */}
-            <div className="relative z-10 flex items-center justify-between border-t border-border/50 px-6 py-3">
+            <div className="relative z-10 flex items-center justify-between border-t border-border/50 px-6 py-3" aria-hidden="true">
                 <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-rose-500/70" />
                     <span className="h-2 w-2 rounded-full bg-amber-500/70" />
                     <span className="h-2 w-2 rounded-full bg-emerald-500/70" />
                 </div>
-                <div className="flex items-center gap-2 font-code text-[10px] text-muted-foreground/60">
-                    <span aria-hidden="true">~ $ whoami</span>
-                    <span
-                        aria-hidden="true"
-                        className="h-3 w-1.5 animate-pulse bg-primary/70 motion-reduce:animate-none"
-                    />
-                    <FiTerminal size={13} aria-hidden="true" className="ml-1 text-muted-foreground/40" />
+                <div className="flex items-center gap-2 font-code text-[11px] text-muted-foreground/70">
+                    <span>~ $ whoami</span>
+                    <span className="h-3 w-1.5 animate-pulse bg-primary/70 motion-reduce:animate-none" />
+                    <FiTerminal size={13} className="ml-1 text-muted-foreground/50" />
                 </div>
             </div>
         </Card>
@@ -327,43 +341,82 @@ function ProfileCard({ about }) {
 /* ========================================================================== */
 /*  Content column                                                            */
 /* ========================================================================== */
+function StatCard({ icon: Icon, value, label }) {
+    return (
+        <Card bodyClassName="p-6" inset="inset-x-6">
+            <div className="relative z-10 flex items-start justify-between">
+                <p className="text-gradient text-4xl font-semibold tabular-nums tracking-tight sm:text-5xl">
+                    <Counter value={value} />
+                </p>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/60 text-primary transition-colors duration-300 group-hover/card:border-primary/40">
+                    <Icon size={15} aria-hidden="true" />
+                </span>
+            </div>
+            <p className="relative z-10 mt-3 text-sm text-muted-foreground">{label}</p>
+        </Card>
+    );
+}
+
 function ContentPanel({ about, content }) {
-    const { role, bio, hobbies, stats, ctaText, ctaUrl, roleLabel, interestLabel } = about;
+    const { role, hobbies, stats, ctaText, ctaUrl, roleLabel, interestLabel } = about;
+    const bio = Array.isArray(about.bio) ? about.bio.join("\n\n") : about.bio;
 
     return (
         <div className="space-y-6">
             {/* Bio */}
             <ScrollReveal>
-                <Card>
-                    <div className="relative z-10 p-7 sm:p-10">
+                <Card bodyClassName="p-7 sm:p-10">
+                    {/* oversized quote watermark */}
+                    <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute right-6 top-2 z-0 select-none font-display text-[9rem] leading-none text-primary/10"
+                    >
+                        ”
+                    </span>
+
+                    <div className="relative z-10">
                         <div className="flex items-center gap-3">
-                            <span aria-hidden="true" className="h-px w-8 bg-primary/60" />
-                            <p className="font-code text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
-                                {roleLabel || role}
-                            </p>
+                            <span aria-hidden="true" className="h-px w-10 bg-linear-to-r from-primary to-transparent" />
+                            <p className="text-sm font-medium text-primary">{roleLabel || role}</p>
                         </div>
 
-                        <div className={`mt-8 max-w-2xl text-sm ${markdownStyles}`}>
+                        <div className={`mt-7 max-w-2xl text-[15px] sm:text-base ${markdownStyles}`}>
                             <MarkdownRenderer content={bio} />
                         </div>
                     </div>
                 </Card>
             </ScrollReveal>
 
+            {/* Stats */}
+            {Array.isArray(stats) && stats.length > 0 && (
+                <ScrollReveal delay={0.08}>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        {stats.map((s, i) => (
+                            <StatCard
+                                key={`${s.label}-${i}`}
+                                icon={STAT_ICONS[i % STAT_ICONS.length]}
+                                value={s.value}
+                                label={s.label}
+                            />
+                        ))}
+                    </div>
+                </ScrollReveal>
+            )}
+
             {/* Interests + CTA */}
             <ScrollReveal delay={0.12}>
-                <Card>
-                    <div className="relative z-10 p-7 sm:p-10">
-                        {hobbies?.length > 0 && (
+                <Card bodyClassName="p-7 sm:p-10">
+                    <div className="relative z-10">
+                        {Array.isArray(hobbies) && hobbies.length > 0 && (
                             <div>
                                 <div className="flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <FiHeart size={14} className="text-primary" />
-                                        <p className="font-code text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                                            {interestLabel}
-                                        </p>
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                            <FiHeart size={14} aria-hidden="true" />
+                                        </span>
+                                        <p className="text-sm font-medium text-foreground">{interestLabel}</p>
                                     </div>
-                                    <span className="font-code text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50">
+                                    <span className="font-code text-xs text-muted-foreground">
                                         {String(hobbies.length).padStart(2, "0")} passions
                                     </span>
                                 </div>
@@ -380,9 +433,8 @@ function ContentPanel({ about, content }) {
                                             key={item}
                                             variants={fadeUp}
                                             whileHover={{ y: -2 }}
-                                            className="group/tag inline-flex rounded-full items-center gap-1.5 border border-border/60 bg-muted/40 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-colors duration-300 hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+                                            className="inline-flex cursor-default items-center rounded-full border border-border/60 bg-muted/40 px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-300 hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
                                         >
-
                                             {item}
                                         </motion.li>
                                     ))}
@@ -392,29 +444,35 @@ function ContentPanel({ about, content }) {
 
                         {ctaText && ctaUrl && (
                             <motion.div
-                                className="mt-8 flex flex-col items-start gap-5 border-t border-border/60 pt-8 sm:flex-row sm:items-center sm:justify-between"
+                                className="relative mt-8 overflow-hidden rounded-2xl border border-primary/25 bg-linear-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-7"
                                 initial={{ opacity: 0, y: 12 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, amount: 0.5 }}
                                 transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
                             >
-                                <div>
-                                    <p className="font-code text-[10px] uppercase tracking-[0.24em] text-primary">
-                                        {content.ctaEyebrow}
-                                    </p>
-                                    <p className="mt-1 text-sm text-muted-foreground">
-                                        {content.ctaText}
-                                    </p>
-                                </div>
+                                <div
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl"
+                                />
+                                <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        {content.ctaEyebrow && (
+                                            <p className="text-sm font-semibold text-primary">{content.ctaEyebrow}</p>
+                                        )}
+                                        <p className="mt-1 max-w-sm text-sm leading-6 text-muted-foreground">
+                                            {content.ctaText}
+                                        </p>
+                                    </div>
 
-                                <Button to={ctaUrl}>
-                                    <span className="relative">{ctaText}</span>
-                                    <FiArrowUpRight
-                                        size={17}
-                                        aria-hidden="true"
-                                        className="relative transition-transform duration-300 group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5"
-                                    />
-                                </Button>
+                                    <Button to={ctaUrl}>
+                                        <span>{ctaText}</span>
+                                        <FiArrowUpRight
+                                            size={17}
+                                            aria-hidden="true"
+                                            className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                                        />
+                                    </Button>
+                                </div>
                             </motion.div>
                         )}
                     </div>
@@ -428,18 +486,23 @@ function ContentPanel({ about, content }) {
 /*  Skeleton + error                                                          */
 /* ========================================================================== */
 function AboutSkeleton() {
-    const shimmer = "animate-pulse rounded-lg border border-border/50 bg-card/40";
+    const block = "animate-pulse rounded-[28px] border border-border/50 bg-card/40";
     return (
-        <div className="mt-16 grid items-start gap-8 lg:mt-20 lg:grid-cols-[360px_1fr]" aria-busy="true">
-            <div className={`${shimmer} h-[600px]`} />
+        <div
+            role="status"
+            aria-busy="true"
+            className="mt-16 grid items-start gap-8 lg:mt-20 lg:grid-cols-[360px_1fr]"
+        >
+            <span className="sr-only">Loading about section…</span>
+            <div className={`${block} h-[600px]`} />
             <div className="space-y-6">
-                <div className={`${shimmer} h-72`} />
+                <div className={`${block} h-72`} />
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className={`${shimmer} h-32`} />
+                        <div key={i} className={`${block} h-32`} />
                     ))}
                 </div>
-                <div className={`${shimmer} h-44`} />
+                <div className={`${block} h-60`} />
             </div>
         </div>
     );
@@ -449,17 +512,15 @@ function ErrorState({ content, onRetry }) {
     return (
         <div
             role="alert"
-            className="mt-16 rounded-lg border border-dashed border-rose-500/30 bg-rose-500/5 p-12 text-center lg:mt-20 lg:p-16"
+            className="mt-16 rounded-[28px] border border-dashed border-destructive/30 bg-destructive/5 p-12 text-center lg:mt-20 lg:p-16"
         >
-            <p className="font-code text-[10px] uppercase tracking-[0.24em] text-rose-500">
-                {content.errorTitle}
-            </p>
+            <p className="text-sm font-semibold text-destructive">{content.errorTitle}</p>
             <p className="mt-2 text-sm text-muted-foreground">{content.errorText}</p>
             {onRetry && (
                 <button
                     type="button"
-                    onClick={onRetry}
-                    className={`mt-6 inline-flex h-10 items-center gap-2 rounded-lg border border-border/70 px-5 text-sm font-medium text-foreground transition-colors duration-300 hover:border-primary/50 hover:text-primary ${FOCUS}`}
+                    onClick={() => onRetry()}
+                    className={`mt-6 inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-border/70 px-5 text-sm font-medium text-foreground transition-colors duration-300 hover:border-primary/50 hover:text-primary ${FOCUS}`}
                 >
                     <FiRefreshCw size={14} aria-hidden="true" />
                     Try again
@@ -470,21 +531,31 @@ function ErrorState({ content, onRetry }) {
 }
 
 /* ========================================================================== */
-/*  Background — slow drifting glows (no heavy conic/spin layers)             */
+/*  Background — slow drifting glows + faded grid                             */
 /* ========================================================================== */
 function Backdrop() {
     const reduced = useReducedMotion();
     return (
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
             <motion.div
-                className="absolute -left-40 top-1/3 h-[420px] w-[420px] rounded-full bg-primary/10 blur-[140px]"
+                className="absolute -left-40 top-1/3 h-[420px] w-[420px] rounded-full bg-primary/12 blur-[140px]"
                 animate={reduced ? undefined : { x: [0, 40, 0], y: [0, -30, 0] }}
                 transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.div
-                className="absolute -right-40 bottom-10 h-[320px] w-[320px] rounded-full bg-primary/10 blur-[120px]"
+                className="absolute -right-40 bottom-10 h-[320px] w-[320px] rounded-full bg-chart-2/10 blur-[120px]"
                 animate={reduced ? undefined : { x: [0, -30, 0], y: [0, 30, 0] }}
                 transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <div
+                className="absolute inset-0 opacity-40"
+                style={{
+                    backgroundImage:
+                        "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
+                    backgroundSize: "56px 56px",
+                    maskImage: "radial-gradient(ellipse 70% 55% at 50% 25%, #000 10%, transparent 75%)",
+                    WebkitMaskImage: "radial-gradient(ellipse 70% 55% at 50% 25%, #000 10%, transparent 75%)",
+                }}
             />
         </div>
     );
@@ -501,8 +572,8 @@ export function AboutSection({
     onRetry,
     className = "",
 }) {
-    const about = { ...FALLBACK_ABOUT, ...(aboutOverride ?? {}) };
-    const content = { ...DEFAULT_CONTENT, ...(contentOverride ?? {}) };
+    const about = mergeDefined(FALLBACK_ABOUT, aboutOverride);
+    const content = mergeDefined(DEFAULT_CONTENT, contentOverride);
 
     return (
         <section
@@ -511,18 +582,22 @@ export function AboutSection({
         >
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border to-transparent"
             />
             <Backdrop />
 
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <ScrollReveal className="grid gap-8 lg:grid-cols-12 lg:items-end">
                     <div className="lg:col-span-7">
-                        <SectionHeader label={"About me"} title={content.title} highlight={content.highlight}>
-
+                        {/* now uses content.sectionLabel / description instead of hard-coded text */}
+                        <SectionHeader
+                            label={content.sectionLabel}
+                            title={content.title}
+                            highlight={content.highlight}
+                        >
+                            {content.description || undefined}
                         </SectionHeader>
                     </div>
-
                 </ScrollReveal>
 
                 {isLoading ? (
@@ -541,7 +616,7 @@ export function AboutSection({
 
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-border to-transparent"
             />
         </section>
     );

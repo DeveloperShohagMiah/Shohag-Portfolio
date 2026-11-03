@@ -1,211 +1,181 @@
-import React from "react";
-import {
-    motion,
-    useMotionTemplate,
-    useMotionValue,
-    useReducedMotion,
-    useSpring,
-    useTransform,
-} from "framer-motion";
+import { useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
 import { FiArrowUpRight } from "react-icons/fi";
 import { DynamicIcon } from "../components/DynamicIcon";
 
 const EASE = [0.22, 1, 0.36, 1];
 
+// opacity + translate only — no `filter: blur()`, which forces a repaint of the
+// whole card (and its backdrop-filter) on every frame of the entrance.
 const cardVariants = {
-    hidden: { opacity: 0, y: 28, filter: "blur(6px)" },
+    hidden: { opacity: 0, y: 28 },
     show: (delay = 0) => ({
         opacity: 1,
         y: 0,
-        filter: "blur(0px)",
         transition: { duration: 0.8, ease: EASE, delay },
     }),
 };
 
-const tagsContainer = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.05, delayChildren: 0.25 } },
-};
-
-const tagVariants = {
-    hidden: { opacity: 0, y: 8 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
-};
-
-const FOCUS =
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+const LINK_CLASS =
+    "block rounded-sm focus-visible:outline-none after:absolute after:inset-0 after:z-10";
 
 /**
  * <ServiceCard
- *    service={{ number, icon, title, description, tags, href? }}
- *    index={0}          // stagger delay in a grid
- *    tilt={true}        // 3D tilt following the cursor
+ *    service={{ number?, icon, title, description, tags?, href? }}
+ *    index={0}          // used for the entrance stagger and the auto number
  * />
+ *
+ * Why this replaces the old 3D-tilt version
+ *  1. Hover lift is applied to an inner layer while hover/pointer tracking stays
+ *     on the static <article>. Before, the element under the cursor moved up on
+ *     hover, so near the bottom edge it slipped out from under the pointer, the
+ *     hover ended, it dropped back, hovered again… = flicker.
+ *  2. rotateX/rotateY + backdrop-filter + overflow-hidden flatten the 3D context
+ *     (so the translateZ "depth" never worked) and make text blurry while the
+ *     card is rotating. The spotlight + lift gives the same "alive" feel without it.
+ *  3. The whole card is clickable through ONE stretched title link, instead of
+ *     wrapping all the content in an <a>.
  */
-const ServiceCard = ({ service, index = 0, tilt = true, className = "" }) => {
+const ServiceCard = ({ service, index = 0, className = "" }) => {
     const reduced = useReducedMotion();
+    const ref = useRef(null);
+
     const { icon, title, description, href } = service;
-    const tags = service.tags ?? [];
+    const tags = Array.isArray(service.tags) ? service.tags : [];
     const number = service.number ?? String(index + 1).padStart(2, "0");
 
-    /* Cursor position inside the card (px) — drives the spotlight + border glow */
-    const px = useMotionValue(-300);
-    const py = useMotionValue(-300);
-    const sx = useSpring(px, { stiffness: 220, damping: 28 });
-    const sy = useSpring(py, { stiffness: 220, damping: 28 });
+    // cursor position → CSS variables (no React state, no re-render)
+    const onMove = useCallback((e) => {
+        if (e.pointerType !== "mouse") return;
+        const el = ref.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    }, []);
 
-    /* Normalised cursor (-0.5…0.5) — drives the tilt */
-    const nx = useMotionValue(0);
-    const ny = useMotionValue(0);
-    const tx = useSpring(nx, { stiffness: 180, damping: 18 });
-    const ty = useSpring(ny, { stiffness: 180, damping: 18 });
-    const rotateX = useTransform(ty, [-0.5, 0.5], [5, -5]);
-    const rotateY = useTransform(tx, [-0.5, 0.5], [-5, 5]);
+    const isExternal = Boolean(href) && /^(https?:)?\/\//i.test(href);
+    const isPlainAnchor = Boolean(href) && (isExternal || /^(mailto:|tel:|#)/i.test(href));
 
-    const spotlight = useMotionTemplate`radial-gradient(320px circle at ${sx}px ${sy}px, black, transparent 70%)`;
-    const edge = useMotionTemplate`radial-gradient(180px circle at ${sx}px ${sy}px, black, transparent 70%)`;
-
-    const onMove = (e) => {
-        if (reduced || e.pointerType !== "mouse") return;
-        const r = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - r.left;
-        const y = e.clientY - r.top;
-        px.set(x);
-        py.set(y);
-        nx.set(x / r.width - 0.5);
-        ny.set(y / r.height - 0.5);
-    };
-
-    const onLeave = () => {
-        px.set(-300);
-        py.set(-300);
-        nx.set(0);
-        ny.set(0);
-    };
-
-    const Wrapper = href ? "a" : "div";
-    const wrapperProps = href ? { href } : {};
+    let heading = title;
+    if (href) {
+        heading = isPlainAnchor ? (
+            <a
+                href={href}
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noopener noreferrer" : undefined}
+                className={LINK_CLASS}
+            >
+                {title}
+            </a>
+        ) : (
+            <Link to={href} className={LINK_CLASS}>
+                {title}
+            </Link>
+        );
+    }
 
     return (
         <motion.article
+            ref={ref}
             variants={cardVariants}
             initial={reduced ? "show" : "hidden"}
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
-            custom={index * 0.08}
+            custom={(index % 3) * 0.08}
             onPointerMove={onMove}
-            onPointerLeave={onLeave}
-            className={`group/service relative h-full [perspective:1000px] ${className}`}
+            className={`group/service relative h-full ${className}`}
         >
-            <motion.div
-                style={
-                    reduced || !tilt
-                        ? undefined
-                        : { rotateX, rotateY, transformStyle: "preserve-3d" }
-                }
-                whileHover={reduced ? undefined : { y: -6 }}
-                transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                className="relative h-full"
-            >
-                <Wrapper
-                    {...wrapperProps}
-                    className={`relative flex h-full flex-col overflow-hidden rounded-md border dark:border-border/50 bg-card/60 p-7 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_-16px_rgba(0,0,0,0.35)] transition-[border-color,background-color,box-shadow] duration-500 ease-out hover:border-primary/30 hover:bg-card/80 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_28px_56px_-20px_rgba(0,0,0,0.5)] ${FOCUS}`}
-                >
-                    {/* Cursor spotlight */}
-                    {/* <motion.div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 z-0 bg-primary/[0.10] opacity-0 transition-opacity duration-500 group-hover/service:opacity-100"
-                        style={{ maskImage: spotlight, WebkitMaskImage: spotlight }}
-                    /> */}
+            {/* Lifting layer — the static <article> above owns the hover area */}
+            <div className="relative h-full rounded-[28px] bg-linear-to-b from-border via-border/40 to-border/10 p-px shadow-[var(--elev-sm)] transition-[transform,box-shadow] duration-500 ease-out group-hover/service:-translate-y-1.5 group-hover/service:shadow-[var(--elev-lg)] motion-reduce:group-hover/service:translate-y-0 has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-primary has-[a:focus-visible]:ring-offset-2 has-[a:focus-visible]:ring-offset-background">
+                {/* Border that lights up around the cursor (visible through the 1px gap) */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover/service:opacity-100"
+                    style={{
+                        background:
+                            "radial-gradient(240px circle at var(--mx,50%) var(--my,50%), var(--primary), transparent 70%)",
+                    }}
+                />
 
-                    {/* Border that lights up near the cursor */}
-                    <motion.div
+                <div className="relative isolate flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1px)] bg-card/95 p-7 backdrop-blur-xl sm:p-8">
+                    {/* Cursor spotlight (behind the content) */}
+                    <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 z-10 border border-primary opacity-0 transition-opacity duration-500 group-hover/service:opacity-100"
-                        style={{ maskImage: edge, WebkitMaskImage: edge }}
+                        className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-500 group-hover/service:opacity-100"
+                        style={{
+                            background:
+                                "radial-gradient(340px circle at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--primary) 13%, transparent), transparent 70%)",
+                        }}
                     />
 
                     {/* Top accent line */}
                     <span
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-x-7 top-0 z-20 h-px bg-gradient-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover/service:opacity-100"
+                        className="pointer-events-none absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover/service:opacity-100"
                     />
 
                     {/* Number */}
-                    <div className="absolute right-6 top-6 z-20 flex flex-col items-end">
-                        <span className="font-code text-xs text-muted-foreground/40 transition-colors duration-300 group-hover/service:text-primary/80">
-                            {number}
-                        </span>
-                        <span className="mt-1 h-px w-4 bg-primary/0 transition-all duration-500 group-hover/service:w-8 group-hover/service:bg-primary/60" />
-                    </div>
-
-                    {/* Icon */}
-                    <motion.div
-                        whileHover={reduced ? undefined : { scale: 1.08, rotate: -6 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                        style={reduced || !tilt ? undefined : { translateZ: 30 }}
-                        className="relative z-10 mb-7 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/5 text-primary transition-[border-color,background-color] duration-500 group-hover/service:border-primary/60 group-hover/service:bg-primary/10"
+                    <span
+                        aria-hidden="true"
+                        className="absolute right-7 top-7 font-code text-xs text-muted-foreground/50 transition-colors duration-300 group-hover/service:text-primary"
                     >
-                        {/* soft halo behind the icon */}
+                        {number}
+                    </span>
+
+                    {/* Icon tile */}
+                    <div className="relative mb-8 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/25 bg-linear-to-br from-primary/20 to-primary/5 text-primary transition-all duration-500 group-hover/service:scale-105 group-hover/service:-rotate-3 group-hover/service:border-primary/50 motion-reduce:transition-none motion-reduce:group-hover/service:transform-none">
                         <span
                             aria-hidden="true"
                             className="pointer-events-none absolute -inset-3 -z-10 rounded-full bg-primary/30 opacity-0 blur-xl transition-opacity duration-500 group-hover/service:opacity-100"
                         />
                         <span
                             aria-hidden="true"
-                            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 to-transparent opacity-0 transition-opacity duration-500 group-hover/service:opacity-100"
+                            className="pointer-events-none absolute inset-0 rounded-2xl bg-linear-to-br from-white/20 to-transparent opacity-60"
                         />
-                        <DynamicIcon name={icon} size={21} className="relative z-10" />
-                    </motion.div>
+                        <DynamicIcon name={icon} size={22} className="relative" />
+                    </div>
 
                     {/* Title */}
-                    <h3
-                        style={reduced || !tilt ? undefined : { transform: "translateZ(20px)" }}
-                        className="relative z-10 text-xl font-semibold tracking-tight text-foreground transition-colors duration-300 group-hover/service:text-primary"
-                    >
-                        {title}
+                    <h3 className="text-xl font-semibold tracking-tight text-foreground transition-colors duration-300 group-hover/service:text-primary">
+                        {heading}
                     </h3>
 
                     {/* Description */}
-                    <p className="relative z-10 mt-3 flex-1 text-sm leading-7 text-muted-foreground">
+                    <p className="mt-3 flex-1 text-sm leading-7 text-muted-foreground">
                         {description}
                     </p>
 
                     {/* Tags */}
                     {tags.length > 0 && (
-                        <motion.ul
-                            variants={tagsContainer}
-                            initial={reduced ? "show" : "hidden"}
-                            whileInView="show"
-                            viewport={{ once: true, amount: 0.3 }}
-                            className="relative z-10 mt-6 flex flex-wrap gap-2"
-                        >
+                        <ul className="mt-6 flex flex-wrap gap-2">
                             {tags.map((tag, i) => (
-                                <motion.li
+                                <li
                                     key={`${tag}-${i}`}
-                                    variants={tagVariants}
-                                    whileHover={reduced ? undefined : { y: -2 }}
-                                    className="rounded-full border dark:border-border/50 bg-muted/50 px-3 py-1.5 font-code text-[10px] text-muted-foreground transition-[border-color,background-color,color] duration-300 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+                                    className="rounded-full border border-border/60 bg-muted/50 px-3 py-1.5 font-code text-[11px] text-muted-foreground transition-colors duration-300 group-hover/service:border-primary/30 group-hover/service:bg-primary/5 group-hover/service:text-primary/90"
                                 >
                                     {tag}
-                                </motion.li>
+                                </li>
                             ))}
-                        </motion.ul>
+                        </ul>
                     )}
 
-                    {/* Optional link affordance */}
+                    {/* Link affordance (the real link is the title) */}
                     {href && (
-                        <span className="relative z-10 mt-6 inline-flex items-center gap-1.5 font-code text-[11px] text-muted-foreground transition-colors duration-300 group-hover/service:text-primary">
+                        <span
+                            aria-hidden="true"
+                            className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors duration-300 group-hover/service:text-primary"
+                        >
                             Learn more
                             <FiArrowUpRight
-                                size={13}
-                                aria-hidden="true"
+                                size={14}
                                 className="transition-transform duration-300 group-hover/service:-translate-y-0.5 group-hover/service:translate-x-0.5"
                             />
                         </span>
                     )}
-                </Wrapper>
-            </motion.div>
+                </div>
+            </div>
         </motion.article>
     );
 };

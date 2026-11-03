@@ -734,29 +734,7 @@ export default function SkillsNetwork({
         >
             <style>{CSS}</style>
 
-            {/* ambient lighting — follows the theme tokens */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-                <motion.div
-                    className="absolute -left-48 top-20 h-[28rem] w-[28rem] rounded-full bg-primary/15 blur-[140px]"
-                    animate={reduced ? undefined : { x: [0, 50, 0], y: [0, -30, 0] }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <motion.div
-                    className="absolute -right-48 top-48 h-[28rem] w-[28rem] rounded-full bg-chart-2/10 blur-[140px]"
-                    animate={reduced ? undefined : { x: [0, -40, 0], y: [0, 40, 0] }}
-                    transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <div
-                    className="absolute inset-0 opacity-40"
-                    style={{
-                        backgroundImage:
-                            "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
-                        backgroundSize: "56px 56px",
-                        maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, #000 15%, transparent 75%)",
-                        WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, #000 15%, transparent 75%)",
-                    }}
-                />
-            </div>
+
 
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 {/* Heading — now actually uses the props (they were ignored before) */}

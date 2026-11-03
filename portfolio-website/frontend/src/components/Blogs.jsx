@@ -1,14 +1,7 @@
-import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     FiArrowRight,
-    FiArrowUpRight,
     FiCalendar,
     FiClock,
     FiEye,
@@ -17,14 +10,9 @@ import {
     FiBookOpen,
     FiRefreshCw,
 } from "react-icons/fi";
-import {
-    AnimatePresence,
-    LayoutGroup,
-    motion,
-    useInView,
-    useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 import SectionHeader from "./SectionHeader";
+import Button from "./Button";
 import { useGetPublicBlogsQuery } from "../redux/features/publicApi";
 
 /* ========================================================================== */
@@ -59,6 +47,17 @@ function formatDate(input) {
     return d.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
 }
 
+const compact = new Intl.NumberFormat("en", { notation: "compact" });
+
+/** Plain-text preview from markdown content (used when there is no excerpt) */
+const stripMarkdown = (s) =>
+    String(s)
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
+        .replace(/[#>*_`~-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
 export function normalizePost(raw, index) {
     const tags = Array.isArray(raw.tags)
         ? raw.tags.map((t) => (typeof t === "string" ? t : t?.name ?? "")).filter(Boolean)
@@ -67,22 +66,27 @@ export function normalizePost(raw, index) {
     const rawDate = raw.date || raw.publishedAt || raw.createdAt || raw.updatedAt || "";
     const timestamp = rawDate ? new Date(rawDate).getTime() || 0 : 0;
 
+    // No invented "3 min read": show nothing when we can't compute it
     const readTime =
         raw.readTime ||
         raw.readingTime ||
         (raw.content
             ? `${Math.max(1, Math.ceil(String(raw.content).split(/\s+/).length / 200))} min read`
-            : "3 min read");
+            : "");
 
     return {
         id: raw._id || raw.id || raw.slug || `post-${index}`,
         title: raw.title || "Untitled post",
-        excerpt: raw.excerpt || raw.description || raw.summary || "",
+        excerpt:
+            raw.excerpt ||
+            raw.description ||
+            raw.summary ||
+            (raw.content ? stripMarkdown(raw.content).slice(0, 120) + "..." : ""),
         category: raw.category || "General",
         date: formatDate(rawDate),
         timestamp,
         readTime,
-        views: raw.views ?? raw.viewsCount ?? 0,
+        views: Number(raw.views ?? raw.viewsCount ?? 0) || 0,
         tags,
         image: raw.image || raw.coverImage || raw.thumbnail || "",
         slug: raw.slug || raw._id || "#",
@@ -111,28 +115,15 @@ function Reveal({ children, delay = 0, className = "", amount = 0.15 }) {
     );
 }
 
-function Backdrop() {
-    const reduced = useReducedMotion();
-    return (
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-            <motion.div
-                className="absolute -left-32 top-40 h-80 w-80 rounded-full bg-primary/10 blur-[120px]"
-                animate={reduced ? undefined : { x: [0, 30, 0], y: [0, -20, 0] }}
-                transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-                className="absolute -right-32 bottom-20 h-80 w-80 rounded-full bg-primary/10 blur-[120px]"
-                animate={reduced ? undefined : { x: [0, -24, 0], y: [0, 24, 0] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            />
-        </div>
-    );
-}
+
 
 /* ========================================================================== */
-/*  Card — glass surface with a cursor spotlight                              */
+/*  Card — 1px gradient border, glass body, cursor spotlight                  */
+/*  The inner body is `isolate`, so the spotlight sits at -z-10 (behind the   */
+/*  content) and the content needs no z-index — which lets the title link     */
+/*  stretch over the whole card.                                              */
 /* ========================================================================== */
-function Card({ as: Tag = "div", children, className = "", inset = "inset-x-6" }) {
+function Card({ as: Tag = "div", children, className = "", bodyClassName = "" }) {
     const ref = useRef(null);
 
     const onMove = useCallback((e) => {
@@ -144,25 +135,29 @@ function Card({ as: Tag = "div", children, className = "", inset = "inset-x-6" }
         el.style.setProperty("--my", `${e.clientY - r.top}px`);
     }, []);
 
-    const mask = "radial-gradient(360px circle at var(--mx,50%) var(--my,50%), #000, transparent 70%)";
-
     return (
         <Tag
             ref={ref}
             onPointerMove={onMove}
-            className={`group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card/50 backdrop-blur-xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_16px_40px_-20px_rgba(0,0,0,0.4)] transition-[border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_28px_56px_-20px_rgba(0,0,0,0.5)] ${className}`}
+            className={`group/card relative h-full rounded-[28px] bg-linear-to-b from-border via-border/40 to-border/10 p-px shadow-[var(--elev-sm)] transition-all duration-500 ease-out hover:-translate-y-1 hover:from-primary/60 hover:via-primary/20 hover:to-primary/5 hover:shadow-[var(--elev-lg)] has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-primary has-[a:focus-visible]:ring-offset-2 has-[a:focus-visible]:ring-offset-background ${className}`}
         >
             <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-0 bg-primary/[0.10] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                style={{ maskImage: mask, WebkitMaskImage: mask }}
-            />
-            <div
-                aria-hidden="true"
-                className={`pointer-events-none absolute ${inset} top-0 z-20 h-px bg-gradient-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
-            />
-
-            {children}
+                className={`relative isolate flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1px)] bg-card/90 backdrop-blur-2xl ${bodyClassName}`}
+            >
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+                    style={{
+                        background:
+                            "radial-gradient(380px circle at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--primary) 12%, transparent), transparent 70%)",
+                    }}
+                />
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-8 top-0 z-20 h-px bg-linear-to-r from-transparent via-primary/80 to-transparent opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+                />
+                {children}
+            </div>
         </Tag>
     );
 }
@@ -174,21 +169,17 @@ function MetaRow({ post }) {
     const items = [
         post.date && { icon: FiCalendar, text: post.date },
         post.readTime && { icon: FiClock, text: post.readTime },
-        post.views > 0 && { icon: FiEye, text: post.views },
+        post.views > 0 && { icon: FiEye, text: `${compact.format(post.views)} views` },
     ].filter(Boolean);
 
+    if (!items.length) return null;
+
     return (
-        <ul className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            {items.map(({ icon: Icon, text }, i) => (
-                <li
-                    key={i}
-                    className="inline-flex items-center gap-3 font-code text-[10px] uppercase tracking-[0.16em] text-muted-foreground"
-                >
-                    {i > 0 && <span aria-hidden="true" className="text-border">·</span>}
-                    <span className="inline-flex items-center gap-1.5">
-                        <Icon size={12} aria-hidden="true" />
-                        {text}
-                    </span>
+        <ul className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {items.map(({ icon: Icon, text }) => (
+                <li key={text} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Icon size={13} aria-hidden="true" className="text-primary/70" />
+                    {text}
                 </li>
             ))}
         </ul>
@@ -202,13 +193,13 @@ function TagList({ tags, max }) {
             {tags.slice(0, max).map((tag) => (
                 <li
                     key={tag}
-                    className="border border-border/60 bg-muted/40 rounded-full px-2.5 py-1 font-code text-[10px] text-muted-foreground transition-colors duration-300 group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary/90"
+                    className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 font-code text-[11px] text-muted-foreground transition-colors duration-300 group-hover/card:border-primary/40 group-hover/card:bg-primary/5 group-hover/card:text-primary/90"
                 >
                     {tag}
                 </li>
             ))}
             {tags.length > max && (
-                <li className="border border-border/60 bg-muted/40 rounded-full px-2.5 py-1 font-code text-[10px] text-muted-foreground">
+                <li className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 font-code text-[11px] text-muted-foreground">
                     +{tags.length - max}
                 </li>
             )}
@@ -216,7 +207,7 @@ function TagList({ tags, max }) {
     );
 }
 
-/* Cover image with a designed fallback (missing URL or load error) */
+/* Cover fills its (relative) parent; designed fallback for missing/broken URLs */
 function Cover({ post }) {
     const [failed, setFailed] = useState(false);
     const showImage = post.image && !failed;
@@ -224,22 +215,22 @@ function Cover({ post }) {
     return showImage ? (
         <img
             src={post.image}
-            alt={post.title}
+            alt=""
             loading="lazy"
             onError={() => setFailed(true)}
-            className="h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/image:scale-[1.04]"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.05]"
         />
     ) : (
-        <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-muted/40">
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-muted/40">
             <div
                 aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-primary/10"
+                className="absolute inset-0 bg-linear-to-br from-primary/25 via-transparent to-primary/10"
             />
             <div
                 aria-hidden="true"
                 className="absolute inset-0 text-foreground/[0.08] bg-[linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] [background-size:28px_28px]"
             />
-            <FiBookOpen size={30} aria-hidden="true" className="relative text-primary/70" />
+            <FiBookOpen size={32} aria-hidden="true" className="relative text-primary/70" />
         </div>
     );
 }
@@ -267,11 +258,12 @@ function ShareButton({ post, basePath }) {
                 timer.current = setTimeout(() => setCopied(false), 2000);
             }
         } catch {
-            /* share sheet dismissed */
+            /* share sheet dismissed or clipboard unavailable */
         }
     };
 
     return (
+        // relative z-20 → stays clickable above the card's stretched link
         <motion.button
             type="button"
             onClick={handleShare}
@@ -279,7 +271,7 @@ function ShareButton({ post, basePath }) {
             whileHover={reduced ? undefined : { y: -1 }}
             whileTap={reduced ? undefined : { scale: 0.96 }}
             transition={{ duration: 0.2, ease: EASE }}
-            className={`group/share relative z-10 inline-flex items-center gap-2 text-xs font-medium text-muted-foreground transition-colors duration-300 hover:text-primary ${FOCUS}`}
+            className={`group/share relative z-20 inline-flex cursor-pointer items-center gap-2 rounded-full border border-transparent px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-300 hover:border-border hover:bg-foreground/[0.04] hover:text-primary ${FOCUS}`}
         >
             <AnimatePresence mode="wait" initial={false}>
                 <motion.span
@@ -309,70 +301,80 @@ function ShareButton({ post, basePath }) {
 const postHref = (post, basePath) => (post.slug === "#" ? "#" : `${basePath}/${post.slug}`);
 
 /* ========================================================================== */
-/*  Regular post card                                                         */
+/*  Post card — the whole card is one link (title link stretched over it),    */
+/*  so there is a single tab stop per post instead of three.                  */
 /* ========================================================================== */
-function PostCard({ post, index, content, basePath }) {
-    console.log(post)
+function PostCard({ post, content, basePath, featured = false }) {
     const href = postHref(post, basePath);
 
     return (
-        <Card as="article" inset="inset-x-0">
-            <Link
-                to={href}
-                aria-label={post.title}
-                className={`group/image relative z-10 block overflow-hidden border-b border-border/60 ${FOCUS}`}
+        <Card as="article" bodyClassName={featured ? "md:flex-row" : ""}>
+            {/* cover */}
+            <div
+                className={`relative shrink-0 overflow-hidden border-b border-border/60 ${featured
+                    ? "aspect-[16/10] md:aspect-auto md:min-h-[340px] md:w-[46%] md:border-b-0 md:border-r"
+                    : "aspect-[16/10]"
+                    }`}
             >
-                <div className="aspect-[16/10]">
-                    <Cover post={post} />
-                </div>
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                <Cover post={post} />
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/45 via-transparent to-transparent" />
 
-                <span className="absolute left-4 top-4 border border-white/10 bg-black/50 px-2.5 py-1 font-code text-[10px] text-white/80 backdrop-blur-md">
-                    {String(index + 1).padStart(2, "0")}
-                </span>
+                {featured && (
+                    <span className="absolute left-4 top-4 rounded-full border border-primary/40 bg-primary/80 px-3 py-1 text-xs font-medium text-primary-foreground shadow-lg shadow-primary/30 backdrop-blur-md">
+                        Latest post
+                    </span>
+                )}
                 {post.category && (
-                    <span className="absolute rounded-full bottom-4 left-4 border border-white/10 bg-black/50 px-2.5 py-1 font-code text-[10px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md">
+                    <span className="absolute bottom-4 left-4 rounded-full border border-white/15 bg-black/45 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-md">
                         {post.category}
                     </span>
                 )}
+            </div>
 
+            {/* content */}
+            <div
+                className={`flex flex-1 flex-col p-5 sm:p-6 ${featured ? "md:justify-center md:p-10" : ""}`}
+            >
+                <MetaRow post={post} />
 
-            </Link>
-
-            <div className="relative z-10 flex flex-1 flex-col p-5 sm:p-6">
-                <div className="mb-5">
-                    <MetaRow post={post} />
-                </div>
-
-                <h3 className="font-display text-lg font-semibold leading-snug tracking-tight text-foreground transition-colors duration-300 group-hover:text-primary sm:text-xl">
-                    <Link to={href} className={`line-clamp-2 ${FOCUS}`}>
+                <h3
+                    className={`mt-4 font-display font-semibold leading-snug tracking-tight text-foreground transition-colors duration-300 group-hover/card:text-primary ${featured ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl"
+                        }`}
+                >
+                    <Link
+                        to={href}
+                        className="line-clamp-2 block focus-visible:outline-none after:absolute after:inset-0"
+                    >
                         {post.title}
                     </Link>
                 </h3>
 
                 {post.excerpt && (
-                    <p className="mt-3 line-clamp-3 flex-1 text-sm leading-7 text-muted-foreground">
-                        {post.content}
+                    <p
+                        className={`mt-3 text-sm leading-7 text-muted-foreground ${featured ? "line-clamp-4 md:text-base md:leading-8" : "line-clamp-3 flex-1"
+                            }`}
+                    >
+                        {post.excerpt}
                     </p>
                 )}
 
+                {post.tags.length > 0 && (
+                    <div className="mt-5">
+                        <TagList tags={post.tags} max={featured ? 5 : 3} />
+                    </div>
+                )}
 
-                <div className="mt-5">
-                    <TagList tags={post.tags} max={3} />
-                </div>
-
-                <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-5">
-                    <Link
-                        to={href}
-                        className={`group/cta inline-flex items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-primary ${FOCUS}`}
+                <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-5">
+                    <span
+                        aria-hidden="true"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-foreground/80 transition-colors duration-300 group-hover/card:text-primary"
                     >
                         {content.readLabel}
                         <FiArrowRight
-                            size={13}
-                            aria-hidden="true"
-                            className="transition-transform duration-300 group-hover/cta:translate-x-1"
+                            size={14}
+                            className="transition-transform duration-300 group-hover/card:translate-x-1"
                         />
-                    </Link>
+                    </span>
                     <ShareButton post={post} basePath={basePath} />
                 </div>
             </div>
@@ -384,26 +386,30 @@ function PostCard({ post, index, content, basePath }) {
 /*  States                                                                    */
 /* ========================================================================== */
 function BlogSkeleton() {
-    const block = "animate-pulse rounded-xl border border-border/50 bg-card/40";
+    const block = "animate-pulse rounded-[28px] border border-border/50 bg-card/40";
     return (
-        <div className="mt-16 grid gap-4 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className={`${block} h-80`} />
+        <div
+            role="status"
+            aria-busy="true"
+            className="mt-16 grid gap-5 md:grid-cols-2 lg:mt-20 lg:grid-cols-3"
+        >
+            <span className="sr-only">Loading posts…</span>
+            <div className={`${block} h-80 md:col-span-2 lg:col-span-3`} />
+            {[1, 2, 3].map((i) => (
+                <div key={i} className={`${block} h-96`} />
             ))}
         </div>
     );
 }
 
-const ghostBtn = `mt-6 inline-flex h-10 items-center gap-2 rounded-xl border border-border/70 px-5 text-sm font-medium text-foreground transition-colors duration-300 hover:border-primary/50 hover:text-primary ${FOCUS}`;
-
 function EmptyState({ title, text }) {
     return (
-        <div className="rounded-xl border border-dashed border-border/60 bg-card/20 p-12 text-center sm:p-16">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border border-primary/30 bg-primary/5 text-primary">
+        <div className="rounded-[28px] border border-dashed border-border/60 bg-card/20 p-12 text-center sm:p-16">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary/5 text-primary">
                 <FiBookOpen size={22} aria-hidden="true" />
             </div>
-            <p className="mt-5 font-code text-[10px] uppercase tracking-[0.24em] text-primary">{title}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+            <p className="mt-5 text-sm font-semibold text-foreground">{title}</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">{text}</p>
         </div>
     );
 }
@@ -412,14 +418,16 @@ function ErrorState({ content, onRetry }) {
     return (
         <div
             role="alert"
-            className="mt-16 rounded-xl border border-dashed border-rose-500/30 bg-rose-500/5 p-12 text-center sm:p-16 lg:mt-20"
+            className="mt-16 rounded-[28px] border border-dashed border-destructive/30 bg-destructive/5 p-12 text-center sm:p-16 lg:mt-20"
         >
-            <p className="font-code text-[10px] uppercase tracking-[0.24em] text-rose-500">
-                {content.errorTitle}
-            </p>
+            <p className="text-sm font-semibold text-destructive">{content.errorTitle}</p>
             <p className="mt-2 text-sm text-muted-foreground">{content.errorText}</p>
             {onRetry && (
-                <button type="button" onClick={onRetry} className={ghostBtn}>
+                <button
+                    type="button"
+                    onClick={() => onRetry()}
+                    className={`mt-6 inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-border/70 px-5 text-sm font-medium text-foreground transition-colors duration-300 hover:border-primary/50 hover:text-primary ${FOCUS}`}
+                >
                     <FiRefreshCw size={14} aria-hidden="true" />
                     Try again
                 </button>
@@ -435,6 +443,7 @@ function ErrorState({ content, onRetry }) {
 /*      posts={apiPosts}            // raw objects; normalised internally     */
 /*      basePath="/blogs"           // post URL = `${basePath}/${slug}`        */
 /*      viewAllHref="/blogs"        // set to null to hide the button         */
+/*      maxPosts={7}                // newest post is featured, rest in grid  */
 /*      content={{ title: "Writing", highlight: "notes." }}                   */
 /*  />                                                                        */
 /* ========================================================================== */
@@ -446,12 +455,12 @@ export function BlogSection({
     content: contentOverride,
     basePath = "/blogs",
     viewAllHref = "/blogs",
+    maxPosts = 7,
     className = "",
 }) {
-    const reduced = useReducedMotion();
     const content = { ...DEFAULT_CONTENT, ...(contentOverride ?? {}) };
 
-    const posts = useMemo(
+    const allPosts = useMemo(
         () =>
             (Array.isArray(rawPosts) ? rawPosts : [])
                 .map(normalizePost)
@@ -459,7 +468,7 @@ export function BlogSection({
                 .sort((a, b) => b.timestamp - a.timestamp),
         [rawPosts]
     );
-    console.log(posts)
+    const posts = useMemo(() => allPosts.slice(0, maxPosts), [allPosts, maxPosts]);
 
     let body;
     if (isLoading) {
@@ -474,25 +483,21 @@ export function BlogSection({
         );
     } else {
         body = (
-            <LayoutGroup>
-                <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                        key="posts"
-                        initial={reduced ? false : { opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, ease: EASE }}
-                        className="mt-16 grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:mt-20"
+            <div className="mt-16 grid gap-5 md:grid-cols-2 lg:mt-20 lg:grid-cols-3">
+                {posts.map((post, i) => (
+                    <Reveal
+                        key={post.id}
+                        delay={Math.min((i % 3) * 0.08, 0.24)}
+                        className={`h-full ${i === 0 ? "md:col-span-2 lg:col-span-3" : ""}`}
                     >
-                        {posts.map((post, i) => (
-                            <Reveal key={post.id} delay={Math.min(i * 0.08, 0.4)} className="h-full">
-                                <PostCard post={post} index={i} content={content} basePath={basePath} />
-                            </Reveal>
-                        ))}
-                    </motion.div>
-                </AnimatePresence>
-            </LayoutGroup>
+                        <PostCard post={post} content={content} basePath={basePath} featured={i === 0} />
+                    </Reveal>
+                ))}
+            </div>
         );
     }
+
+    const showViewAll = Boolean(viewAllHref) && !isLoading && !isError && posts.length > 0;
 
     return (
         <section
@@ -501,19 +506,35 @@ export function BlogSection({
         >
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border to-transparent"
             />
-            <Backdrop />
+
 
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                {/* Header */}
+                {/* Header — description and the "View all" button were unused before */}
                 <Reveal className="grid gap-8 lg:grid-cols-12 lg:items-end">
                     <div className="lg:col-span-7">
-                        <SectionHeader label={content.sectionLabel} title={content.title} highlight={content.highlight}></SectionHeader>
-
+                        <SectionHeader
+                            label={content.sectionLabel}
+                            title={content.title}
+                            highlight={content.highlight}
+                        >
+                            {content.description || undefined}
+                        </SectionHeader>
                     </div>
 
-
+                    {showViewAll && (
+                        <div className="lg:col-span-5 lg:justify-self-end">
+                            <Button to={viewAllHref} variant="outline">
+                                {content.viewAllLabel}
+                                <FiArrowRight
+                                    size={16}
+                                    aria-hidden="true"
+                                    className="transition-transform duration-300 group-hover:translate-x-1"
+                                />
+                            </Button>
+                        </div>
+                    )}
                 </Reveal>
 
                 {body}
@@ -521,7 +542,7 @@ export function BlogSection({
 
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-border to-transparent"
             />
         </section>
     );

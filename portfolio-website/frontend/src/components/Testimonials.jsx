@@ -299,22 +299,7 @@ export default function TestimonialSection({ reviews = REVIEWS, title, subtitle 
       `}</style>
 
             {/* ambient background */}
-            <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-                <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
-                <div className="absolute -bottom-32 right-0 h-[320px] w-[520px] rounded-full bg-primary/10 blur-[110px]" />
-                <div
-                    className="absolute inset-0 opacity-[0.35]"
-                    style={{
-                        backgroundImage:
-                            "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
-                        backgroundSize: "56px 56px",
-                        maskImage:
-                            "radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%)",
-                        WebkitMaskImage:
-                            "radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%)",
-                    }}
-                />
-            </div>
+
 
             <div className="container max-w-7xl">
                 {/* optional heading */}
