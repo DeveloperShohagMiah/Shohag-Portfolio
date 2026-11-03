@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 
 /* -------------------------------------------------------------------------
    Data — replace with your real reviews (or fetch them from your API).
-   The first three are taken from your screenshot; the rest are placeholders.
 ------------------------------------------------------------------------- */
 const REVIEWS = [
     {
@@ -79,7 +78,7 @@ const REVIEWS = [
 const StarIcon = ({ filled }) => (
     <svg
         viewBox="0 0 20 20"
-        className={`h-[18px] w-[18px] ${filled ? "text-amber-400" : "text-amber-400/25"}`}
+        className={`h-4 w-4 ${filled ? "text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.45)]" : "text-amber-400/20"}`}
         fill="currentColor"
         aria-hidden="true"
     >
@@ -88,7 +87,7 @@ const StarIcon = ({ filled }) => (
 );
 
 const QuoteIcon = () => (
-    <svg viewBox="0 0 48 48" className="h-12 w-12" fill="currentColor" aria-hidden="true">
+    <svg viewBox="0 0 48 48" className="h-14 w-14" fill="currentColor" aria-hidden="true">
         <path d="M6 28c0-9 5-16 14-19l2 4c-5 2-7 5-7 8h5c2 0 4 2 4 4v8c0 2-2 4-4 4H10c-2 0-4-2-4-4v-5zm22 0c0-9 5-16 14-19l2 4c-5 2-7 5-7 8h5c2 0 4 2 4 4v8c0 2-2 4-4 4H32c-2 0-4-2-4-4v-5z" />
     </svg>
 );
@@ -135,65 +134,91 @@ const GridIcon = () => (
 
 /* -------------------------------------------------------------------------
    Review card
+   - 1px gradient border that lights up with the primary colour on hover
+   - cursor-following spotlight (CSS vars --mx / --my)
 ------------------------------------------------------------------------- */
 function ReviewCard({ review }) {
     const { message, location, rating, product, date, name } = review;
 
+    const handleMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        e.currentTarget.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+        e.currentTarget.style.setProperty("--my", `${e.clientY - rect.top}px`);
+    };
+
     return (
-        <article className="relative rounded-md border border-border/80 bg-card/60 p-6 text-card-foreground shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-8">
-            {/* decorative quote mark */}
-            <span className="pointer-events-none absolute right-5 top-5 text-primary/20">
-                <QuoteIcon />
-            </span>
+        <article
+            onMouseMove={handleMove}
+            className="group relative rounded-3xl bg-linear-to-b from-border via-border/40 to-border/10 p-px transition-all duration-500 hover:from-primary/70 hover:via-primary/20 hover:to-primary/5 hover:shadow-[0_20px_60px_-20px] hover:shadow-primary/40"
+        >
+            <div className="relative h-full overflow-hidden rounded-[calc(1.5rem-1px)] bg-card/90 p-6 text-card-foreground backdrop-blur-xl sm:p-8">
+                {/* top highlight */}
+                <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent" />
 
-            {/* rating + product */}
-            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex gap-0.5" role="img" aria-label={`${rating} out of 5 stars`}>
-                        {[1, 2, 3, 4, 5].map((n) => (
-                            <StarIcon key={n} filled={n <= rating} />
-                        ))}
-                    </div>
-                    <span className="text-sm font-semibold text-muted-foreground">
-                        {rating.toFixed(1)} / 5.0
-                    </span>
-                </div>
+                {/* cursor spotlight */}
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                    style={{
+                        background:
+                            "radial-gradient(360px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--primary) 14%, transparent), transparent 70%)",
+                    }}
+                />
 
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/50 transition">
-                    <span className="text-primary">
-                        <TagIcon />
-                    </span>
-                    {product}
+                {/* decorative quote mark */}
+                <span className="pointer-events-none absolute -right-1 -top-1 text-primary/10 transition-colors duration-500 group-hover:text-primary/20">
+                    <QuoteIcon />
                 </span>
-            </div>
 
-            {/* text */}
-            <p className="relative mt-5 text-sm font-normal italic leading-relaxed text-foreground/90 sm:text-md">
-                “{message}”
-            </p>
-
-            <hr className="my-6 border-border/30" />
-
-            {/* author */}
-            <footer className="flex items-center justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-4">
-                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-linear-to-br from-primary/20 to-primary/80 text-lg font-bold text-white shadow-md shadow-primary/30">
-                        {name.charAt(0)}
+                {/* rating + product */}
+                <div className="relative mb-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                    <div className="flex items-center gap-2.5">
+                        <div className="flex gap-0.5" role="img" aria-label={`${rating} out of 5 stars`}>
+                            {[1, 2, 3, 4, 5].map((n) => (
+                                <StarIcon key={n} filled={n <= rating} />
+                            ))}
+                        </div>
+                        <span className="font-code text-xs font-medium text-muted-foreground">
+                            {rating.toFixed(1)}
+                        </span>
                     </div>
-                    <div className="min-w-0">
-                        <p className="truncate font-semibold text-foreground">{name}</p>
-                        <p className="truncate text-sm text-muted-foreground">{location}</p>
-                    </div>
-                </div>
 
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                        <CheckIcon />
-                        Verified
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+                        <TagIcon />
+                        {product}
                     </span>
-                    <time className="font-code text-xs text-muted-foreground">{date}</time>
                 </div>
-            </footer>
+
+                {/* message */}
+                <p className="relative text-[15px] leading-7 text-foreground/90 sm:text-base">
+                    “{message}”
+                </p>
+
+                <div className="relative my-6 h-px bg-linear-to-r from-transparent via-border to-transparent" />
+
+                {/* author */}
+                <footer className="relative flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3.5">
+                        <div className="relative shrink-0">
+                            <div className="absolute -inset-1 rounded-full bg-linear-to-br from-primary/60 to-primary/0 opacity-60 blur-sm transition-opacity duration-500 group-hover:opacity-100" />
+                            <div className="relative grid h-12 w-12 place-items-center rounded-full bg-linear-to-br from-primary/60 to-primary text-lg font-bold text-white ring-2 ring-card">
+                                {name.charAt(0)}
+                            </div>
+                        </div>
+                        <div className="min-w-0">
+                            <p className="truncate font-semibold tracking-tight text-foreground">{name}</p>
+                            <p className="truncate text-sm text-muted-foreground">{location}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex shrink-0 flex-col items-end gap-1.5">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                            <CheckIcon />
+                            Verified
+                        </span>
+                        <time className="font-code text-[11px] text-muted-foreground">{date}</time>
+                    </div>
+                </footer>
+            </div>
         </article>
     );
 }
@@ -227,7 +252,7 @@ function SlidingColumn({ items, direction = "up", duration, paused, className = 
 /* -------------------------------------------------------------------------
    Section
 ------------------------------------------------------------------------- */
-export default function TestimonialSection({ reviews = REVIEWS }) {
+export default function TestimonialSection({ reviews = REVIEWS, title, subtitle }) {
     const [mode, setMode] = useState("sliding"); // "sliding" | "grid"
     const [userPaused, setUserPaused] = useState(false); // Pause button
     const [holding, setHolding] = useState(false); // hover / tap on a review
@@ -254,65 +279,113 @@ export default function TestimonialSection({ reviews = REVIEWS }) {
     };
 
     const segment = (active) =>
-        `inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-semibold transition-colors duration-200 ${active
-            ? "bg-primary text-white shadow-md shadow-primary/30"
-            : "text-muted-foreground hover:text-foreground"
+        `relative z-10 inline-flex w-24 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors duration-300 ${active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
         }`;
 
     return (
-        <section id="testimonial" className="relative w-full overflow-hidden bg-background py-12 sm:py-16">
+        <section
+            id="testimonial"
+            className="relative isolate w-full overflow-hidden bg-background py-16 sm:py-24"
+        >
             {/* component-scoped keyframes */}
             <style>{`
         @keyframes tm-slide-up   { from { transform: translateY(0) }    to { transform: translateY(-50%) } }
         @keyframes tm-slide-down { from { transform: translateY(-50%) }  to { transform: translateY(0) } }
+        @keyframes tm-rise       { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
         @media (prefers-reduced-motion: reduce) {
           .tm-track { animation: none !important; }
           .tm-viewport { overflow-y: auto !important; }
         }
       `}</style>
 
+            {/* ambient background */}
+            <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+                <div className="absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
+                <div className="absolute -bottom-32 right-0 h-[320px] w-[520px] rounded-full bg-primary/10 blur-[110px]" />
+                <div
+                    className="absolute inset-0 opacity-[0.35]"
+                    style={{
+                        backgroundImage:
+                            "linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)",
+                        backgroundSize: "56px 56px",
+                        maskImage:
+                            "radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%)",
+                        WebkitMaskImage:
+                            "radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%)",
+                    }}
+                />
+            </div>
+
             <div className="container max-w-7xl">
+                {/* optional heading */}
+                {(title || subtitle) && (
+                    <div className="mx-auto mb-12 max-w-2xl text-center">
+                        {title && <h2 className="text-gradient">{title}</h2>}
+                        {subtitle && <p className="mt-4 text-muted-foreground">{subtitle}</p>}
+                    </div>
+                )}
+
                 {/* toolbar */}
-                <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+                <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                     <div className="flex flex-wrap items-center gap-3">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-border/70">
-                            <span className="relative flex h-2.5 w-2.5">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                        <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary backdrop-blur-md">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                             </span>
                             Live Verified Feedback ({reviews.length})
                         </span>
+
                         {!isGrid && (
-                            <span className="text-xs text-slate-500 hidden sm:inline">
-                                Hover or tap any review to pause
+                            <span
+                                className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:inline-flex"
+                                aria-live="polite"
+                            >
+                                {isPaused ? (
+                                    <>
+                                        <span className="text-primary">
+                                            <PauseIcon />
+                                        </span>
+                                        Paused
+                                    </>
+                                ) : (
+                                    "Hover or tap any review to pause"
+                                )}
                             </span>
                         )}
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Pause / Play */}
+                        {/* Pause / Resume */}
                         <button
                             type="button"
                             onClick={() => setUserPaused((p) => !p)}
                             disabled={isGrid}
                             aria-pressed={userPaused}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-card border border-border shadow-2xs transition cursor-pointer"
+                            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/70 px-4 py-2.5 text-xs font-semibold text-foreground shadow-sm backdrop-blur-md transition-all duration-300 not-disabled:cursor-pointer not-disabled:hover:border-primary/50 not-disabled:hover:shadow-md not-disabled:hover:shadow-primary/10 disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                            <span className={`${userPaused ? 'text-emerald-600' : "text-primary"}`}>{userPaused ? <PlayIcon /> : <PauseIcon />}</span>
+                            <span className={userPaused ? "text-emerald-500" : "text-primary"}>
+                                {userPaused ? <PlayIcon /> : <PauseIcon />}
+                            </span>
                             {userPaused ? "Resume" : "Pause"}
                         </button>
 
-                        {/* Mode switch */}
+                        {/* Mode switch with sliding thumb */}
                         <div
                             role="group"
                             aria-label="Layout"
-                            className="inline-flex gap-1 rounded-md border border-border bg-card p-1 shadow-sm"
+                            className="relative inline-flex rounded-xl border border-border bg-card/70 p-1 shadow-sm backdrop-blur-md"
                         >
+                            <span
+                                aria-hidden="true"
+                                className="absolute inset-y-1 left-1 w-24 rounded-lg bg-linear-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 transition-transform duration-500 ease-premium"
+                                style={{ transform: isGrid ? "translateX(100%)" : "translateX(0)" }}
+                            />
                             <button
                                 type="button"
                                 onClick={() => setMode("sliding")}
                                 aria-pressed={!isGrid}
-                                className={segment(!isGrid)}
+                                className={`${segment(!isGrid)} cursor-pointer`}
                             >
                                 <SlideIcon />
                                 Sliding
@@ -321,7 +394,7 @@ export default function TestimonialSection({ reviews = REVIEWS }) {
                                 type="button"
                                 onClick={() => setMode("grid")}
                                 aria-pressed={isGrid}
-                                className={segment(isGrid)}
+                                className={`${segment(isGrid)} cursor-pointer`}
                             >
                                 <GridIcon />
                                 Grid
@@ -332,19 +405,25 @@ export default function TestimonialSection({ reviews = REVIEWS }) {
 
                 {/* content */}
                 {isGrid ? (
-                    <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-                        {reviews.map((r) => (
-                            <ReviewCard key={r.id} review={r} />
+                    <div key="grid" className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {reviews.map((r, i) => (
+                            <div
+                                key={r.id}
+                                style={{ animation: `tm-rise 600ms var(--ease-premium) ${i * 70}ms backwards` }}
+                            >
+                                <ReviewCard review={r} />
+                            </div>
                         ))}
                     </div>
                 ) : (
                     <div
-                        className="tm-viewport mt-15 h-[680px] overflow-hidden sm:h-[720px]"
+                        key="sliding"
+                        className="tm-viewport h-[680px] overflow-hidden animate-fade-in sm:h-[720px]"
                         style={{
                             maskImage:
-                                "linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%)",
+                                "linear-gradient(to bottom, transparent 0, #000 10%, #000 90%, transparent 100%)",
                             WebkitMaskImage:
-                                "linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%)",
+                                "linear-gradient(to bottom, transparent 0, #000 10%, #000 90%, transparent 100%)",
                         }}
                         {...viewportHandlers}
                     >
