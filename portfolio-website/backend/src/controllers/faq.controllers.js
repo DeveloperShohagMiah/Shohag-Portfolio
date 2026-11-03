@@ -62,7 +62,6 @@ export const getFaqById = asyncHandler(async (req, res) => {
 });
 
 export const updateFaq = asyncHandler(async (req, res) => {
-    console.log(req.body)
     const { question, answer, order, isActive } = req.body;
     const { id } = req.params;
     validateObjectId(id);

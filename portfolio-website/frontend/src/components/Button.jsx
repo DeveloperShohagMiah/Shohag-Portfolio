@@ -43,7 +43,7 @@ const sizes = {
    the "…opacity-50backdrop-blur-2xl" class-merge bug from the old base string. */
 const base = [
     "group relative isolate inline-flex shrink-0 items-center justify-center gap-2",
-    "overflow-hidden rounded-full font-semibold tracking-wide whitespace-nowrap select-none",
+    "overflow-hidden rounded-full text-sm font-semibold tracking-wide whitespace-nowrap select-none",
     "transition-all duration-300 ease-out",
     "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]",
     "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
